@@ -3,7 +3,7 @@ import { getPersistentCookie } from "./cookie";
 import { isServer } from "@tanstack/react-query";
 
 export const setupInterceptor = () => {
-
+    client.instance.defaults.baseURL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
     client.instance.interceptors.request.use(
         async (config) => {
             console.log(isServer, "isServer");

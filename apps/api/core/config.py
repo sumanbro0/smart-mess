@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any, List
 
 
 class Settings(BaseSettings): 
-    PROJECT_NAME: str = "FastNexx"  # Add this line
+    PROJECT_NAME: str = "Smart-Mess-Backend"  # Add this line
     API_V1_STR: str = ""
     POSTGRES_USER: str
     PGPASSWORD: SecretStr
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     DATABASE_URI: Optional[str] = None
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    CLIENT_URL: str="http://localhost:3000"
+    CLIENT_URL: str
 
     @field_validator("DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: Optional[str], info: Dict[str, Any]) -> Any:
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:8000", "http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: List[str]
     
     class Config:
         case_sensitive = True

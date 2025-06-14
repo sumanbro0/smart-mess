@@ -1,7 +1,7 @@
 [project]
 name = "api"
 version = "0.1.0"
-description = "FastApi app for the project"
+description = "Smart Mess Backend"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
