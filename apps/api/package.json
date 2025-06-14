@@ -1,0 +1,12 @@
+{
+    "name": "fastapi",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "install": "uv sync",
+        "dev": "uv run fastapi dev",
+        "start": "uv run fastapi run",
+        "build": "echo 'No build step required for Python'",
+        "migrate": "uv run alembic upgrade head"
+    }
+}
