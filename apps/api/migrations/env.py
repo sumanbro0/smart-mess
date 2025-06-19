@@ -5,8 +5,12 @@ from sqlalchemy import pool
 from core.config import settings
 from alembic import context
 from db.base import Base
-from auth.models import User,AccessToken
+from auth.models import User,AccessToken,OAuthAccount,SQLAlchemyUserDatabaseLocal
 from auth.enums import UserRole
+from mess.models import Mess
+from mess_table.models import MessTable
+from menu.models import Menu, MenuItem, MenuItemImage, MenuItemCategory,SpicinessEnum
+from orders.models import Order, OrderItem, OrderTransaction,OrderStatusEnum,OrderTransactionStatusEnum
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -82,3 +86,5 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
+    
+print("Available tables:", Base.metadata.tables.keys())

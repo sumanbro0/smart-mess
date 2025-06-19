@@ -25,29 +25,41 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useLogout } from "@/features/auth/api/logout";
-// import { deletePersistentCookie } from "@/lib/cookie";
 import { toast } from "sonner";
+import { deletePersistentCookie } from "@/lib/cookie";
+import { Loader2 } from "lucide-react";
+import { DEFAULT_AVATAR } from "@/lib/constant";
+import { UserRead } from "@/client/types.gen";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+interface NavUserProps {
+  user: UserRead | null | undefined;
+}
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar();
-  const { mutate: logout } = useLogout();
+  const { mutate: logout, isPending } = useLogout();
+  // const [mounted, setMounted] = useState(false);
+
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
+
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
-        // deletePersistentCookie();
+        deletePersistentCookie();
         toast.success("Logged out successfully");
         window.location.href = "/login";
       },
     });
   };
+
+  const isLoggingOut = isPending;
+
+  // if (!mounted) {
+  //   return <NavUserSkeleton />;
+  // }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -57,21 +69,35 @@ export function NavUser({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="text-muted-foreground truncate text-xs">
-                  {user.email}
-                </span>
-              </div>
+              {isLoggingOut ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="ml-2">Logging out...</span>
+                </>
+              ) : (
+                <>
+                  <Avatar className="h-8 w-8 rounded-lg grayscale">
+                    <AvatarImage
+                      src={user?.image ?? DEFAULT_AVATAR}
+                      alt={user?.name ?? ""}
+                    />
+                    <AvatarFallback className="rounded-lg">
+                      {user?.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">{user?.name}</span>
+                    <span className="text-muted-foreground truncate text-xs">
+                      {user?.email}
+                    </span>
+                  </div>
+                </>
+              )}
               <IconDotsVertical className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -79,13 +105,18 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage
+                    src={user?.image ?? DEFAULT_AVATAR}
+                    alt={user?.name ?? ""}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {user?.name?.charAt(0)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate font-medium">{user?.name}</span>
                   <span className="text-muted-foreground truncate text-xs">
-                    {user.email}
+                    {user?.email}
                   </span>
                 </div>
               </div>
@@ -106,9 +137,17 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
-              <IconLogout />
-              Log out
+            <DropdownMenuItem
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className={isLoggingOut ? "opacity-70 cursor-not-allowed" : ""}
+            >
+              {isLoggingOut ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <IconLogout className="mr-2 h-4 w-4" />
+              )}
+              {isLoggingOut ? "Logging out..." : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

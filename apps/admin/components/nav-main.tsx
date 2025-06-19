@@ -64,13 +64,20 @@ export function NavMain({
             const active = isActive(item);
 
             return (
-              <SidebarMenuItem key={item.title}>
+              <SidebarMenuItem
+                className="transition-all duration-200 ease-linear"
+                key={item.title}
+              >
                 <SidebarMenuButton
+                  className="transition-all duration-200 ease-linear"
                   tooltip={item.title}
                   isActive={active}
                   asChild
                 >
-                  <Link href={item.url} className="flex items-center gap-2">
+                  <Link
+                    href={item.url}
+                    className="flex items-center gap-2 text-muted-foreground "
+                  >
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>

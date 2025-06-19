@@ -23,6 +23,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/dist/client/link";
+import { UserRead } from "@/client/types.gen";
+
 const data = {
   company: {
     name: "Smart Mess.",
@@ -74,15 +76,20 @@ const data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { user: UserRead | null }) {
+  // const { data: user, isLoading } = useGetMe();
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
+              className="hover:bg-transparent text-violet-500 hover:text-violet-500/90"
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5 text-primary hover:text-primary/90 hover:bg-transparent transition-all duration-200 ease-linear"
             >
               <Link href="/">
                 <IconInnerShadowTop className="!size-5" />
@@ -96,7 +103,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

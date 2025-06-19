@@ -9,9 +9,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useLogin } from "./api/login";
-import { setPersistentCookie } from "@/lib/cookie";
+import { oauthGoogleDatabaseAuthorizeAuthGoogleAuthorizeGet } from "@/client";
+import { useTransition } from "react";
+
+import React from "react";
+import { setServerCookie } from "@/lib/server-utils";
 
 const loginSchema = z.object({
   username: z.string().email("Please enter a valid email address"),
@@ -25,7 +29,9 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { mutate, isPending } = useLogin();
+  const [isPendingTransition, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
@@ -40,6 +46,45 @@ export function LoginForm({
     },
   });
 
+  // Handle OAuth errors
+  React.useEffect(() => {
+    const error = searchParams.get("error");
+    const message = searchParams.get("message");
+
+    if (error) {
+      let errorMessage = "Authentication failed";
+
+      switch (error) {
+        case "google_auth_failed":
+          errorMessage = "Google authentication failed";
+          break;
+        case "bad_credentials":
+          errorMessage = "Invalid credentials";
+          break;
+        case "missing_params":
+          errorMessage = "Missing required authentication parameters";
+          break;
+        case "api_error":
+          errorMessage = message || "API error occurred";
+          break;
+        case "api_call_failed":
+          errorMessage = message || "Failed to communicate with the server";
+          break;
+        case "auth_failed":
+          errorMessage = message || "Authentication failed";
+          break;
+      }
+
+      toast.error(errorMessage);
+
+      // Clear the error from URL
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete("error");
+      newUrl.searchParams.delete("message");
+      window.history.replaceState({}, "", newUrl);
+    }
+  }, [searchParams]);
+
   const onSubmit = (data: LoginFormData) => {
     mutate(
       {
@@ -47,118 +92,170 @@ export function LoginForm({
         password: data.password,
       },
       {
-        onSuccess: (response) => {
-          if (response.data?.access_token) {
-            setPersistentCookie(response.data.access_token);
+        onSuccess: async (response) => {
+          if (response?.access_token) {
+            await setServerCookie(response.access_token);
             toast.success("Login successful!");
             reset();
-            router.push("/dashboard");
-          } else {
-            toast.error("Invalid response from server");
-            setError("root", {
-              message: "Invalid response from server",
+            startTransition(() => {
+              router.push("/dashboard");
             });
           }
+
+          console.log(response, "Res**********************");
         },
         onError: (error) => {
-          if (error instanceof Error) {
-            toast.error(
-              error.message || "Something went wrong. Please try again."
-            );
-            setError("root", {
-              message: error.message,
-            });
-          }
+          setError("root", {
+            message: error.message,
+          });
+          toast.error(error.message);
         },
       }
     );
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      console.log("Initiating Google OAuth flow with PKCE");
+
+      // Get authorization URL with PKCE
+      const { data } =
+        await oauthGoogleDatabaseAuthorizeAuthGoogleAuthorizeGet();
+
+      if (data?.authorization_url) {
+        console.log("Received authorization URL, redirecting...");
+        window.location.href = data.authorization_url;
+      } else {
+        console.error("No authorization URL received");
+        toast.error("Failed to get authorization URL");
+      }
+    } catch (error) {
+      console.error("Google OAuth error:", error);
+      toast.error("Failed to start Google sign in");
+    }
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <a
-              href="#"
-              className="flex flex-col items-center gap-2 font-medium"
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="flex flex-col items-center gap-2">
+          <a
+            href="#"
+            className="flex flex-col items-center gap-2 font-medium transition-transform hover:scale-105"
+          >
+            <div className="flex size-10 items-center justify-center rounded-md bg-primary/10">
+              <GalleryVerticalEnd className="size-7 text-primary" />
+            </div>
+            <span className="sr-only">Acme Inc.</span>
+          </a>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Welcome to Acme Inc.
+          </h1>
+          <div className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{" "}
+            <Link
+              prefetch
+              href="/signup"
+              className="font-medium text-primary hover:underline"
             >
-              <div className="flex size-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
-              </div>
-              <span className="sr-only">Acme Inc.</span>
-            </a>
-            <h1 className="text-xl font-bold">Welcome to Acme Inc.</h1>
-            <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link
-                prefetch
-                href="/signup"
-                className="underline underline-offset-4"
-              >
-                Sign up
-              </Link>
-            </div>
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-3">
-              <Label htmlFor="username">Email</Label>
-              <Input
-                id="username"
-                type="email"
-                placeholder="m@example.com"
-                {...register("username")}
-                aria-invalid={errors.username ? "true" : "false"}
-              />
-              {errors.username && (
-                <p className="text-sm text-red-500">
-                  {errors.username.message}
-                </p>
-              )}
-            </div>
-            <div className="grid gap-3">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                {...register("password")}
-                aria-invalid={errors.password ? "true" : "false"}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
-            {errors.root && (
-              <p className="text-sm text-red-500">{errors.root.message}</p>
-            )}
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Logging in..." : "Login"}
-            </Button>
-          </div>
-          <div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
-            <span className="bg-background text-muted-foreground relative z-10 px-2">
-              Or
-            </span>
-          </div>
-          <div className="grid gap-4">
-            <Button variant="outline" type="button" className="w-full">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path
-                  d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
-                  fill="currentColor"
-                />
-              </svg>
-              Continue with Google
-            </Button>
+              Sign up
+            </Link>
           </div>
         </div>
+        <div className="space-y-4">
+          <div className="grid gap-2">
+            <Label htmlFor="username" className="text-sm font-medium">
+              Email
+            </Label>
+            <Input
+              id="username"
+              type="email"
+              placeholder="m@example.com"
+              {...register("username")}
+              className={cn(
+                "transition-colors",
+                errors.username && "border-red-500 focus-visible:ring-red-500"
+              )}
+              aria-invalid={errors.username ? "true" : "false"}
+            />
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="password" className="text-sm font-medium">
+              Password
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              {...register("password")}
+              className={cn(
+                "transition-colors",
+                errors.password && "border-red-500 focus-visible:ring-red-500"
+              )}
+              aria-invalid={errors.password ? "true" : "false"}
+            />
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
+          </div>
+          {errors.root && (
+            <p className="text-sm text-red-500">{errors.root.message}</p>
+          )}
+          <Button
+            type="submit"
+            className="w-full transition-all hover:scale-[1.02]"
+            disabled={isPending || isPendingTransition}
+          >
+            {isPending || isPendingTransition ? "Logging in..." : "Login"}
+          </Button>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <Button
+          variant="outline"
+          type="button"
+          className="w-full transition-all hover:scale-[1.02] bg-background/50 h-11 rounded-2xl"
+          onClick={handleGoogleLogin}
+          disabled={isPending || isPendingTransition}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            className="mr-2 h-4 w-4"
+          >
+            <path
+              d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+              fill="currentColor"
+            />
+          </svg>
+          {isPending || isPendingTransition
+            ? "Connecting..."
+            : "Login with Google"}
+        </Button>
       </form>
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+      <div className="text-muted-foreground text-center text-xs text-balance">
+        By clicking continue, you agree to our{" "}
+        <a href="#" className="text-primary hover:underline">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="#" className="text-primary hover:underline">
+          Privacy Policy
+        </a>
+        .
       </div>
     </div>
   );

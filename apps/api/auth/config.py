@@ -1,5 +1,3 @@
-
-
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
@@ -61,6 +59,7 @@ bearer_transport = BearerTransport(tokenUrl=f"/auth/login")  # Fixed URL
 auth_backend = AuthenticationBackend(
     name="database",
     transport=bearer_transport,
-    get_strategy=get_database_strategy,
-    
+    get_strategy=get_database_strategy,    
 )
+
+

@@ -1,17 +1,24 @@
 import { authDatabaseLoginAuthLoginPost, AuthDatabaseLoginAuthLoginPostData } from "@/client";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 export const useLogin = () => {
     return useMutation({
-        mutationFn: (data: AuthDatabaseLoginAuthLoginPostData["body"]) => authDatabaseLoginAuthLoginPost({
-            body: data,
-        }),
-        onSuccess: () => {
-            toast.success("Login successful!");
+        mutationFn: async (data: AuthDatabaseLoginAuthLoginPostData["body"]) => {
+            const response = await authDatabaseLoginAuthLoginPost({
+                body: data,
+            })
+
+            if (response.error) {
+                throw new Error((response.error as { detail: string }).detail || "Something went wrong. Please try again.")
+            }
+
+            return response.data
+
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Something went wrong. Please try again.");
+        onError: (error) => {
+            console.log(error, "**********************")
         }
+
+
     })
 }

@@ -1,17 +1,20 @@
 import { registerRegisterAuthRegisterPost, RegisterRegisterAuthRegisterPostData } from "@/client";
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 
 export const useRegister = () => {
     return useMutation({
-        mutationFn: (data: RegisterRegisterAuthRegisterPostData["body"]) => registerRegisterAuthRegisterPost({
-            body: data,
-        }),
-        onSuccess: () => {
-            toast.success("Account created successfully!");
+        mutationFn: async (data: RegisterRegisterAuthRegisterPostData["body"]) => {
+            const response = await registerRegisterAuthRegisterPost({
+                body: data,
+            })
+
+            if (response.error) {
+                const errorMessage = (response.error as { detail: string }).detail
+                throw new Error(errorMessage.replace(/_/g, " ").trim().toLocaleLowerCase() || "Something went wrong. Please try again.")
+            }
+
+            return response.data
         },
-        onError: (error: Error) => {
-            toast.error(error.message || "Something went wrong. Please try again.");
-        }
+
     })
 }

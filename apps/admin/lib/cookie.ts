@@ -1,30 +1,27 @@
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+
 export const cookieName = "access_token";
 
 export const setPersistentCookie = (token: string) => {
     const isProduction = process.env.NODE_ENV === 'production';
 
-    const cookieOptions = [
-        `${cookieName}=${token}`,
-        'path=/',
-        'samesite=strict',
-        ...(isProduction ? ['secure'] : []),
-    ];
+    setCookie(cookieName, token, {
+        path: '/',
+        secure: isProduction,
+        sameSite: 'lax',
 
-    document.cookie = cookieOptions.join('; ');
+        // Optional: set maxAge or expires
+        // maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
 };
 
 export const getPersistentCookie = () => {
-    const cookies = document.cookie.split(';');
-    for (const cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === cookieName) {
-            return value;
-        }
-    }
-    return null;
-}
+    return getCookie(cookieName);
+};
 
 export const deletePersistentCookie = () => {
-    document.cookie = `${cookieName}=; path=/; samesite=strict; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
-}
-
+    deleteCookie(cookieName, {
+        path: '/',
+        sameSite: 'lax',
+    });
+};

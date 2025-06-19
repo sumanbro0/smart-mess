@@ -3,7 +3,11 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
+import { usersCurrentUserUsersMeGet } from "@/client";
+
+const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+  const user = await usersCurrentUserUsersMeGet();
+
   return (
     <div className="h-full overflow-hidden">
       <SidebarProvider
@@ -15,7 +19,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           } as React.CSSProperties
         }
       >
-        <AppSidebar variant="inset" />
+        {" "}
+        <AppSidebar variant="inset" user={user.data ?? null} />
         <SidebarInset className="h-screen flex flex-col">
           <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">
             <SiteHeader />
