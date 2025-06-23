@@ -1,18 +1,22 @@
-import { SidebarMenu, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IconDotsVertical } from "@tabler/icons-react";
 
 export const NavUserSkeleton = () => (
   <SidebarMenu>
     <SidebarMenuItem>
-      <div className="flex items-center w-full h-12 px-2 py-1.5 gap-2">
+      <SidebarMenuButton size="lg">
         <Skeleton className="h-8 w-8 rounded-lg" />
-        <div className="flex-1 space-y-1">
+        <div className="grid flex-1 text-left text-sm leading-tight space-y-2">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-3 w-32" />
         </div>
-        <IconDotsVertical className="size-4 opacity-50" />
-      </div>
+        <IconDotsVertical className="ml-auto size-4" />
+      </SidebarMenuButton>
     </SidebarMenuItem>
   </SidebarMenu>
 );

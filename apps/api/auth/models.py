@@ -38,6 +38,9 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     created_at = Column(DateTime, default=datetime.now)
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
     messes = relationship("Mess", back_populates="owner")
+    messes_as_customer=relationship("Mess", secondary="mess_customer", back_populates="customers")
+    messes_as_staff=relationship("Mess", secondary="mess_staff", back_populates="staff")
+    orders = relationship("Order", back_populates="customer")
 
 
 class SQLAlchemyUserDatabaseLocal(SQLAlchemyUserDatabase):

@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { type Icon } from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -11,20 +10,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { navData } from "../routes";
 
-export function NavMain({
-  items,
-}: {
-  items: {
-    title: string;
-    url: string;
-    icon?: Icon;
-    // Optional: custom matching logic
-    matchPattern?: string | RegExp;
-    exactMatch?: boolean;
-  }[];
-}) {
+export function NavMain() {
   const pathname = usePathname();
+  const items = navData.navMain;
 
   const isActive = (item: (typeof items)[0]) => {
     // Handle root path edge case
@@ -35,14 +25,6 @@ export function NavMain({
     // Exact match takes priority
     if (item.exactMatch) {
       return pathname === item.url;
-    }
-
-    // Custom pattern matching
-    if (item.matchPattern) {
-      if (typeof item.matchPattern === "string") {
-        return pathname.startsWith(item.matchPattern);
-      }
-      return item.matchPattern.test(pathname);
     }
 
     // Default: startsWith logic with proper handling

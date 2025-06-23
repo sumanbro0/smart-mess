@@ -19,3 +19,4 @@ class MessTable(Base):
     enabled = Column(Boolean, default=True)
     # Relationships
     mess = relationship("Mess", back_populates="tables")
+    orders = relationship("Order", back_populates="table")

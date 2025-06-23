@@ -15,6 +15,16 @@ export type BearerResponse = {
 };
 
 /**
+ * Body_add_menu_item_image_menu_item__item_id__image_post
+ */
+export type BodyAddMenuItemImageMenuItemItemIdImagePost = {
+    /**
+     * Image
+     */
+    image: Blob | File;
+};
+
+/**
  * Body_auth_database_login_auth_login_post
  */
 export type BodyAuthDatabaseLoginAuthLoginPost = {
@@ -69,6 +79,26 @@ export type BodyResetResetPasswordAuthResetPasswordPost = {
 };
 
 /**
+ * Body_upload_file_files_upload__post
+ */
+export type BodyUploadFileFilesUploadPost = {
+    /**
+     * File
+     */
+    file: Blob | File;
+};
+
+/**
+ * Body_upload_multiple_files_files_upload_multiple__post
+ */
+export type BodyUploadMultipleFilesFilesUploadMultiplePost = {
+    /**
+     * Files
+     */
+    files: Array<Blob | File>;
+};
+
+/**
  * Body_verify_request_token_auth_request_verify_token_post
  */
 export type BodyVerifyRequestTokenAuthRequestVerifyTokenPost = {
@@ -111,6 +141,542 @@ export type HttpValidationError = {
 };
 
 /**
+ * MenuCreate
+ */
+export type MenuCreate = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Image
+     * Menu image file data
+     */
+    image?: (Blob | File) | null;
+};
+
+/**
+ * MenuItemCategoryCreate
+ */
+export type MenuItemCategoryCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Menu Id
+     */
+    menu_id: string;
+};
+
+/**
+ * MenuItemCategoryResponse
+ */
+export type MenuItemCategoryResponse = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Menu Id
+     */
+    menu_id: string;
+    /**
+     * Menu Items
+     */
+    menu_items?: Array<MenuItemResponse> | null;
+};
+
+/**
+ * MenuItemCategoryUpdate
+ */
+export type MenuItemCategoryUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+};
+
+/**
+ * MenuItemCreate
+ */
+export type MenuItemCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * In Stock
+     */
+    in_stock?: boolean;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Calories
+     */
+    calories?: number | null;
+    spiciness?: SpicinessEnum | null;
+    /**
+     * Is Veg
+     */
+    is_veg?: boolean;
+    /**
+     * Menu Id
+     */
+    menu_id: string;
+    /**
+     * Category Id
+     */
+    category_id: string;
+    /**
+     * Images
+     * List of image file data
+     */
+    images?: Array<Blob | File> | null;
+};
+
+/**
+ * MenuItemImageResponse
+ */
+export type MenuItemImageResponse = {
+    /**
+     * Is Primary
+     */
+    is_primary?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Image Url
+     */
+    image_url: string;
+    /**
+     * Menu Item Id
+     */
+    menu_item_id: string;
+};
+
+/**
+ * MenuItemResponse
+ */
+export type MenuItemResponse = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * In Stock
+     */
+    in_stock?: boolean;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Calories
+     */
+    calories?: number | null;
+    spiciness?: SpicinessEnum | null;
+    /**
+     * Is Veg
+     */
+    is_veg?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Menu Id
+     */
+    menu_id: string;
+    /**
+     * Category Id
+     */
+    category_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Images
+     */
+    images?: Array<MenuItemImageResponse>;
+    category?: MenuItemCategoryResponse | null;
+};
+
+/**
+ * MenuItemUpdate
+ */
+export type MenuItemUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Price
+     */
+    price?: number | null;
+    /**
+     * In Stock
+     */
+    in_stock?: boolean | null;
+    /**
+     * Category Id
+     */
+    category_id?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+    /**
+     * Calories
+     */
+    calories?: number | null;
+    spiciness?: SpicinessEnum | null;
+    /**
+     * Is Veg
+     */
+    is_veg?: boolean | null;
+    /**
+     * Images
+     * List of image file data
+     */
+    images?: Array<Blob | File> | null;
+};
+
+/**
+ * MenuResponse
+ */
+export type MenuResponse = {
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Image Url
+     */
+    image_url?: string | null;
+    /**
+     * Items
+     */
+    items?: Array<MenuItemResponse>;
+    /**
+     * Categories
+     */
+    categories?: Array<MenuItemCategoryResponse>;
+};
+
+/**
+ * MenuUpdate
+ */
+export type MenuUpdate = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+    /**
+     * Image
+     * Menu image file data
+     */
+    image?: (Blob | File) | null;
+};
+
+/**
+ * MessCreate
+ */
+export type MessCreate = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Address
+     */
+    address?: string | null;
+    /**
+     * Owner Id
+     */
+    owner_id?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+    /**
+     * Currency
+     */
+    currency?: string | null;
+    /**
+     * Logo
+     */
+    logo?: string | null;
+};
+
+/**
+ * MessRead
+ */
+export type MessRead = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Address
+     */
+    address?: string | null;
+    /**
+     * Owner Id
+     */
+    owner_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Currency
+     */
+    currency?: string;
+    /**
+     * Logo
+     */
+    logo?: string | null;
+};
+
+/**
+ * MessTableCreate
+ */
+export type MessTableCreate = {
+    /**
+     * Table Name
+     */
+    table_name: string;
+    /**
+     * Capacity
+     */
+    capacity: number;
+    /**
+     * Qr Code Url
+     */
+    qr_code_url?: string | null;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+};
+
+/**
+ * MessTableRead
+ */
+export type MessTableRead = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Table Name
+     */
+    table_name: string;
+    /**
+     * Capacity
+     */
+    capacity: number;
+    /**
+     * Qr Code Url
+     */
+    qr_code_url?: string | null;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+};
+
+/**
+ * MessTableUpdate
+ */
+export type MessTableUpdate = {
+    /**
+     * Table Name
+     */
+    table_name?: string | null;
+    /**
+     * Capacity
+     */
+    capacity?: number | null;
+    /**
+     * Qr Code Url
+     */
+    qr_code_url?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+};
+
+/**
+ * MessUpdate
+ */
+export type MessUpdate = {
+    /**
+     * Name
+     */
+    name?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Address
+     */
+    address?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean | null;
+    /**
+     * Currency
+     */
+    currency?: string | null;
+    /**
+     * Logo
+     */
+    logo?: string | null;
+};
+
+/**
  * OAuth2AuthorizeResponse
  */
 export type OAuth2AuthorizeResponse = {
@@ -118,6 +684,208 @@ export type OAuth2AuthorizeResponse = {
      * Authorization Url
      */
     authorization_url: string;
+};
+
+/**
+ * OrderCreate
+ */
+export type OrderCreate = {
+    status?: OrderStatusEnum;
+    /**
+     * Customer Id
+     */
+    customer_id: string;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Table Id
+     */
+    table_id: string;
+    /**
+     * Items
+     */
+    items: Array<OrderItemCreate>;
+};
+
+/**
+ * OrderItemCreate
+ */
+export type OrderItemCreate = {
+    /**
+     * Quantity
+     */
+    quantity: number;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * Menu Item Id
+     */
+    menu_item_id: string;
+};
+
+/**
+ * OrderItemResponse
+ */
+export type OrderItemResponse = {
+    /**
+     * Quantity
+     */
+    quantity: number;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Order Id
+     */
+    order_id: string;
+    /**
+     * Menu Item Id
+     */
+    menu_item_id: string;
+    menu_item?: MenuItemResponse | null;
+};
+
+/**
+ * OrderItemUpdate
+ */
+export type OrderItemUpdate = {
+    /**
+     * Quantity
+     */
+    quantity?: number | null;
+};
+
+/**
+ * OrderResponse
+ */
+export type OrderResponse = {
+    status?: OrderStatusEnum;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Customer Id
+     */
+    customer_id: string;
+    /**
+     * Mess Id
+     */
+    mess_id: string;
+    /**
+     * Table Id
+     */
+    table_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Items
+     */
+    items?: Array<OrderItemResponse>;
+    /**
+     * Transactions
+     */
+    transactions?: Array<OrderTransactionResponse>;
+    customer?: UserRead | null;
+    mess?: MessRead | null;
+    table?: MessTableRead | null;
+};
+
+/**
+ * OrderStatusEnum
+ */
+export type OrderStatusEnum = 'pending' | 'received' | 'preparing' | 'ready' | 'served' | 'completed' | 'cancelled';
+
+/**
+ * OrderTransactionCreate
+ */
+export type OrderTransactionCreate = {
+    /**
+     * Transaction Id
+     */
+    transaction_id: string;
+    /**
+     * Amount
+     */
+    amount: number;
+    status?: OrderTransactionStatusEnum;
+    /**
+     * Order Id
+     */
+    order_id: string;
+};
+
+/**
+ * OrderTransactionResponse
+ */
+export type OrderTransactionResponse = {
+    /**
+     * Transaction Id
+     */
+    transaction_id: string;
+    /**
+     * Amount
+     */
+    amount: number;
+    status?: OrderTransactionStatusEnum;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Order Id
+     */
+    order_id: string;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+};
+
+/**
+ * OrderTransactionStatusEnum
+ */
+export type OrderTransactionStatusEnum = 'pending' | 'success' | 'failed';
+
+/**
+ * OrderTransactionUpdate
+ */
+export type OrderTransactionUpdate = {
+    status?: OrderTransactionStatusEnum | null;
+    /**
+     * Amount
+     */
+    amount?: number | null;
+};
+
+/**
+ * OrderUpdate
+ */
+export type OrderUpdate = {
+    status?: OrderStatusEnum | null;
+    /**
+     * Table Id
+     */
+    table_id?: string | null;
 };
 
 /**
@@ -132,6 +900,51 @@ export type ResponseMessage = {
      * Status Code
      */
     status_code: number;
+};
+
+/**
+ * SpicinessEnum
+ */
+export type SpicinessEnum = 'low' | 'medium' | 'high';
+
+/**
+ * UploadMultipleResponse
+ */
+export type UploadMultipleResponse = {
+    /**
+     * Files
+     */
+    files: Array<UploadResponse>;
+};
+
+/**
+ * UploadResponse
+ */
+export type UploadResponse = {
+    /**
+     * Filename
+     */
+    filename: string;
+    /**
+     * Stored Filename
+     */
+    stored_filename: string;
+    /**
+     * Size
+     */
+    size: number;
+    /**
+     * Category
+     */
+    category: string;
+    /**
+     * Mime Type
+     */
+    mime_type: string;
+    /**
+     * Url
+     */
+    url: string;
 };
 
 /**
@@ -521,6 +1334,134 @@ export type VerifyVerifyAuthVerifyPostResponses = {
 
 export type VerifyVerifyAuthVerifyPostResponse = VerifyVerifyAuthVerifyPostResponses[keyof VerifyVerifyAuthVerifyPostResponses];
 
+export type UploadFileFilesUploadPostData = {
+    body: BodyUploadFileFilesUploadPost;
+    path?: never;
+    query?: never;
+    url: '/files/upload/';
+};
+
+export type UploadFileFilesUploadPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UploadFileFilesUploadPostError = UploadFileFilesUploadPostErrors[keyof UploadFileFilesUploadPostErrors];
+
+export type UploadFileFilesUploadPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: UploadResponse;
+};
+
+export type UploadFileFilesUploadPostResponse = UploadFileFilesUploadPostResponses[keyof UploadFileFilesUploadPostResponses];
+
+export type UploadMultipleFilesFilesUploadMultiplePostData = {
+    body: BodyUploadMultipleFilesFilesUploadMultiplePost;
+    path?: never;
+    query?: never;
+    url: '/files/upload/multiple/';
+};
+
+export type UploadMultipleFilesFilesUploadMultiplePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UploadMultipleFilesFilesUploadMultiplePostError = UploadMultipleFilesFilesUploadMultiplePostErrors[keyof UploadMultipleFilesFilesUploadMultiplePostErrors];
+
+export type UploadMultipleFilesFilesUploadMultiplePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: UploadMultipleResponse;
+};
+
+export type UploadMultipleFilesFilesUploadMultiplePostResponse = UploadMultipleFilesFilesUploadMultiplePostResponses[keyof UploadMultipleFilesFilesUploadMultiplePostResponses];
+
+export type DeleteFileFilesCategoryFilenameDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Category
+         */
+        category: string;
+        /**
+         * Filename
+         */
+        filename: string;
+    };
+    query?: never;
+    url: '/files/{category}/{filename}';
+};
+
+export type DeleteFileFilesCategoryFilenameDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteFileFilesCategoryFilenameDeleteError = DeleteFileFilesCategoryFilenameDeleteErrors[keyof DeleteFileFilesCategoryFilenameDeleteErrors];
+
+export type DeleteFileFilesCategoryFilenameDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetFileFilesCategoryFilenameGetData = {
+    body?: never;
+    path: {
+        /**
+         * Category
+         */
+        category: string;
+        /**
+         * Filename
+         */
+        filename: string;
+    };
+    query?: never;
+    url: '/files/{category}/{filename}';
+};
+
+export type GetFileFilesCategoryFilenameGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetFileFilesCategoryFilenameGetError = GetFileFilesCategoryFilenameGetErrors[keyof GetFileFilesCategoryFilenameGetErrors];
+
+export type GetFileFilesCategoryFilenameGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetUploadInfoFilesInfoGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/files/info';
+};
+
+export type GetUploadInfoFilesInfoGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type UsersCurrentUserUsersMeGetData = {
     body?: never;
     path?: never;
@@ -706,6 +1647,1012 @@ export type UsersPatchUserUsersIdPatchResponses = {
 };
 
 export type UsersPatchUserUsersIdPatchResponse = UsersPatchUserUsersIdPatchResponses[keyof UsersPatchUserUsersIdPatchResponses];
+
+export type GetMessesMessGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/mess/';
+};
+
+export type GetMessesMessGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMessesMessGetError = GetMessesMessGetErrors[keyof GetMessesMessGetErrors];
+
+export type GetMessesMessGetResponses = {
+    /**
+     * Response Get Messes Mess  Get
+     * Successful Response
+     */
+    200: Array<MessRead>;
+};
+
+export type GetMessesMessGetResponse = GetMessesMessGetResponses[keyof GetMessesMessGetResponses];
+
+export type CreateMessMessPostData = {
+    body: MessCreate;
+    path?: never;
+    query?: never;
+    url: '/mess/';
+};
+
+export type CreateMessMessPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateMessMessPostError = CreateMessMessPostErrors[keyof CreateMessMessPostErrors];
+
+export type CreateMessMessPostResponses = {
+    /**
+     * Successful Response
+     */
+    201: MessRead;
+};
+
+export type CreateMessMessPostResponse = CreateMessMessPostResponses[keyof CreateMessMessPostResponses];
+
+export type DeleteMessMessMessIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Id
+         */
+        mess_id: string;
+    };
+    query?: never;
+    url: '/mess/{mess_id}';
+};
+
+export type DeleteMessMessMessIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMessMessMessIdDeleteError = DeleteMessMessMessIdDeleteErrors[keyof DeleteMessMessMessIdDeleteErrors];
+
+export type DeleteMessMessMessIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetMessMessMessIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Id
+         */
+        mess_id: string;
+    };
+    query?: never;
+    url: '/mess/{mess_id}';
+};
+
+export type GetMessMessMessIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMessMessMessIdGetError = GetMessMessMessIdGetErrors[keyof GetMessMessMessIdGetErrors];
+
+export type GetMessMessMessIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: MessRead;
+};
+
+export type GetMessMessMessIdGetResponse = GetMessMessMessIdGetResponses[keyof GetMessMessMessIdGetResponses];
+
+export type UpdateMessMessMessIdPutData = {
+    body: MessUpdate;
+    path: {
+        /**
+         * Mess Id
+         */
+        mess_id: string;
+    };
+    query?: never;
+    url: '/mess/{mess_id}';
+};
+
+export type UpdateMessMessMessIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateMessMessMessIdPutError = UpdateMessMessMessIdPutErrors[keyof UpdateMessMessMessIdPutErrors];
+
+export type UpdateMessMessMessIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: MessRead;
+};
+
+export type UpdateMessMessMessIdPutResponse = UpdateMessMessMessIdPutResponses[keyof UpdateMessMessMessIdPutResponses];
+
+export type GetMessTablesMessTablesMessMessIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Id
+         */
+        mess_id: string;
+    };
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/mess-tables/mess/{mess_id}';
+};
+
+export type GetMessTablesMessTablesMessMessIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMessTablesMessTablesMessMessIdGetError = GetMessTablesMessTablesMessMessIdGetErrors[keyof GetMessTablesMessTablesMessMessIdGetErrors];
+
+export type GetMessTablesMessTablesMessMessIdGetResponses = {
+    /**
+     * Response Get Mess Tables Mess Tables Mess  Mess Id  Get
+     * Successful Response
+     */
+    200: Array<MessTableRead>;
+};
+
+export type GetMessTablesMessTablesMessMessIdGetResponse = GetMessTablesMessTablesMessMessIdGetResponses[keyof GetMessTablesMessTablesMessMessIdGetResponses];
+
+export type DeleteMessTableMessTablesTableIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Table Id
+         */
+        table_id: string;
+    };
+    query?: never;
+    url: '/mess-tables/{table_id}';
+};
+
+export type DeleteMessTableMessTablesTableIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMessTableMessTablesTableIdDeleteError = DeleteMessTableMessTablesTableIdDeleteErrors[keyof DeleteMessTableMessTablesTableIdDeleteErrors];
+
+export type DeleteMessTableMessTablesTableIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type GetMessTableMessTablesTableIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Table Id
+         */
+        table_id: string;
+    };
+    query?: never;
+    url: '/mess-tables/{table_id}';
+};
+
+export type GetMessTableMessTablesTableIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMessTableMessTablesTableIdGetError = GetMessTableMessTablesTableIdGetErrors[keyof GetMessTableMessTablesTableIdGetErrors];
+
+export type GetMessTableMessTablesTableIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: MessTableRead;
+};
+
+export type GetMessTableMessTablesTableIdGetResponse = GetMessTableMessTablesTableIdGetResponses[keyof GetMessTableMessTablesTableIdGetResponses];
+
+export type UpdateMessTableMessTablesTableIdPutData = {
+    body: MessTableUpdate;
+    path: {
+        /**
+         * Table Id
+         */
+        table_id: string;
+    };
+    query?: never;
+    url: '/mess-tables/{table_id}';
+};
+
+export type UpdateMessTableMessTablesTableIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateMessTableMessTablesTableIdPutError = UpdateMessTableMessTablesTableIdPutErrors[keyof UpdateMessTableMessTablesTableIdPutErrors];
+
+export type UpdateMessTableMessTablesTableIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: MessTableRead;
+};
+
+export type UpdateMessTableMessTablesTableIdPutResponse = UpdateMessTableMessTablesTableIdPutResponses[keyof UpdateMessTableMessTablesTableIdPutResponses];
+
+export type CreateMessTableMessTablesPostData = {
+    body: MessTableCreate;
+    path?: never;
+    query?: never;
+    url: '/mess-tables/';
+};
+
+export type CreateMessTableMessTablesPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateMessTableMessTablesPostError = CreateMessTableMessTablesPostErrors[keyof CreateMessTableMessTablesPostErrors];
+
+export type CreateMessTableMessTablesPostResponses = {
+    /**
+     * Successful Response
+     */
+    201: MessTableRead;
+};
+
+export type CreateMessTableMessTablesPostResponse = CreateMessTableMessTablesPostResponses[keyof CreateMessTableMessTablesPostResponses];
+
+export type CreateMenuMenuPostData = {
+    body: MenuCreate;
+    path?: never;
+    query?: never;
+    url: '/menu/';
+};
+
+export type CreateMenuMenuPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateMenuMenuPostError = CreateMenuMenuPostErrors[keyof CreateMenuMenuPostErrors];
+
+export type CreateMenuMenuPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuResponse;
+};
+
+export type CreateMenuMenuPostResponse = CreateMenuMenuPostResponses[keyof CreateMenuMenuPostResponses];
+
+export type DeleteMenuMenuMenuIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Menu Id
+         */
+        menu_id: string;
+    };
+    query?: never;
+    url: '/menu/{menu_id}';
+};
+
+export type DeleteMenuMenuMenuIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMenuMenuMenuIdDeleteError = DeleteMenuMenuMenuIdDeleteErrors[keyof DeleteMenuMenuMenuIdDeleteErrors];
+
+export type DeleteMenuMenuMenuIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteMenuMenuMenuIdDeleteResponse = DeleteMenuMenuMenuIdDeleteResponses[keyof DeleteMenuMenuMenuIdDeleteResponses];
+
+export type GetMenuMenuMenuIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Menu Id
+         */
+        menu_id: string;
+    };
+    query?: never;
+    url: '/menu/{menu_id}';
+};
+
+export type GetMenuMenuMenuIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMenuMenuMenuIdGetError = GetMenuMenuMenuIdGetErrors[keyof GetMenuMenuMenuIdGetErrors];
+
+export type GetMenuMenuMenuIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuResponse;
+};
+
+export type GetMenuMenuMenuIdGetResponse = GetMenuMenuMenuIdGetResponses[keyof GetMenuMenuMenuIdGetResponses];
+
+export type UpdateMenuMenuMenuIdPutData = {
+    body: MenuUpdate;
+    path: {
+        /**
+         * Menu Id
+         */
+        menu_id: string;
+    };
+    query?: never;
+    url: '/menu/{menu_id}';
+};
+
+export type UpdateMenuMenuMenuIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateMenuMenuMenuIdPutError = UpdateMenuMenuMenuIdPutErrors[keyof UpdateMenuMenuMenuIdPutErrors];
+
+export type UpdateMenuMenuMenuIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuResponse;
+};
+
+export type UpdateMenuMenuMenuIdPutResponse = UpdateMenuMenuMenuIdPutResponses[keyof UpdateMenuMenuMenuIdPutResponses];
+
+export type CreateCategoryMenuCategoryPostData = {
+    body: MenuItemCategoryCreate;
+    path?: never;
+    query?: never;
+    url: '/menu/category';
+};
+
+export type CreateCategoryMenuCategoryPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateCategoryMenuCategoryPostError = CreateCategoryMenuCategoryPostErrors[keyof CreateCategoryMenuCategoryPostErrors];
+
+export type CreateCategoryMenuCategoryPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemCategoryResponse;
+};
+
+export type CreateCategoryMenuCategoryPostResponse = CreateCategoryMenuCategoryPostResponses[keyof CreateCategoryMenuCategoryPostResponses];
+
+export type DeleteCategoryMenuCategoryCategoryIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/menu/category/{category_id}';
+};
+
+export type DeleteCategoryMenuCategoryCategoryIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteCategoryMenuCategoryCategoryIdDeleteError = DeleteCategoryMenuCategoryCategoryIdDeleteErrors[keyof DeleteCategoryMenuCategoryCategoryIdDeleteErrors];
+
+export type DeleteCategoryMenuCategoryCategoryIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteCategoryMenuCategoryCategoryIdDeleteResponse = DeleteCategoryMenuCategoryCategoryIdDeleteResponses[keyof DeleteCategoryMenuCategoryCategoryIdDeleteResponses];
+
+export type GetCategoryMenuCategoryCategoryIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/menu/category/{category_id}';
+};
+
+export type GetCategoryMenuCategoryCategoryIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCategoryMenuCategoryCategoryIdGetError = GetCategoryMenuCategoryCategoryIdGetErrors[keyof GetCategoryMenuCategoryCategoryIdGetErrors];
+
+export type GetCategoryMenuCategoryCategoryIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemCategoryResponse;
+};
+
+export type GetCategoryMenuCategoryCategoryIdGetResponse = GetCategoryMenuCategoryCategoryIdGetResponses[keyof GetCategoryMenuCategoryCategoryIdGetResponses];
+
+export type UpdateCategoryMenuCategoryCategoryIdPutData = {
+    body: MenuItemCategoryUpdate;
+    path: {
+        /**
+         * Category Id
+         */
+        category_id: string;
+    };
+    query?: never;
+    url: '/menu/category/{category_id}';
+};
+
+export type UpdateCategoryMenuCategoryCategoryIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateCategoryMenuCategoryCategoryIdPutError = UpdateCategoryMenuCategoryCategoryIdPutErrors[keyof UpdateCategoryMenuCategoryCategoryIdPutErrors];
+
+export type UpdateCategoryMenuCategoryCategoryIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemCategoryResponse;
+};
+
+export type UpdateCategoryMenuCategoryCategoryIdPutResponse = UpdateCategoryMenuCategoryCategoryIdPutResponses[keyof UpdateCategoryMenuCategoryCategoryIdPutResponses];
+
+export type CreateMenuItemMenuItemPostData = {
+    body: MenuItemCreate;
+    path?: never;
+    query?: never;
+    url: '/menu/item';
+};
+
+export type CreateMenuItemMenuItemPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateMenuItemMenuItemPostError = CreateMenuItemMenuItemPostErrors[keyof CreateMenuItemMenuItemPostErrors];
+
+export type CreateMenuItemMenuItemPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemResponse;
+};
+
+export type CreateMenuItemMenuItemPostResponse = CreateMenuItemMenuItemPostResponses[keyof CreateMenuItemMenuItemPostResponses];
+
+export type DeleteMenuItemMenuItemItemIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: never;
+    url: '/menu/item/{item_id}';
+};
+
+export type DeleteMenuItemMenuItemItemIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMenuItemMenuItemItemIdDeleteError = DeleteMenuItemMenuItemItemIdDeleteErrors[keyof DeleteMenuItemMenuItemItemIdDeleteErrors];
+
+export type DeleteMenuItemMenuItemItemIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteMenuItemMenuItemItemIdDeleteResponse = DeleteMenuItemMenuItemItemIdDeleteResponses[keyof DeleteMenuItemMenuItemItemIdDeleteResponses];
+
+export type GetMenuItemMenuItemItemIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: never;
+    url: '/menu/item/{item_id}';
+};
+
+export type GetMenuItemMenuItemItemIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMenuItemMenuItemItemIdGetError = GetMenuItemMenuItemItemIdGetErrors[keyof GetMenuItemMenuItemItemIdGetErrors];
+
+export type GetMenuItemMenuItemItemIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemResponse;
+};
+
+export type GetMenuItemMenuItemItemIdGetResponse = GetMenuItemMenuItemItemIdGetResponses[keyof GetMenuItemMenuItemItemIdGetResponses];
+
+export type UpdateMenuItemMenuItemItemIdPutData = {
+    body: MenuItemUpdate;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: never;
+    url: '/menu/item/{item_id}';
+};
+
+export type UpdateMenuItemMenuItemItemIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateMenuItemMenuItemItemIdPutError = UpdateMenuItemMenuItemItemIdPutErrors[keyof UpdateMenuItemMenuItemItemIdPutErrors];
+
+export type UpdateMenuItemMenuItemItemIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemResponse;
+};
+
+export type UpdateMenuItemMenuItemItemIdPutResponse = UpdateMenuItemMenuItemItemIdPutResponses[keyof UpdateMenuItemMenuItemItemIdPutResponses];
+
+export type AddMenuItemImageMenuItemItemIdImagePostData = {
+    body: BodyAddMenuItemImageMenuItemItemIdImagePost;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: {
+        /**
+         * Is Primary
+         */
+        is_primary?: boolean;
+    };
+    url: '/menu/item/{item_id}/image';
+};
+
+export type AddMenuItemImageMenuItemItemIdImagePostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddMenuItemImageMenuItemItemIdImagePostError = AddMenuItemImageMenuItemItemIdImagePostErrors[keyof AddMenuItemImageMenuItemItemIdImagePostErrors];
+
+export type AddMenuItemImageMenuItemItemIdImagePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: MenuItemImageResponse;
+};
+
+export type AddMenuItemImageMenuItemItemIdImagePostResponse = AddMenuItemImageMenuItemItemIdImagePostResponses[keyof AddMenuItemImageMenuItemItemIdImagePostResponses];
+
+export type DeleteMenuItemImageMenuItemImageImageIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Image Id
+         */
+        image_id: string;
+    };
+    query?: never;
+    url: '/menu/item/image/{image_id}';
+};
+
+export type DeleteMenuItemImageMenuItemImageImageIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMenuItemImageMenuItemImageImageIdDeleteError = DeleteMenuItemImageMenuItemImageImageIdDeleteErrors[keyof DeleteMenuItemImageMenuItemImageImageIdDeleteErrors];
+
+export type DeleteMenuItemImageMenuItemImageImageIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteMenuItemImageMenuItemImageImageIdDeleteResponse = DeleteMenuItemImageMenuItemImageImageIdDeleteResponses[keyof DeleteMenuItemImageMenuItemImageImageIdDeleteResponses];
+
+export type CreateOrderOrdersPostData = {
+    body: OrderCreate;
+    path?: never;
+    query?: never;
+    url: '/orders/';
+};
+
+export type CreateOrderOrdersPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateOrderOrdersPostError = CreateOrderOrdersPostErrors[keyof CreateOrderOrdersPostErrors];
+
+export type CreateOrderOrdersPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderResponse;
+};
+
+export type CreateOrderOrdersPostResponse = CreateOrderOrdersPostResponses[keyof CreateOrderOrdersPostResponses];
+
+export type DeleteOrderOrdersOrderIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+    };
+    query?: never;
+    url: '/orders/{order_id}';
+};
+
+export type DeleteOrderOrdersOrderIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteOrderOrdersOrderIdDeleteError = DeleteOrderOrdersOrderIdDeleteErrors[keyof DeleteOrderOrdersOrderIdDeleteErrors];
+
+export type DeleteOrderOrdersOrderIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteOrderOrdersOrderIdDeleteResponse = DeleteOrderOrdersOrderIdDeleteResponses[keyof DeleteOrderOrdersOrderIdDeleteResponses];
+
+export type GetOrderOrdersOrderIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+    };
+    query?: never;
+    url: '/orders/{order_id}';
+};
+
+export type GetOrderOrdersOrderIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetOrderOrdersOrderIdGetError = GetOrderOrdersOrderIdGetErrors[keyof GetOrderOrdersOrderIdGetErrors];
+
+export type GetOrderOrdersOrderIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderResponse;
+};
+
+export type GetOrderOrdersOrderIdGetResponse = GetOrderOrdersOrderIdGetResponses[keyof GetOrderOrdersOrderIdGetResponses];
+
+export type UpdateOrderOrdersOrderIdPutData = {
+    body: OrderUpdate;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+    };
+    query?: never;
+    url: '/orders/{order_id}';
+};
+
+export type UpdateOrderOrdersOrderIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateOrderOrdersOrderIdPutError = UpdateOrderOrdersOrderIdPutErrors[keyof UpdateOrderOrdersOrderIdPutErrors];
+
+export type UpdateOrderOrdersOrderIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderResponse;
+};
+
+export type UpdateOrderOrdersOrderIdPutResponse = UpdateOrderOrdersOrderIdPutResponses[keyof UpdateOrderOrdersOrderIdPutResponses];
+
+export type AddOrderItemOrdersOrderIdItemsPostData = {
+    body: OrderItemCreate;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+    };
+    query?: never;
+    url: '/orders/{order_id}/items';
+};
+
+export type AddOrderItemOrdersOrderIdItemsPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddOrderItemOrdersOrderIdItemsPostError = AddOrderItemOrdersOrderIdItemsPostErrors[keyof AddOrderItemOrdersOrderIdItemsPostErrors];
+
+export type AddOrderItemOrdersOrderIdItemsPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderItemResponse;
+};
+
+export type AddOrderItemOrdersOrderIdItemsPostResponse = AddOrderItemOrdersOrderIdItemsPostResponses[keyof AddOrderItemOrdersOrderIdItemsPostResponses];
+
+export type DeleteOrderItemOrdersItemsItemIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: never;
+    url: '/orders/items/{item_id}';
+};
+
+export type DeleteOrderItemOrdersItemsItemIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteOrderItemOrdersItemsItemIdDeleteError = DeleteOrderItemOrdersItemsItemIdDeleteErrors[keyof DeleteOrderItemOrdersItemsItemIdDeleteErrors];
+
+export type DeleteOrderItemOrdersItemsItemIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type DeleteOrderItemOrdersItemsItemIdDeleteResponse = DeleteOrderItemOrdersItemsItemIdDeleteResponses[keyof DeleteOrderItemOrdersItemsItemIdDeleteResponses];
+
+export type UpdateOrderItemOrdersItemsItemIdPutData = {
+    body: OrderItemUpdate;
+    path: {
+        /**
+         * Item Id
+         */
+        item_id: string;
+    };
+    query?: never;
+    url: '/orders/items/{item_id}';
+};
+
+export type UpdateOrderItemOrdersItemsItemIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateOrderItemOrdersItemsItemIdPutError = UpdateOrderItemOrdersItemsItemIdPutErrors[keyof UpdateOrderItemOrdersItemsItemIdPutErrors];
+
+export type UpdateOrderItemOrdersItemsItemIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderItemResponse;
+};
+
+export type UpdateOrderItemOrdersItemsItemIdPutResponse = UpdateOrderItemOrdersItemsItemIdPutResponses[keyof UpdateOrderItemOrdersItemsItemIdPutResponses];
+
+export type CreateOrderTransactionOrdersOrderIdTransactionsPostData = {
+    body: OrderTransactionCreate;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+    };
+    query?: never;
+    url: '/orders/{order_id}/transactions';
+};
+
+export type CreateOrderTransactionOrdersOrderIdTransactionsPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateOrderTransactionOrdersOrderIdTransactionsPostError = CreateOrderTransactionOrdersOrderIdTransactionsPostErrors[keyof CreateOrderTransactionOrdersOrderIdTransactionsPostErrors];
+
+export type CreateOrderTransactionOrdersOrderIdTransactionsPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderTransactionResponse;
+};
+
+export type CreateOrderTransactionOrdersOrderIdTransactionsPostResponse = CreateOrderTransactionOrdersOrderIdTransactionsPostResponses[keyof CreateOrderTransactionOrdersOrderIdTransactionsPostResponses];
+
+export type GetOrderTransactionOrdersTransactionsTransactionIdGetData = {
+    body?: never;
+    path: {
+        /**
+         * Transaction Id
+         */
+        transaction_id: string;
+    };
+    query?: never;
+    url: '/orders/transactions/{transaction_id}';
+};
+
+export type GetOrderTransactionOrdersTransactionsTransactionIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetOrderTransactionOrdersTransactionsTransactionIdGetError = GetOrderTransactionOrdersTransactionsTransactionIdGetErrors[keyof GetOrderTransactionOrdersTransactionsTransactionIdGetErrors];
+
+export type GetOrderTransactionOrdersTransactionsTransactionIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderTransactionResponse;
+};
+
+export type GetOrderTransactionOrdersTransactionsTransactionIdGetResponse = GetOrderTransactionOrdersTransactionsTransactionIdGetResponses[keyof GetOrderTransactionOrdersTransactionsTransactionIdGetResponses];
+
+export type UpdateOrderTransactionOrdersTransactionsTransactionIdPutData = {
+    body: OrderTransactionUpdate;
+    path: {
+        /**
+         * Transaction Id
+         */
+        transaction_id: string;
+    };
+    query?: never;
+    url: '/orders/transactions/{transaction_id}';
+};
+
+export type UpdateOrderTransactionOrdersTransactionsTransactionIdPutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateOrderTransactionOrdersTransactionsTransactionIdPutError = UpdateOrderTransactionOrdersTransactionsTransactionIdPutErrors[keyof UpdateOrderTransactionOrdersTransactionsTransactionIdPutErrors];
+
+export type UpdateOrderTransactionOrdersTransactionsTransactionIdPutResponses = {
+    /**
+     * Successful Response
+     */
+    200: OrderTransactionResponse;
+};
+
+export type UpdateOrderTransactionOrdersTransactionsTransactionIdPutResponse = UpdateOrderTransactionOrdersTransactionsTransactionIdPutResponses[keyof UpdateOrderTransactionOrdersTransactionsTransactionIdPutResponses];
 
 export type ReadRootGetData = {
     body?: never;

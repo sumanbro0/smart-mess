@@ -32,7 +32,7 @@ class MessCRUD:
     async def create(
         self, 
         db: AsyncSession, 
-        obj_in: MessCreate
+        obj_in: MessCreate,
     ) -> Mess:
         """Create a new mess"""
         db_obj = Mess(
@@ -40,7 +40,9 @@ class MessCRUD:
             description=obj_in.description,
             address=obj_in.address,
             owner_id=obj_in.owner_id,
-            is_active=obj_in.is_active
+            is_active=obj_in.is_active,
+            currency=obj_in.currency,
+            logo=obj_in.logo,
         )
         db.add(db_obj)
         await db.commit()

@@ -1,45 +1,15 @@
 from fastapi import APIRouter, Depends, File, Request, UploadFile, HTTPException
 from fastapi.responses import FileResponse
 import uuid
-from pathlib import Path
 from typing import List
 import mimetypes
+from utils.file import validate_file, get_file_category, MAX_FILE_SIZE, UPLOAD_DIR, ALLOWED_EXTENSIONS
+from .schema import UploadMultipleResponse, UploadResponse
 
 file_router = APIRouter(prefix="/files", tags=["files"])
 
-# Create upload directory
-UPLOAD_DIR = Path("media")
-UPLOAD_DIR.mkdir(exist_ok=True)
 
-# Allowed file types
-ALLOWED_EXTENSIONS = {
-    'image': ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    # 'video': ['mp4', 'avi', 'mov', 'wmv'],
-    # 'audio': ['mp3', 'wav', 'ogg', 'flac'],
-    # 'document': ['pdf', 'doc', 'docx', 'txt']
-}
-
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
-
-def get_file_category(filename: str) -> str:
-    """Determine file category based on extension"""
-    extension = filename.split('.')[-1].lower()
-    for category, extensions in ALLOWED_EXTENSIONS.items():
-        if extension in extensions:
-            return category
-    return 'other'
-
-def validate_file(file: UploadFile) -> bool:
-    """Validate file type and size"""
-    if not file.filename:
-        return False
-    
-    extension = file.filename.split('.')[-1].lower()
-    allowed_extensions = [ext for exts in ALLOWED_EXTENSIONS.values() for ext in exts]
-    
-    return extension in allowed_extensions
-
-@file_router.post("/upload/")
+@file_router.post("/upload/", response_model=UploadResponse)
 async def upload_file(request:Request,file: UploadFile = File(...)):
     """Upload a single media file"""
     
@@ -75,20 +45,19 @@ async def upload_file(request:Request,file: UploadFile = File(...)):
         mime_type = mimetypes.guess_type(file.filename)[0]
         file_url = f"{request.base_url}media/{category}/{unique_filename}"
         
-        return {
-            "filename": file.filename,
-            "stored_filename": unique_filename,
-            "size": file_size,
-            "category": category,
-            "mime_type": mime_type,
-            "url": file_url
-        }
+        return UploadResponse(
+            filename=file.filename,
+            stored_filename=unique_filename,
+            size=file_size,
+            category=category,
+            mime_type=mime_type,
+            url=file_url)
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not save file: {str(e)}")
 
-@file_router.post("/upload/multiple/")
-async def upload_multiple_files(files: List[UploadFile] = File(...)):
+@file_router.post("/upload/multiple/", response_model=UploadMultipleResponse)
+async def upload_multiple_files(request:Request,files: List[UploadFile] = File(...)):
     """Upload multiple media files"""
     
     if len(files) > 10:  # Limit number of files
@@ -128,33 +97,26 @@ async def upload_multiple_files(files: List[UploadFile] = File(...)):
                 buffer.write(content)
             
             # Get file info
-            file_url = f"/media/{category}/{unique_filename}"
+            file_url = f"{request.base_url}media/{category}/{unique_filename}"
             mime_type = mimetypes.guess_type(file.filename)[0]
             
-            results.append({
-                "filename": file.filename,
-                "stored_filename": unique_filename,
-                "size": file_size,
-                "category": category,
-                "mime_type": mime_type,
-                "url": file_url
-            })
+            results.append(UploadResponse(
+                filename=file.filename,
+                stored_filename=unique_filename,
+                size=file_size,
+                category=category,
+                mime_type=mime_type,
+                url=file_url))
         
         except Exception as e:
             errors.append(f"{file.filename}: {str(e)}")
     
-    return {
-        "uploaded": results,
-        "errors": errors,
-        "total_uploaded": len(results),
-        "total_errors": len(errors)
-    }
+    return UploadMultipleResponse(files=results)
 
 @file_router.get("/{category}/{filename}")
 async def get_file(category: str, filename: str):
     """Serve uploaded files"""
     file_path = UPLOAD_DIR / category / filename
-    
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")
     
@@ -164,6 +126,7 @@ async def get_file(category: str, filename: str):
 async def delete_file(category: str, filename: str):
     """Delete uploaded file"""
     file_path = UPLOAD_DIR / category / filename
+    print("FILE PATH", file_path)
     
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found")

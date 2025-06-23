@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, Header, Request, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from uuid import UUID
-
+from upload.route import upload_file
 from db.session import get_async_session
 from auth.models import User
 from auth.security import current_active_user
 from .schema import MessRead, MessCreate, MessUpdate
 from mess.crud import mess_crud
+from utils.mess import get_mess_id
 
 router = APIRouter(prefix="/mess", tags=["mess"])
 
@@ -27,9 +28,10 @@ async def get_messes(
 async def get_mess(
     mess_id: UUID,
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """Get specific mess"""
+
     mess = await mess_crud.get(db, id=mess_id)
     if not mess or mess.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Mess not found")
@@ -40,10 +42,11 @@ async def get_mess(
 async def create_mess(
     mess_data: MessCreate,
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """Create new mess"""
     mess_data.owner_id = current_user.id
+
     return await mess_crud.create(db, obj_in=mess_data)
 
 
@@ -52,12 +55,13 @@ async def update_mess(
     mess_id: UUID,
     mess_data: MessUpdate,
     db: AsyncSession = Depends(get_async_session),
-    current_user: User = Depends(current_active_user)
+    current_user: User = Depends(current_active_user),
 ):
     """Update mess"""
     mess = await mess_crud.get(db, id=mess_id)
     if not mess or mess.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Mess not found")
+
     return await mess_crud.update(db, db_obj=mess, obj_in=mess_data)
 
 

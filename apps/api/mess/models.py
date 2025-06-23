@@ -1,10 +1,19 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String,  Boolean, DateTime, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from datetime import datetime,UTC
+from datetime import datetime,UTC, timezone
 import uuid
 from db.base import Base
+
+mess_customer = Table('mess_customer', Base.metadata,
+    Column('user_id', UUID(as_uuid=True), ForeignKey('user.id')),
+    Column('mess_id', UUID(as_uuid=True), ForeignKey('mess.id'))
+)
+
+mess_staff = Table('mess_staff', Base.metadata,
+    Column('user_id', UUID(as_uuid=True), ForeignKey('user.id')),
+    Column('mess_id', UUID(as_uuid=True), ForeignKey('mess.id'))
+)
 
 class Mess(Base):
     __tablename__ = "mess"
@@ -14,11 +23,16 @@ class Mess(Base):
     description = Column(String, nullable=True)
     address = Column(String, nullable=True)
     owner_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.now(UTC))
-    updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
     is_active = Column(Boolean, default=True)
+    currency = Column(String, default="NPR")
+    logo = Column(String, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Relationships
-    owner = relationship("User", back_populates="messes")
     tables = relationship("MessTable", back_populates="mess")
     menus = relationship("Menu", back_populates="mess")
+    orders = relationship("Order", back_populates="mess")
+    owner = relationship("User",  back_populates="messes")
+    customers = relationship("User", secondary="mess_customer", back_populates="messes_as_customer")
+    staff = relationship("User", secondary="mess_staff", back_populates="messes_as_staff")

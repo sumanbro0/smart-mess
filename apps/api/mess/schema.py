@@ -1,3 +1,4 @@
+from fastapi import UploadFile
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from uuid import UUID
@@ -14,15 +15,18 @@ class MessRead(BaseModel):
     created_at: datetime
     updated_at: datetime
     is_active: bool = True
-    tables: Optional[List["MessTableRead"]] = []
+    currency: str = "NPR"
+    logo: Optional[str] = None
 
 
 class MessCreate(BaseModel):
     name: str = Field(..., min_length=1)
     description: Optional[str] = None
     address: Optional[str] = None
-    owner_id: UUID
+    owner_id: Optional[UUID] = None
     is_active: Optional[bool] = True
+    currency: Optional[str] = "NPR"
+    logo: Optional[str] = None
 
 
 class MessUpdate(BaseModel):
@@ -30,6 +34,8 @@ class MessUpdate(BaseModel):
     description: Optional[str] = None
     address: Optional[str] = None
     is_active: Optional[bool] = None
+    currency: Optional[str] = None
+    logo: Optional[str] = None
 
 MessRead.model_rebuild()
 
