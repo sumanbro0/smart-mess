@@ -35,6 +35,9 @@ class MessCRUD:
         obj_in: MessCreate,
     ) -> Mess:
         """Create a new mess"""
+        
+        
+
         db_obj = Mess(
             name=obj_in.name,
             description=obj_in.description,
@@ -56,12 +59,21 @@ class MessCRUD:
         obj_in: MessUpdate
     ) -> Mess:
         """Update a mess"""
+
+
+        print("***************************")
+        print(obj_in)
+        print("***************************")
         update_data = obj_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(db_obj, field, value)
-        
+            if field == 'slug':
+                print(f"db_obj.slug after setattr: {db_obj.slug}") 
         await db.commit()
         await db.refresh(db_obj)
+        print("***************************")
+        print(db_obj.slug)
+        print("***************************")
         return db_obj
 
     async def remove(self, db: AsyncSession, id: UUID) -> None:
@@ -70,6 +82,13 @@ class MessCRUD:
         if obj:
             await db.delete(obj)
             await db.commit()
+
+    async def get_by_slug(self, db: AsyncSession, slug: str) -> Optional[Mess]:
+        """Get a mess by slug"""
+        result = await db.execute(select(Mess).filter(Mess.slug == slug))
+        return result.scalar_one_or_none()
+    
+
 
 
 # Create a singleton instance

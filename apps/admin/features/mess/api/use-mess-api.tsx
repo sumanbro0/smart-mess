@@ -1,17 +1,14 @@
 import {
   createMessMessPost,
+  getMessBySlugMessSlugGet,
   getMessesMessGet,
   getMessMessMessIdGet,
   updateMessMessMessIdPut,
+  whoamiMessSlugWhoamiGet,
 } from "@/client";
 import { MessFormSchema } from "@/features/mess/schemas/mess-schema";
-import { setServerTenantId } from "@/lib/server-utils";
 import { getQueryClient } from "@/providers/get-query-client";
-import {
-  queryOptions,
-  useMutation,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { queryOptions, useMutation } from "@tanstack/react-query";
 
 export const messQueryOptions = queryOptions({
   queryKey: ["mess"],
@@ -40,6 +37,25 @@ export const messQueryOptionsWithId = (id: string | null) => {
   });
 };
 
+export const messQueryOptionsWithSlug = (slug: string | null) => {
+  return queryOptions({
+    queryKey: ["mess", slug],
+    queryFn: async () => {
+      if (!slug) {
+        return null;
+      }
+      const mess = await getMessBySlugMessSlugGet({ path: { slug } });
+
+      if (mess.error) {
+        throw new Error(mess.error.detail?.[0]?.msg ?? "Failed to get mess");
+      }
+
+      return mess.data ?? null;
+    },
+    enabled: !!slug,
+  });
+};
+
 export const useCreateMessMutation = () => {
   const queryClient = getQueryClient();
   return useMutation({
@@ -52,6 +68,7 @@ export const useCreateMessMutation = () => {
           currency: data.currency,
           is_active: true,
           logo: data.logo,
+          slug: data.slug,
         },
       });
 
@@ -61,9 +78,8 @@ export const useCreateMessMutation = () => {
 
       return mess.data;
     },
-    onSuccess: async (data) => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["mess"] });
-      await setServerTenantId(data?.id ?? null);
       window.location.reload();
     },
   });
@@ -76,11 +92,15 @@ export const useUpdateMessMutation = () => {
       if (!data.id) {
         throw new Error("Mess ID is required");
       }
+      console.log("***************************");
+      console.log(data);
+      console.log("***************************");
       const mess = await updateMessMessMessIdPut({
         path: {
           mess_id: data.id,
         },
         body: {
+          slug: data.slug,
           name: data.name,
           description: data.description,
           address: data.address,
@@ -95,6 +115,21 @@ export const useUpdateMessMutation = () => {
       queryClient.invalidateQueries({ queryKey: ["mess"] });
       queryClient.invalidateQueries({ queryKey: ["mess", data?.id] });
       window.location.reload();
+    },
+  });
+};
+
+export const useWhoamiQueryOptions = (slug: string) => {
+  return queryOptions({
+    queryKey: ["whoami", slug],
+    queryFn: async () => {
+      const whoami = await whoamiMessSlugWhoamiGet({ path: { slug } });
+      if (whoami.error) {
+        throw new Error(
+          whoami.error.detail?.[0]?.msg ?? "Failed to get whoami"
+        );
+      }
+      return whoami.data ?? null;
     },
   });
 };

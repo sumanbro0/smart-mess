@@ -12,33 +12,41 @@ import {
 import { usersCurrentUserUsersMeGet } from "@/client";
 import { TeamSwitcher } from "./team-switcher";
 import { getQueryClient } from "@/providers/get-query-client";
-import { messQueryOptions } from "../../mess/api/use-mess-api";
-import { getServerTenantId } from "@/lib/server-utils";
+import {
+  messQueryOptions,
+  messQueryOptionsWithSlug,
+  useWhoamiQueryOptions,
+} from "../../mess/api/use-mess-api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { TeamSwitcherSkeleton } from "./team-switcher-sk";
+import NavMainSk from "./nav-main-sk";
 
-export async function AppSidebar({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  slug: string;
+}
+
+export async function AppSidebar({ slug, ...props }: AppSidebarProps) {
   const user = await usersCurrentUserUsersMeGet();
   const queryClient = getQueryClient();
-  void queryClient.prefetchQuery(messQueryOptions);
-
-  const tenantId = await getServerTenantId();
-
+  void queryClient.prefetchQuery(messQueryOptionsWithSlug(slug));
+  void queryClient.prefetchQuery(useWhoamiQueryOptions(slug));
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <React.Suspense fallback={<TeamSwitcherSkeleton />}>
             <HydrationBoundary state={dehydrate(queryClient)}>
-              <TeamSwitcher tenantId={tenantId ?? ""} />
+              <TeamSwitcher slug={slug} />
             </HydrationBoundary>
           </React.Suspense>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain />
+        <React.Suspense fallback={<NavMainSk />}>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <NavMain slug={slug} />
+          </HydrationBoundary>
+        </React.Suspense>
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user.data ?? null} />

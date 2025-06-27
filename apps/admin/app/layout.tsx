@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/providers";
 import { cookies } from "next/headers";
-import { cookieName, tenantCookieName } from "@/lib/cookie";
+import { cookieName } from "@/lib/cookie";
 import { setupServerInterceptor } from "@/lib/server-interceptor";
 
 const geistSans = Geist({
@@ -29,8 +29,7 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies();
   const token = cookieStore.get(cookieName)?.value;
-  const tenantId = cookieStore.get(tenantCookieName)?.value;
-  setupServerInterceptor({ token, tenantId });
+  setupServerInterceptor({ token });
 
   return (
     <html lang="en" className="h-full overflow-hidden">

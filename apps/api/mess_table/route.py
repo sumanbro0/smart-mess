@@ -10,10 +10,10 @@ from .schema import MessTableRead, MessTableCreate, MessTableUpdate
 from .crud import mess_table_crud
 from mess.crud import mess_crud
 
-router = APIRouter(prefix="/mess-tables", tags=["mess-tables"])
+router = APIRouter(prefix="/mess/{mess_id}/tables", tags=["mess-tables"])
 
 
-@router.get("/mess/{mess_id}", response_model=List[MessTableRead])
+@router.get("/", response_model=List[MessTableRead])
 async def get_mess_tables(
     mess_id: UUID,
     skip: int = 0,

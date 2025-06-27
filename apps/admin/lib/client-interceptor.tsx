@@ -1,7 +1,7 @@
 "use client";
 
 import { client } from "@/client/client.gen";
-import { getPersistentCookie, getPersistentTenantCookie } from "./cookie";
+import { getPersistentCookie } from "./cookie";
 
 let isSetup = false;
 
@@ -14,14 +14,11 @@ export const setupClientInterceptor = () => {
   client.instance.interceptors.request.use(
     async (config) => {
       const token = await getPersistentCookie();
-      const tenantId = await getPersistentTenantCookie();
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
-      if (tenantId) {
-        config.headers.MessId = tenantId;
-      }
+
       return config;
     },
     (error) => Promise.reject(error)

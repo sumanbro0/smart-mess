@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String,  Boolean, DateTime, ForeignKey, Table
+from sqlalchemy import Column, String,  Boolean, DateTime, ForeignKey, Table, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime,UTC, timezone
@@ -20,6 +20,8 @@ class Mess(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name = Column(String, nullable=False)
+    slug = Column(String, nullable=False, unique=True, 
+              server_default=text('gen_random_uuid()::text'))    
     description = Column(String, nullable=True)
     address = Column(String, nullable=True)
     owner_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False)
@@ -31,8 +33,10 @@ class Mess(Base):
     
     # Relationships
     tables = relationship("MessTable", back_populates="mess")
-    menus = relationship("Menu", back_populates="mess")
     orders = relationship("Order", back_populates="mess")
+    menus = relationship("Menu", back_populates="mess")
     owner = relationship("User",  back_populates="messes")
-    customers = relationship("User", secondary="mess_customer", back_populates="messes_as_customer")
     staff = relationship("User", secondary="mess_staff", back_populates="messes_as_staff")
+
+    # TODO: Add customer Before adding this.
+    # customers = relationship("User", secondary="mess_customer", back_populates="messes_as_customer")

@@ -11,31 +11,33 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { navData } from "../routes";
+import { useWhoamiQueryOptions } from "@/features/mess/api/use-mess-api";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-export function NavMain() {
+export function NavMain({ slug }: { slug: string }) {
+  const { data: whoami } = useSuspenseQuery(useWhoamiQueryOptions(slug));
+
   const pathname = usePathname();
+  const segments = pathname.split("/");
+  const tenantSlug = segments[1];
   const items = navData.navMain;
 
   const isActive = (item: (typeof items)[0]) => {
-    // Handle root path edge case
-    if (pathname === "/" && item.url !== "/") {
+    if (!tenantSlug) {
       return false;
     }
 
-    // Exact match takes priority
+    const fullItemPath = `/${tenantSlug}${item.url}`;
+
     if (item.exactMatch) {
-      return pathname === item.url;
+      return pathname === fullItemPath;
     }
 
-    // Default: startsWith logic with proper handling
-    // For root "/" path, only match exactly
     if (item.url === "/") {
-      return pathname === "/";
+      return pathname === `/${tenantSlug}` || pathname === `/${tenantSlug}/`;
     }
 
-    // For other paths, use startsWith but ensure it's a proper path segment
-    // This prevents /user matching /user-settings
-    return pathname === item.url || pathname.startsWith(item.url + "/");
+    return pathname === fullItemPath || pathname.startsWith(fullItemPath + "/");
   };
 
   return (
@@ -43,7 +45,13 @@ export function NavMain() {
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => {
+            if (!item.role.includes(whoami.role)) {
+              return null;
+            }
+
             const active = isActive(item);
+            // Construct href with tenant slug
+            const href = `/${tenantSlug}${item.url}`;
 
             return (
               <SidebarMenuItem
@@ -57,7 +65,7 @@ export function NavMain() {
                   asChild
                 >
                   <Link
-                    href={item.url}
+                    href={href}
                     className="flex items-center gap-2 text-muted-foreground "
                   >
                     {item.icon && <item.icon />}

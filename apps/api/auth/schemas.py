@@ -1,9 +1,9 @@
 from typing import Optional
 from datetime import datetime
-from pydantic import EmailStr
+from pydantic import BaseModel, EmailStr
 from fastapi_users import schemas
 from uuid import UUID
-from .enums import UserRole
+from auth.enums import UserRole
 
 class UserRead(schemas.BaseUser[UUID]):
     id: UUID
@@ -13,7 +13,6 @@ class UserRead(schemas.BaseUser[UUID]):
     is_active: bool = True
     is_superuser: bool = False
     is_verified: bool = False
-    role: UserRole= UserRole.USER
     created_at: datetime
 
 
@@ -25,7 +24,6 @@ class UserCreate(schemas.BaseUserCreate):
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
     is_verified: Optional[bool] = False
-    role: Optional[UserRole] = UserRole.USER
 
 
 class UserUpdate(schemas.BaseUserUpdate):
@@ -36,4 +34,8 @@ class UserUpdate(schemas.BaseUserUpdate):
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
     is_verified: Optional[bool] = None
-    role: Optional[UserRole] = None
+
+
+class RoleRead(BaseModel):
+    id: UUID
+    role: UserRole

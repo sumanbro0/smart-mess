@@ -3,7 +3,6 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyBaseOAuthAccountTableUUID, SQL
 from sqlalchemy import Column, Enum, Integer, String, Boolean, DateTime, ForeignKey
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from .enums import UserRole
 from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyBaseAccessTokenTableUUID,
 )
@@ -34,13 +33,15 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.USER, nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
     messes = relationship("Mess", back_populates="owner")
-    messes_as_customer=relationship("Mess", secondary="mess_customer", back_populates="customers")
     messes_as_staff=relationship("Mess", secondary="mess_staff", back_populates="staff")
-    orders = relationship("Order", back_populates="customer")
+    
+
+# TODO: Add customer Table including following fields too.
+# messes_as_customer=relationship("Mess", secondary="mess_customer", back_populates="customers")
+# orders = relationship("Order", back_populates="customer")
 
 
 class SQLAlchemyUserDatabaseLocal(SQLAlchemyUserDatabase):

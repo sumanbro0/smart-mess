@@ -30,11 +30,13 @@ class Order(Base):
     status = Column(SqlEnum(OrderStatusEnum), nullable=False, default=OrderStatusEnum.PENDING)
     created_at = Column(DateTime, default=datetime.now(UTC))
     updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
-    customer = relationship("User", back_populates="orders")
     mess = relationship("Mess", back_populates="orders")
     table = relationship("MessTable", back_populates="orders")
     items = relationship("OrderItem", back_populates="order")
     transactions = relationship("OrderTransaction", back_populates="order")
+
+    # TODO: Add customer relationship
+    # customer = relationship("User", back_populates="orders")
 
 class OrderItem(Base):
     __tablename__ = "order_items"

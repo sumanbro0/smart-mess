@@ -1,23 +1,23 @@
 "use client";
 import MessForm from "@/features/mess/components/mess-form";
-import { messQueryOptionsWithId } from "@/features/mess/api/use-mess-api";
+import { messQueryOptionsWithSlug } from "@/features/mess/api/use-mess-api";
 import React from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 
-const SettingsPageComponent = ({ tenantId }: { tenantId: string | null }) => {
-  const { data: messes } = useSuspenseQuery(messQueryOptionsWithId(tenantId));
-  console.log(messes);
+const SettingsPageComponent = ({ slug }: { slug: string | null }) => {
+  const { data: mess } = useSuspenseQuery(messQueryOptionsWithSlug(slug));
 
   return (
     <div className="">
       <MessForm
         initialData={{
-          currency: messes?.currency ?? "Rs.",
-          name: messes?.name ?? "",
-          address: messes?.address ?? "",
-          logo: messes?.logo ?? "",
-          description: messes?.description ?? "",
-          id: messes?.id ?? "",
+          currency: mess?.currency ?? "Rs.",
+          name: mess?.name ?? "",
+          address: mess?.address ?? "",
+          logo: mess?.logo ?? "",
+          description: mess?.description ?? "",
+          id: mess?.id ?? "",
+          slug: mess?.slug ?? "",
         }}
       />
     </div>

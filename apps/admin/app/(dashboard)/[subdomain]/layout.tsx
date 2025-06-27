@@ -4,7 +4,14 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AppSidebarSk } from "@/features/side-nav/components/app-sidebar-sk";
-const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
+const DashboardLayout = async ({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ subdomain: string }>;
+}) => {
+  const { subdomain } = await params;
   return (
     <div className="h-full overflow-hidden">
       <SidebarProvider
@@ -17,7 +24,7 @@ const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
         }
       >
         <Suspense fallback={<AppSidebarSk variant="inset" />}>
-          <AppSidebar variant="inset" />
+          <AppSidebar slug={subdomain} variant="inset" />
         </Suspense>
         <SidebarInset className="h-screen flex flex-col">
           <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">

@@ -1,4 +1,5 @@
 import { setupClientInterceptor } from "@/lib/client-interceptor";
+import { setupServerInterceptor } from "@/lib/server-interceptor";
 import {
   QueryClient,
   defaultShouldDehydrateQuery,
@@ -23,7 +24,13 @@ function makeQueryClient() {
 
 let browserQueryClient: QueryClient | undefined = undefined;
 
-export function getQueryClient() {
+export function getQueryClient({
+  token,
+  slug,
+}: {
+  token?: string;
+  slug?: string;
+} = {}) {
   if (!isServer) {
     setupClientInterceptor();
   }
@@ -32,6 +39,9 @@ export function getQueryClient() {
   } else {
     if (!browserQueryClient) {
       browserQueryClient = makeQueryClient();
+    }
+    if (token) {
+      setupServerInterceptor({ token });
     }
     return browserQueryClient;
   }

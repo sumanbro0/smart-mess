@@ -23,7 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FileUpload } from "@/features/files/components/file-upload";
-import { Building2, MapPin, DollarSign, Loader2 } from "lucide-react";
+import { Building2, MapPin, DollarSign, Loader2, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ImagePreview } from "@/features/files/components/image-preview";
 import {
@@ -31,6 +31,20 @@ import {
   useUpdateMessMutation,
 } from "@/features/mess/api/use-mess-api";
 import { toast } from "sonner";
+
+// Helper function to generate slug from name
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .trim()
+    .normalize("NFD") // Normalize unicode characters
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .replace(/[^\w\s-]/g, "") // Remove special characters except spaces and hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, "") // Remove leading/trailing hyphens
+    .substring(0, 50); // Limit length to 50 characters
+};
 
 interface MessFormProps {
   initialData?: MessFormSchema | null;
@@ -51,8 +65,9 @@ const MessForm = ({
     useUpdateMessMutation();
 
   const isLoading = isCreatingMess || isUpdatingMess;
+  const isEditMode = Boolean(initialData);
 
-  // State to track file upload changes
+  const [slugManuallyEdited, setSlugManuallyEdited] = React.useState(false);
 
   const handleSubmit = (data: MessFormSchema) => {
     console.log("Form data:", data);
@@ -83,6 +98,7 @@ const MessForm = ({
     resolver: zodResolver(messFormSchema),
     defaultValues: initialData || {
       name: "",
+      slug: "",
       description: "",
       address: "",
       logo: "",
@@ -91,6 +107,20 @@ const MessForm = ({
   });
 
   const logoValue = form.watch("logo");
+  const nameValue = form.watch("name");
+
+  React.useEffect(() => {
+    if (!isEditMode && nameValue && !slugManuallyEdited) {
+      const newSlug = generateSlug(nameValue);
+      form.setValue("slug", newSlug);
+    }
+  }, [nameValue, form, isEditMode, slugManuallyEdited]);
+
+  const handleSlugChange = (value: string) => {
+    setSlugManuallyEdited(true);
+    form.setValue("slug", value);
+  };
+
   console.log(logoValue ? "true" : "false");
 
   return (
@@ -131,8 +161,40 @@ const MessForm = ({
                         placeholder="Enter your mess name"
                         className="h-11"
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Slug Field */}
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-semibold flex items-center gap-2">
+                      <Link className="h-4 w-4" />
+                      URL Slug <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="mess-name-slug"
+                        className="h-11"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => handleSlugChange(e.target.value)}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      {isEditMode
+                        ? "The URL slug for your mess. Changing this may affect existing links."
+                        : slugManuallyEdited
+                          ? "You've customized this slug. It won't auto-update from the mess name."
+                          : "Auto-generated from the mess name. You can customize it if needed."}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -152,6 +214,7 @@ const MessForm = ({
                         placeholder="Describe your mess services, specialties, or any additional information"
                         className="min-h-[100px] resize-none"
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormDescription>
@@ -191,6 +254,7 @@ const MessForm = ({
                         placeholder="Enter complete address of your mess"
                         className="min-h-[80px] resize-none"
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />
@@ -264,6 +328,7 @@ const MessForm = ({
                         placeholder="USD, EUR, INR, etc."
                         className="h-11"
                         {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormDescription>
@@ -281,7 +346,10 @@ const MessForm = ({
             <Button
               type="button"
               variant="outline"
-              onClick={() => form.reset()}
+              onClick={() => {
+                form.reset();
+                setSlugManuallyEdited(false);
+              }}
               className="h-11 px-8"
             >
               Reset Form

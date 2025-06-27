@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Header
+from fastapi import APIRouter
 from auth.security import fastapi_users,auth_backend
 from auth.schemas import UserRead, UserCreate
 from auth.oauth2 import oauth2_router
@@ -42,7 +42,6 @@ router.include_router(
 async def my_customers(
     current_user: User = Depends(current_active_user),
     db: AsyncSession = Depends(get_async_session),
-    mess_id: str = Header(None, alias="MessId")
 ):
     # Query User entities that are customers of current_user's messes
     stmt = (
@@ -51,9 +50,7 @@ async def my_customers(
         .join(Mess, mess_customer.c.mess_id == Mess.id)
         .where(Mess.owner_id == current_user.id)
     )
-    
-    if mess_id:
-        stmt = stmt.where(Mess.id == mess_id)
+ 
     
     result = await db.execute(stmt)
     customers = result.scalars().all()

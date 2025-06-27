@@ -1,7 +1,10 @@
-import enum
-class UserRole(str,enum.Enum):
-    ADMIN = "ADMIN" 
-    USER = "USER"
+from enum import Enum
+
+class UserRole(str,Enum):
+    OWNER = "owner"
+    STAFF = "staff"
+    CUSTOMER = "customer"
+    ADMIN = "admin"
 
     def __str__(self):
         return str(self.value)

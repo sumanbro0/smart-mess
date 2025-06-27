@@ -1,6 +1,6 @@
 import { client } from "@/client/client.gen";
 
-export const setupServerInterceptor = ({ token, tenantId }: { token?: string | null, tenantId?: string | null }) => {
+export const setupServerInterceptor = ({ token }: { token?: string | null }) => {
     if (!token) return;
 
     // Clear and setup fresh interceptors for server
@@ -13,9 +13,7 @@ export const setupServerInterceptor = ({ token, tenantId }: { token?: string | n
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        if (tenantId) {
-            config.headers.MessId = tenantId;
-        }
+
         return config;
     });
 

@@ -9,6 +9,10 @@ import {
     IconSettings,
 } from "@tabler/icons-react";
 
+import { WhoamiMessSlugWhoamiGetResponse } from "@/client"
+
+
+type R = WhoamiMessSlugWhoamiGetResponse["role"][]
 
 
 export const navData = {
@@ -28,42 +32,49 @@ export const navData = {
             url: "/dashboard",
             icon: IconDashboard,
             exactMatch: true, // Only active on exactly /dashboard
+            role: ["admin", "owner"] as R,
         },
         {
             title: "Items",
             url: "/items",
             icon: IconListDetails,
-            // Uses startsWith: matches /items, /items/123, /items/123/edit, /items/create
+            role: ["admin", "owner", "staff"] as R,
+
         },
         {
             title: "Categories",
             url: "/categories",
             icon: IconCategory,
-            // Uses startsWith: matches /categories, /categories/123, /categories/electronics
+            role: ["admin", "owner", "staff"] as R,
+
         },
         {
             title: "Tables",
             url: "/tables",
             icon: IconTable,
-            // Uses startsWith: matches /tables, /tables/123, /tables/123/edit, /tables/create
+            role: ["admin", "owner", "staff"] as R,
+
         },
         {
             title: "Orders",
             url: "/orders",
             icon: IconChartBar,
-            // Uses startsWith: matches /orders, /orders/123, /orders/123/view, /orders/create
+            role: ["admin", "owner", "staff"] as R,
+
         },
         {
             title: "Users",
             url: "/users",
             icon: IconUsers,
-            // Uses startsWith: matches /users, /users/123, /users/123/profile, /users/create
+            role: ["admin", "owner"] as R,
+
         },
         {
             title: "Settings",
             url: "/settings",
             icon: IconSettings,
-            // Uses startsWith: matches /users, /users/123, /users/123/profile, /users/create
+            role: ["admin", "owner"] as R,
+
         },
     ],
 };

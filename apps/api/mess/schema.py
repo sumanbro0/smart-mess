@@ -9,6 +9,7 @@ from mess_table.schema import MessTableRead
 class MessRead(BaseModel):
     id: UUID
     name: str
+    slug: str
     description: Optional[str] = None
     address: Optional[str] = None
     owner_id: UUID
@@ -21,6 +22,7 @@ class MessRead(BaseModel):
 
 class MessCreate(BaseModel):
     name: str = Field(..., min_length=1)
+    slug: str = Field(..., min_length=1)
     description: Optional[str] = None
     address: Optional[str] = None
     owner_id: Optional[UUID] = None
@@ -31,6 +33,7 @@ class MessCreate(BaseModel):
 
 class MessUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1)
+    slug: Optional[str] = Field(None, min_length=1)
     description: Optional[str] = None
     address: Optional[str] = None
     is_active: Optional[bool] = None
