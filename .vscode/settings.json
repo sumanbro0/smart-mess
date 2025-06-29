@@ -3,5 +3,9 @@
     {
       "mode": "auto"
     }
+  ],
+  "python.analysis.typeCheckingMode": "off",
+  "python.analysis.extraPaths": [
+    "apps/api"
   ]
 }

@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     DATABASE_URI: Optional[str] = None
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    CLIENT_URL: str
+    BASE_URL: str="http://127.0.0.1:8000"
+    CLIENT_URL: str="http://localhost:3000"
 
     @field_validator("DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: Optional[str], info: Dict[str, Any]) -> Any:

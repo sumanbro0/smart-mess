@@ -98,11 +98,9 @@ export function LoginForm({
             toast.success("Login successful!");
             reset();
             startTransition(() => {
-              router.push("/dashboard");
+              router.push("/");
             });
           }
-
-          console.log(response, "Res**********************");
         },
         onError: (error) => {
           setError("root", {

@@ -15,6 +15,7 @@ export const setServerCookie = async (token: string) => {
         path: '/',
         sameSite: 'lax',
         secure: isProduction,
+        maxAge: 34560000000,
     })
 }
 

@@ -33,7 +33,7 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     is_active = Column(Boolean, default=True, nullable=False)
     is_superuser = Column(Boolean, default=False, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime(timezone=True), default=datetime.now)
     oauth_accounts = relationship("OAuthAccount", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
     messes = relationship("Mess", back_populates="owner")
     messes_as_staff=relationship("Mess", secondary="mess_staff", back_populates="staff")

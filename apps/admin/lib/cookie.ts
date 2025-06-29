@@ -12,9 +12,7 @@ export const setPersistentCookie = (token: string) => {
         path: '/',
         secure: isProduction,
         sameSite: 'lax',
-
-        // Optional: set maxAge or expires
-        // maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: 34560000000,
     });
 };
 

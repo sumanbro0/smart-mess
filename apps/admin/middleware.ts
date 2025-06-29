@@ -5,6 +5,11 @@ import { cookieName } from './lib/cookie'
 
 export function middleware(request: NextRequest) {
 
+
+    if (request.nextUrl.pathname.startsWith('/login')) {
+        return NextResponse.next()
+    }
+
     const cookie = request.cookies.get(cookieName || '')
 
     if (!cookie) {

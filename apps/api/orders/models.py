@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Enum as Sq
 from enum import Enum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from datetime import datetime,UTC
+from datetime import datetime,UTC, timezone
 import uuid
 from db.base import Base
 
@@ -28,8 +28,8 @@ class Order(Base):
     mess_id = Column(UUID(as_uuid=True), ForeignKey("mess.id"), nullable=False)
     table_id = Column(UUID(as_uuid=True), ForeignKey("mess_tables.id"), nullable=False)
     status = Column(SqlEnum(OrderStatusEnum), nullable=False, default=OrderStatusEnum.PENDING)
-    created_at = Column(DateTime, default=datetime.now(UTC))
-    updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     mess = relationship("Mess", back_populates="orders")
     table = relationship("MessTable", back_populates="orders")
     items = relationship("OrderItem", back_populates="order")
@@ -58,7 +58,7 @@ class OrderTransaction(Base):
     transaction_id = Column(String, nullable=False)
     amount = Column(Integer, nullable=False)
     status = Column(SqlEnum(OrderTransactionStatusEnum), nullable=False, default=OrderTransactionStatusEnum.PENDING)
-    created_at = Column(DateTime, default=datetime.now(UTC))
-    updated_at = Column(DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC))
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     order = relationship("Order", back_populates="transactions")
 

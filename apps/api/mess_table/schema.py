@@ -19,7 +19,6 @@ class MessTableCreate(BaseModel):
     table_name: str = Field(..., min_length=1)
     capacity: int = Field(..., gt=0)
     qr_code_url: Optional[str] = None
-    mess_id: UUID
     is_active: Optional[bool] = True
 
 
@@ -29,7 +28,3 @@ class MessTableUpdate(BaseModel):
     qr_code_url: Optional[str] = None
     is_active: Optional[bool] = None
 
-
-MessTableRead.model_rebuild()
-MessTableCreate.model_rebuild()
-MessTableUpdate.model_rebuild()

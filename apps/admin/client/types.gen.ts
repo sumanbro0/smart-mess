@@ -585,10 +585,6 @@ export type MessTableCreate = {
      */
     qr_code_url?: string | null;
     /**
-     * Mess Id
-     */
-    mess_id: string;
-    /**
      * Is Active
      */
     is_active?: boolean | null;
@@ -1893,13 +1889,13 @@ export type UpdateMessMessMessIdPutResponses = {
 
 export type UpdateMessMessMessIdPutResponse = UpdateMessMessMessIdPutResponses[keyof UpdateMessMessMessIdPutResponses];
 
-export type GetMessTablesMessMessIdTablesGetData = {
+export type GetMessTablesMessMessSlugTablesGetData = {
     body?: never;
     path: {
         /**
-         * Mess Id
+         * Mess Slug
          */
-        mess_id: string;
+        mess_slug: string;
     };
     query?: {
         /**
@@ -1911,82 +1907,91 @@ export type GetMessTablesMessMessIdTablesGetData = {
          */
         limit?: number;
     };
-    url: '/mess/{mess_id}/tables/';
+    url: '/mess/{mess_slug}/tables/';
 };
 
-export type GetMessTablesMessMessIdTablesGetErrors = {
+export type GetMessTablesMessMessSlugTablesGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetMessTablesMessMessIdTablesGetError = GetMessTablesMessMessIdTablesGetErrors[keyof GetMessTablesMessMessIdTablesGetErrors];
+export type GetMessTablesMessMessSlugTablesGetError = GetMessTablesMessMessSlugTablesGetErrors[keyof GetMessTablesMessMessSlugTablesGetErrors];
 
-export type GetMessTablesMessMessIdTablesGetResponses = {
+export type GetMessTablesMessMessSlugTablesGetResponses = {
     /**
-     * Response Get Mess Tables Mess  Mess Id  Tables  Get
+     * Response Get Mess Tables Mess  Mess Slug  Tables  Get
      * Successful Response
      */
     200: Array<MessTableRead>;
 };
 
-export type GetMessTablesMessMessIdTablesGetResponse = GetMessTablesMessMessIdTablesGetResponses[keyof GetMessTablesMessMessIdTablesGetResponses];
+export type GetMessTablesMessMessSlugTablesGetResponse = GetMessTablesMessMessSlugTablesGetResponses[keyof GetMessTablesMessMessSlugTablesGetResponses];
 
-export type CreateMessTableMessMessIdTablesPostData = {
+export type CreateMessTableMessMessSlugTablesPostData = {
     body: MessTableCreate;
-    path?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
     query?: never;
-    url: '/mess/{mess_id}/tables/';
+    url: '/mess/{mess_slug}/tables/';
 };
 
-export type CreateMessTableMessMessIdTablesPostErrors = {
+export type CreateMessTableMessMessSlugTablesPostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateMessTableMessMessIdTablesPostError = CreateMessTableMessMessIdTablesPostErrors[keyof CreateMessTableMessMessIdTablesPostErrors];
+export type CreateMessTableMessMessSlugTablesPostError = CreateMessTableMessMessSlugTablesPostErrors[keyof CreateMessTableMessMessSlugTablesPostErrors];
 
-export type CreateMessTableMessMessIdTablesPostResponses = {
+export type CreateMessTableMessMessSlugTablesPostResponses = {
     /**
      * Successful Response
      */
     201: MessTableRead;
 };
 
-export type CreateMessTableMessMessIdTablesPostResponse = CreateMessTableMessMessIdTablesPostResponses[keyof CreateMessTableMessMessIdTablesPostResponses];
+export type CreateMessTableMessMessSlugTablesPostResponse = CreateMessTableMessMessSlugTablesPostResponses[keyof CreateMessTableMessMessSlugTablesPostResponses];
 
-export type DeleteMessTableMessMessIdTablesTableIdDeleteData = {
+export type DeleteMessTableMessMessSlugTablesTableIdDeleteData = {
     body?: never;
     path: {
         /**
          * Table Id
          */
         table_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/mess/{mess_id}/tables/{table_id}';
+    url: '/mess/{mess_slug}/tables/{table_id}';
 };
 
-export type DeleteMessTableMessMessIdTablesTableIdDeleteErrors = {
+export type DeleteMessTableMessMessSlugTablesTableIdDeleteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type DeleteMessTableMessMessIdTablesTableIdDeleteError = DeleteMessTableMessMessIdTablesTableIdDeleteErrors[keyof DeleteMessTableMessMessIdTablesTableIdDeleteErrors];
+export type DeleteMessTableMessMessSlugTablesTableIdDeleteError = DeleteMessTableMessMessSlugTablesTableIdDeleteErrors[keyof DeleteMessTableMessMessSlugTablesTableIdDeleteErrors];
 
-export type DeleteMessTableMessMessIdTablesTableIdDeleteResponses = {
+export type DeleteMessTableMessMessSlugTablesTableIdDeleteResponses = {
     /**
      * Successful Response
      */
     200: unknown;
 };
 
-export type GetMessTableMessMessIdTablesTableIdGetData = {
+export type GetMessTableMessMessSlugTablesTableIdGetData = {
     body?: never;
     path: {
         /**
@@ -1995,56 +2000,60 @@ export type GetMessTableMessMessIdTablesTableIdGetData = {
         table_id: string;
     };
     query?: never;
-    url: '/mess/{mess_id}/tables/{table_id}';
+    url: '/mess/{mess_slug}/tables/{table_id}';
 };
 
-export type GetMessTableMessMessIdTablesTableIdGetErrors = {
+export type GetMessTableMessMessSlugTablesTableIdGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetMessTableMessMessIdTablesTableIdGetError = GetMessTableMessMessIdTablesTableIdGetErrors[keyof GetMessTableMessMessIdTablesTableIdGetErrors];
+export type GetMessTableMessMessSlugTablesTableIdGetError = GetMessTableMessMessSlugTablesTableIdGetErrors[keyof GetMessTableMessMessSlugTablesTableIdGetErrors];
 
-export type GetMessTableMessMessIdTablesTableIdGetResponses = {
+export type GetMessTableMessMessSlugTablesTableIdGetResponses = {
     /**
      * Successful Response
      */
     200: MessTableRead;
 };
 
-export type GetMessTableMessMessIdTablesTableIdGetResponse = GetMessTableMessMessIdTablesTableIdGetResponses[keyof GetMessTableMessMessIdTablesTableIdGetResponses];
+export type GetMessTableMessMessSlugTablesTableIdGetResponse = GetMessTableMessMessSlugTablesTableIdGetResponses[keyof GetMessTableMessMessSlugTablesTableIdGetResponses];
 
-export type UpdateMessTableMessMessIdTablesTableIdPutData = {
+export type UpdateMessTableMessMessSlugTablesTableIdPutData = {
     body: MessTableUpdate;
     path: {
         /**
          * Table Id
          */
         table_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/mess/{mess_id}/tables/{table_id}';
+    url: '/mess/{mess_slug}/tables/{table_id}';
 };
 
-export type UpdateMessTableMessMessIdTablesTableIdPutErrors = {
+export type UpdateMessTableMessMessSlugTablesTableIdPutErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type UpdateMessTableMessMessIdTablesTableIdPutError = UpdateMessTableMessMessIdTablesTableIdPutErrors[keyof UpdateMessTableMessMessIdTablesTableIdPutErrors];
+export type UpdateMessTableMessMessSlugTablesTableIdPutError = UpdateMessTableMessMessSlugTablesTableIdPutErrors[keyof UpdateMessTableMessMessSlugTablesTableIdPutErrors];
 
-export type UpdateMessTableMessMessIdTablesTableIdPutResponses = {
+export type UpdateMessTableMessMessSlugTablesTableIdPutResponses = {
     /**
      * Successful Response
      */
     200: MessTableRead;
 };
 
-export type UpdateMessTableMessMessIdTablesTableIdPutResponse = UpdateMessTableMessMessIdTablesTableIdPutResponses[keyof UpdateMessTableMessMessIdTablesTableIdPutResponses];
+export type UpdateMessTableMessMessSlugTablesTableIdPutResponse = UpdateMessTableMessMessSlugTablesTableIdPutResponses[keyof UpdateMessTableMessMessSlugTablesTableIdPutResponses];
 
 export type CreateMenuMenuPostData = {
     body: MenuCreate;
