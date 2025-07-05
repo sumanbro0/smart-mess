@@ -34,7 +34,8 @@ class Mess(Base):
     # Relationships
     tables = relationship("MessTable", back_populates="mess")
     orders = relationship("Order", back_populates="mess")
-    menus = relationship("Menu", back_populates="mess")
+    menu_items = relationship("MenuItem", back_populates="mess")
+    menu_item_categories = relationship("MenuItemCategory", back_populates="mess")
     owner = relationship("User",  back_populates="messes")
     staff = relationship("User", secondary="mess_staff", back_populates="messes_as_staff")
 

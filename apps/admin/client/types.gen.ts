@@ -15,16 +15,6 @@ export type BearerResponse = {
 };
 
 /**
- * Body_add_menu_item_image_menu_item__item_id__image_post
- */
-export type BodyAddMenuItemImageMenuItemItemIdImagePost = {
-    /**
-     * Image
-     */
-    image: Blob | File;
-};
-
-/**
  * Body_auth_database_login_auth_login_post
  */
 export type BodyAuthDatabaseLoginAuthLoginPost = {
@@ -119,6 +109,40 @@ export type BodyVerifyVerifyAuthVerifyPost = {
 };
 
 /**
+ * CategoryResponse
+ */
+export type CategoryResponse = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Image
+     */
+    image?: string | null;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Mess Id
+     */
+    mess_id?: string | null;
+    /**
+     * Id
+     */
+    id: string;
+};
+
+/**
  * ErrorModel
  */
 export type ErrorModel = {
@@ -141,13 +165,61 @@ export type HttpValidationError = {
 };
 
 /**
- * MenuCreate
+ * MenuItemCategoryCreate
  */
-export type MenuCreate = {
+export type MenuItemCategoryCreate = {
     /**
-     * Title
+     * Name
      */
-    title: string;
+    name: string;
+    /**
+     * Image
+     */
+    image?: string | null;
+    /**
+     * Slug
+     */
+    slug: string;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Mess Id
+     */
+    mess_id?: string | null;
+};
+
+/**
+ * MenuItemCategoryDisplay
+ */
+export type MenuItemCategoryDisplay = {
+    /**
+     * Name
+     */
+    name: string;
+};
+
+/**
+ * MenuItemCategoryResponse
+ */
+export type MenuItemCategoryResponse = {
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Image
+     */
+    image?: string | null;
+    /**
+     * Slug
+     */
+    slug: string;
     /**
      * Description
      */
@@ -161,62 +233,9 @@ export type MenuCreate = {
      */
     mess_id: string;
     /**
-     * Image
-     * Menu image file data
-     */
-    image?: (Blob | File) | null;
-};
-
-/**
- * MenuItemCategoryCreate
- */
-export type MenuItemCategoryCreate = {
-    /**
-     * Name
-     */
-    name: string;
-    /**
-     * Description
-     */
-    description?: string | null;
-    /**
-     * Is Active
-     */
-    is_active?: boolean;
-    /**
-     * Menu Id
-     */
-    menu_id: string;
-};
-
-/**
- * MenuItemCategoryResponse
- */
-export type MenuItemCategoryResponse = {
-    /**
-     * Name
-     */
-    name: string;
-    /**
-     * Description
-     */
-    description?: string | null;
-    /**
-     * Is Active
-     */
-    is_active?: boolean;
-    /**
      * Id
      */
     id: string;
-    /**
-     * Menu Id
-     */
-    menu_id: string;
-    /**
-     * Menu Items
-     */
-    menu_items?: Array<MenuItemResponse> | null;
 };
 
 /**
@@ -228,6 +247,14 @@ export type MenuItemCategoryUpdate = {
      */
     name?: string | null;
     /**
+     * Image
+     */
+    image?: string | null;
+    /**
+     * Slug
+     */
+    slug?: string | null;
+    /**
      * Description
      */
     description?: string | null;
@@ -235,6 +262,10 @@ export type MenuItemCategoryUpdate = {
      * Is Active
      */
     is_active?: boolean | null;
+    /**
+     * Mess Id
+     */
+    mess_id?: string | null;
 };
 
 /**
@@ -267,44 +298,84 @@ export type MenuItemCreate = {
     calories?: number | null;
     spiciness?: SpicinessEnum | null;
     /**
-     * Is Veg
+     * Primary Image
      */
-    is_veg?: boolean;
-    /**
-     * Menu Id
-     */
-    menu_id: string;
-    /**
-     * Category Id
-     */
-    category_id: string;
+    primary_image?: string | null;
     /**
      * Images
      * List of image file data
      */
-    images?: Array<Blob | File> | null;
+    images?: Array<string> | null;
+    /**
+     * Is Veg
+     */
+    is_veg?: boolean;
+    /**
+     * Mess Id
+     */
+    mess_id?: string | null;
+    /**
+     * Category Id
+     */
+    category_id: string;
 };
 
 /**
- * MenuItemImageResponse
+ * MenuItemCreateResponse
  */
-export type MenuItemImageResponse = {
-    /**
-     * Is Primary
-     */
-    is_primary?: boolean;
+export type MenuItemCreateResponse = {
     /**
      * Id
      */
     id: string;
+};
+
+/**
+ * MenuItemDisplayResponse
+ */
+export type MenuItemDisplayResponse = {
     /**
-     * Image Url
+     * Name
      */
-    image_url: string;
+    name: string;
     /**
-     * Menu Item Id
+     * Description
      */
-    menu_item_id: string;
+    description?: string | null;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * In Stock
+     */
+    in_stock?: boolean;
+    /**
+     * Is Active
+     */
+    is_active?: boolean;
+    /**
+     * Calories
+     */
+    calories?: number | null;
+    spiciness?: SpicinessEnum | null;
+    /**
+     * Primary Image
+     */
+    primary_image?: string | null;
+    /**
+     * Images
+     */
+    images?: Array<string> | null;
+    /**
+     * Is Veg
+     */
+    is_veg?: boolean;
+    /**
+     * Id
+     */
+    id: string;
+    category?: MenuItemCategoryDisplay | null;
 };
 
 /**
@@ -337,6 +408,14 @@ export type MenuItemResponse = {
     calories?: number | null;
     spiciness?: SpicinessEnum | null;
     /**
+     * Primary Image
+     */
+    primary_image?: string | null;
+    /**
+     * Images
+     */
+    images?: Array<string> | null;
+    /**
      * Is Veg
      */
     is_veg?: boolean;
@@ -345,9 +424,9 @@ export type MenuItemResponse = {
      */
     id: string;
     /**
-     * Menu Id
+     * Mess Id
      */
-    menu_id: string;
+    mess_id: string;
     /**
      * Category Id
      */
@@ -360,11 +439,6 @@ export type MenuItemResponse = {
      * Updated At
      */
     updated_at: string;
-    /**
-     * Images
-     */
-    images?: Array<MenuItemImageResponse>;
-    category?: MenuItemCategoryResponse | null;
 };
 
 /**
@@ -405,79 +479,14 @@ export type MenuItemUpdate = {
      */
     is_veg?: boolean | null;
     /**
+     * Primary Image
+     */
+    primary_image?: string | null;
+    /**
      * Images
      * List of image file data
      */
-    images?: Array<Blob | File> | null;
-};
-
-/**
- * MenuResponse
- */
-export type MenuResponse = {
-    /**
-     * Title
-     */
-    title: string;
-    /**
-     * Description
-     */
-    description?: string | null;
-    /**
-     * Is Active
-     */
-    is_active?: boolean;
-    /**
-     * Id
-     */
-    id: string;
-    /**
-     * Mess Id
-     */
-    mess_id: string;
-    /**
-     * Created At
-     */
-    created_at: string;
-    /**
-     * Updated At
-     */
-    updated_at: string;
-    /**
-     * Image Url
-     */
-    image_url?: string | null;
-    /**
-     * Items
-     */
-    items?: Array<MenuItemResponse>;
-    /**
-     * Categories
-     */
-    categories?: Array<MenuItemCategoryResponse>;
-};
-
-/**
- * MenuUpdate
- */
-export type MenuUpdate = {
-    /**
-     * Title
-     */
-    title?: string | null;
-    /**
-     * Description
-     */
-    description?: string | null;
-    /**
-     * Is Active
-     */
-    is_active?: boolean | null;
-    /**
-     * Image
-     * Menu image file data
-     */
-    image?: (Blob | File) | null;
+    images?: Array<string> | null;
 };
 
 /**
@@ -2055,415 +2064,331 @@ export type UpdateMessTableMessMessSlugTablesTableIdPutResponses = {
 
 export type UpdateMessTableMessMessSlugTablesTableIdPutResponse = UpdateMessTableMessMessSlugTablesTableIdPutResponses[keyof UpdateMessTableMessMessSlugTablesTableIdPutResponses];
 
-export type CreateMenuMenuPostData = {
-    body: MenuCreate;
-    path?: never;
-    query?: never;
-    url: '/menu/';
-};
-
-export type CreateMenuMenuPostErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type CreateMenuMenuPostError = CreateMenuMenuPostErrors[keyof CreateMenuMenuPostErrors];
-
-export type CreateMenuMenuPostResponses = {
-    /**
-     * Successful Response
-     */
-    200: MenuResponse;
-};
-
-export type CreateMenuMenuPostResponse = CreateMenuMenuPostResponses[keyof CreateMenuMenuPostResponses];
-
-export type DeleteMenuMenuMenuIdDeleteData = {
+export type GetCategoriesMessSlugMenuCategoriesGetData = {
     body?: never;
     path: {
         /**
-         * Menu Id
+         * Mess Slug
          */
-        menu_id: string;
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/{menu_id}';
+    url: '/{mess_slug}/menu/categories';
 };
 
-export type DeleteMenuMenuMenuIdDeleteErrors = {
+export type GetCategoriesMessSlugMenuCategoriesGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type DeleteMenuMenuMenuIdDeleteError = DeleteMenuMenuMenuIdDeleteErrors[keyof DeleteMenuMenuMenuIdDeleteErrors];
+export type GetCategoriesMessSlugMenuCategoriesGetError = GetCategoriesMessSlugMenuCategoriesGetErrors[keyof GetCategoriesMessSlugMenuCategoriesGetErrors];
 
-export type DeleteMenuMenuMenuIdDeleteResponses = {
+export type GetCategoriesMessSlugMenuCategoriesGetResponses = {
     /**
+     * Response Get Categories  Mess Slug  Menu Categories Get
      * Successful Response
      */
-    204: void;
+    200: Array<CategoryResponse>;
 };
 
-export type DeleteMenuMenuMenuIdDeleteResponse = DeleteMenuMenuMenuIdDeleteResponses[keyof DeleteMenuMenuMenuIdDeleteResponses];
+export type GetCategoriesMessSlugMenuCategoriesGetResponse = GetCategoriesMessSlugMenuCategoriesGetResponses[keyof GetCategoriesMessSlugMenuCategoriesGetResponses];
 
-export type GetMenuMenuMenuIdGetData = {
-    body?: never;
-    path: {
-        /**
-         * Menu Id
-         */
-        menu_id: string;
-    };
-    query?: never;
-    url: '/menu/{menu_id}';
-};
-
-export type GetMenuMenuMenuIdGetErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GetMenuMenuMenuIdGetError = GetMenuMenuMenuIdGetErrors[keyof GetMenuMenuMenuIdGetErrors];
-
-export type GetMenuMenuMenuIdGetResponses = {
-    /**
-     * Successful Response
-     */
-    200: MenuResponse;
-};
-
-export type GetMenuMenuMenuIdGetResponse = GetMenuMenuMenuIdGetResponses[keyof GetMenuMenuMenuIdGetResponses];
-
-export type UpdateMenuMenuMenuIdPutData = {
-    body: MenuUpdate;
-    path: {
-        /**
-         * Menu Id
-         */
-        menu_id: string;
-    };
-    query?: never;
-    url: '/menu/{menu_id}';
-};
-
-export type UpdateMenuMenuMenuIdPutErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type UpdateMenuMenuMenuIdPutError = UpdateMenuMenuMenuIdPutErrors[keyof UpdateMenuMenuMenuIdPutErrors];
-
-export type UpdateMenuMenuMenuIdPutResponses = {
-    /**
-     * Successful Response
-     */
-    200: MenuResponse;
-};
-
-export type UpdateMenuMenuMenuIdPutResponse = UpdateMenuMenuMenuIdPutResponses[keyof UpdateMenuMenuMenuIdPutResponses];
-
-export type CreateCategoryMenuCategoryPostData = {
+export type CreateCategoryMessSlugMenuCategoriesPostData = {
     body: MenuItemCategoryCreate;
-    path?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
     query?: never;
-    url: '/menu/category';
+    url: '/{mess_slug}/menu/categories';
 };
 
-export type CreateCategoryMenuCategoryPostErrors = {
+export type CreateCategoryMessSlugMenuCategoriesPostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateCategoryMenuCategoryPostError = CreateCategoryMenuCategoryPostErrors[keyof CreateCategoryMenuCategoryPostErrors];
+export type CreateCategoryMessSlugMenuCategoriesPostError = CreateCategoryMessSlugMenuCategoriesPostErrors[keyof CreateCategoryMessSlugMenuCategoriesPostErrors];
 
-export type CreateCategoryMenuCategoryPostResponses = {
+export type CreateCategoryMessSlugMenuCategoriesPostResponses = {
     /**
      * Successful Response
      */
     200: MenuItemCategoryResponse;
 };
 
-export type CreateCategoryMenuCategoryPostResponse = CreateCategoryMenuCategoryPostResponses[keyof CreateCategoryMenuCategoryPostResponses];
+export type CreateCategoryMessSlugMenuCategoriesPostResponse = CreateCategoryMessSlugMenuCategoriesPostResponses[keyof CreateCategoryMessSlugMenuCategoriesPostResponses];
 
-export type DeleteCategoryMenuCategoryCategoryIdDeleteData = {
+export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteData = {
     body?: never;
     path: {
         /**
          * Category Id
          */
         category_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/category/{category_id}';
+    url: '/{mess_slug}/menu/categories/{category_id}';
 };
 
-export type DeleteCategoryMenuCategoryCategoryIdDeleteErrors = {
+export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type DeleteCategoryMenuCategoryCategoryIdDeleteError = DeleteCategoryMenuCategoryCategoryIdDeleteErrors[keyof DeleteCategoryMenuCategoryCategoryIdDeleteErrors];
+export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteError = DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteErrors[keyof DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteErrors];
 
-export type DeleteCategoryMenuCategoryCategoryIdDeleteResponses = {
+export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteResponses = {
     /**
      * Successful Response
      */
     204: void;
 };
 
-export type DeleteCategoryMenuCategoryCategoryIdDeleteResponse = DeleteCategoryMenuCategoryCategoryIdDeleteResponses[keyof DeleteCategoryMenuCategoryCategoryIdDeleteResponses];
+export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteResponse = DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteResponses[keyof DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteResponses];
 
-export type GetCategoryMenuCategoryCategoryIdGetData = {
+export type GetCategoryMessSlugMenuCategoriesCategoryIdGetData = {
     body?: never;
     path: {
         /**
          * Category Id
          */
         category_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/category/{category_id}';
+    url: '/{mess_slug}/menu/categories/{category_id}';
 };
 
-export type GetCategoryMenuCategoryCategoryIdGetErrors = {
+export type GetCategoryMessSlugMenuCategoriesCategoryIdGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetCategoryMenuCategoryCategoryIdGetError = GetCategoryMenuCategoryCategoryIdGetErrors[keyof GetCategoryMenuCategoryCategoryIdGetErrors];
+export type GetCategoryMessSlugMenuCategoriesCategoryIdGetError = GetCategoryMessSlugMenuCategoriesCategoryIdGetErrors[keyof GetCategoryMessSlugMenuCategoriesCategoryIdGetErrors];
 
-export type GetCategoryMenuCategoryCategoryIdGetResponses = {
+export type GetCategoryMessSlugMenuCategoriesCategoryIdGetResponses = {
     /**
      * Successful Response
      */
     200: MenuItemCategoryResponse;
 };
 
-export type GetCategoryMenuCategoryCategoryIdGetResponse = GetCategoryMenuCategoryCategoryIdGetResponses[keyof GetCategoryMenuCategoryCategoryIdGetResponses];
+export type GetCategoryMessSlugMenuCategoriesCategoryIdGetResponse = GetCategoryMessSlugMenuCategoriesCategoryIdGetResponses[keyof GetCategoryMessSlugMenuCategoriesCategoryIdGetResponses];
 
-export type UpdateCategoryMenuCategoryCategoryIdPutData = {
+export type UpdateCategoryMessSlugMenuCategoriesCategoryIdPutData = {
     body: MenuItemCategoryUpdate;
     path: {
         /**
          * Category Id
          */
         category_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/category/{category_id}';
+    url: '/{mess_slug}/menu/categories/{category_id}';
 };
 
-export type UpdateCategoryMenuCategoryCategoryIdPutErrors = {
+export type UpdateCategoryMessSlugMenuCategoriesCategoryIdPutErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type UpdateCategoryMenuCategoryCategoryIdPutError = UpdateCategoryMenuCategoryCategoryIdPutErrors[keyof UpdateCategoryMenuCategoryCategoryIdPutErrors];
+export type UpdateCategoryMessSlugMenuCategoriesCategoryIdPutError = UpdateCategoryMessSlugMenuCategoriesCategoryIdPutErrors[keyof UpdateCategoryMessSlugMenuCategoriesCategoryIdPutErrors];
 
-export type UpdateCategoryMenuCategoryCategoryIdPutResponses = {
+export type UpdateCategoryMessSlugMenuCategoriesCategoryIdPutResponses = {
     /**
      * Successful Response
      */
     200: MenuItemCategoryResponse;
 };
 
-export type UpdateCategoryMenuCategoryCategoryIdPutResponse = UpdateCategoryMenuCategoryCategoryIdPutResponses[keyof UpdateCategoryMenuCategoryCategoryIdPutResponses];
+export type UpdateCategoryMessSlugMenuCategoriesCategoryIdPutResponse = UpdateCategoryMessSlugMenuCategoriesCategoryIdPutResponses[keyof UpdateCategoryMessSlugMenuCategoriesCategoryIdPutResponses];
 
-export type CreateMenuItemMenuItemPostData = {
-    body: MenuItemCreate;
-    path?: never;
+export type GetMenuItemsMessSlugMenuItemsGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
     query?: never;
-    url: '/menu/item';
+    url: '/{mess_slug}/menu/items';
 };
 
-export type CreateMenuItemMenuItemPostErrors = {
+export type GetMenuItemsMessSlugMenuItemsGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateMenuItemMenuItemPostError = CreateMenuItemMenuItemPostErrors[keyof CreateMenuItemMenuItemPostErrors];
+export type GetMenuItemsMessSlugMenuItemsGetError = GetMenuItemsMessSlugMenuItemsGetErrors[keyof GetMenuItemsMessSlugMenuItemsGetErrors];
 
-export type CreateMenuItemMenuItemPostResponses = {
+export type GetMenuItemsMessSlugMenuItemsGetResponses = {
+    /**
+     * Response Get Menu Items  Mess Slug  Menu Items Get
+     * Successful Response
+     */
+    200: Array<MenuItemDisplayResponse>;
+};
+
+export type GetMenuItemsMessSlugMenuItemsGetResponse = GetMenuItemsMessSlugMenuItemsGetResponses[keyof GetMenuItemsMessSlugMenuItemsGetResponses];
+
+export type CreateMenuItemMessSlugMenuItemsPostData = {
+    body: MenuItemCreate;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query?: never;
+    url: '/{mess_slug}/menu/items';
+};
+
+export type CreateMenuItemMessSlugMenuItemsPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CreateMenuItemMessSlugMenuItemsPostError = CreateMenuItemMessSlugMenuItemsPostErrors[keyof CreateMenuItemMessSlugMenuItemsPostErrors];
+
+export type CreateMenuItemMessSlugMenuItemsPostResponses = {
     /**
      * Successful Response
      */
-    200: MenuItemResponse;
+    200: MenuItemCreateResponse;
 };
 
-export type CreateMenuItemMenuItemPostResponse = CreateMenuItemMenuItemPostResponses[keyof CreateMenuItemMenuItemPostResponses];
+export type CreateMenuItemMessSlugMenuItemsPostResponse = CreateMenuItemMessSlugMenuItemsPostResponses[keyof CreateMenuItemMessSlugMenuItemsPostResponses];
 
-export type DeleteMenuItemMenuItemItemIdDeleteData = {
+export type DeleteMenuItemMessSlugMenuItemsItemIdDeleteData = {
     body?: never;
     path: {
         /**
          * Item Id
          */
         item_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/item/{item_id}';
+    url: '/{mess_slug}/menu/items/{item_id}';
 };
 
-export type DeleteMenuItemMenuItemItemIdDeleteErrors = {
+export type DeleteMenuItemMessSlugMenuItemsItemIdDeleteErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type DeleteMenuItemMenuItemItemIdDeleteError = DeleteMenuItemMenuItemItemIdDeleteErrors[keyof DeleteMenuItemMenuItemItemIdDeleteErrors];
+export type DeleteMenuItemMessSlugMenuItemsItemIdDeleteError = DeleteMenuItemMessSlugMenuItemsItemIdDeleteErrors[keyof DeleteMenuItemMessSlugMenuItemsItemIdDeleteErrors];
 
-export type DeleteMenuItemMenuItemItemIdDeleteResponses = {
+export type DeleteMenuItemMessSlugMenuItemsItemIdDeleteResponses = {
     /**
      * Successful Response
      */
     204: void;
 };
 
-export type DeleteMenuItemMenuItemItemIdDeleteResponse = DeleteMenuItemMenuItemItemIdDeleteResponses[keyof DeleteMenuItemMenuItemItemIdDeleteResponses];
+export type DeleteMenuItemMessSlugMenuItemsItemIdDeleteResponse = DeleteMenuItemMessSlugMenuItemsItemIdDeleteResponses[keyof DeleteMenuItemMessSlugMenuItemsItemIdDeleteResponses];
 
-export type GetMenuItemMenuItemItemIdGetData = {
+export type GetMenuItemMessSlugMenuItemsItemIdGetData = {
     body?: never;
     path: {
         /**
          * Item Id
          */
         item_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/item/{item_id}';
+    url: '/{mess_slug}/menu/items/{item_id}';
 };
 
-export type GetMenuItemMenuItemItemIdGetErrors = {
+export type GetMenuItemMessSlugMenuItemsItemIdGetErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type GetMenuItemMenuItemItemIdGetError = GetMenuItemMenuItemItemIdGetErrors[keyof GetMenuItemMenuItemItemIdGetErrors];
+export type GetMenuItemMessSlugMenuItemsItemIdGetError = GetMenuItemMessSlugMenuItemsItemIdGetErrors[keyof GetMenuItemMessSlugMenuItemsItemIdGetErrors];
 
-export type GetMenuItemMenuItemItemIdGetResponses = {
+export type GetMenuItemMessSlugMenuItemsItemIdGetResponses = {
     /**
      * Successful Response
      */
     200: MenuItemResponse;
 };
 
-export type GetMenuItemMenuItemItemIdGetResponse = GetMenuItemMenuItemItemIdGetResponses[keyof GetMenuItemMenuItemItemIdGetResponses];
+export type GetMenuItemMessSlugMenuItemsItemIdGetResponse = GetMenuItemMessSlugMenuItemsItemIdGetResponses[keyof GetMenuItemMessSlugMenuItemsItemIdGetResponses];
 
-export type UpdateMenuItemMenuItemItemIdPutData = {
+export type UpdateMenuItemMessSlugMenuItemsItemIdPutData = {
     body: MenuItemUpdate;
     path: {
         /**
          * Item Id
          */
         item_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/menu/item/{item_id}';
+    url: '/{mess_slug}/menu/items/{item_id}';
 };
 
-export type UpdateMenuItemMenuItemItemIdPutErrors = {
+export type UpdateMenuItemMessSlugMenuItemsItemIdPutErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type UpdateMenuItemMenuItemItemIdPutError = UpdateMenuItemMenuItemItemIdPutErrors[keyof UpdateMenuItemMenuItemItemIdPutErrors];
+export type UpdateMenuItemMessSlugMenuItemsItemIdPutError = UpdateMenuItemMessSlugMenuItemsItemIdPutErrors[keyof UpdateMenuItemMessSlugMenuItemsItemIdPutErrors];
 
-export type UpdateMenuItemMenuItemItemIdPutResponses = {
+export type UpdateMenuItemMessSlugMenuItemsItemIdPutResponses = {
     /**
      * Successful Response
      */
     200: MenuItemResponse;
 };
 
-export type UpdateMenuItemMenuItemItemIdPutResponse = UpdateMenuItemMenuItemItemIdPutResponses[keyof UpdateMenuItemMenuItemItemIdPutResponses];
-
-export type AddMenuItemImageMenuItemItemIdImagePostData = {
-    body: BodyAddMenuItemImageMenuItemItemIdImagePost;
-    path: {
-        /**
-         * Item Id
-         */
-        item_id: string;
-    };
-    query?: {
-        /**
-         * Is Primary
-         */
-        is_primary?: boolean;
-    };
-    url: '/menu/item/{item_id}/image';
-};
-
-export type AddMenuItemImageMenuItemItemIdImagePostErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type AddMenuItemImageMenuItemItemIdImagePostError = AddMenuItemImageMenuItemItemIdImagePostErrors[keyof AddMenuItemImageMenuItemItemIdImagePostErrors];
-
-export type AddMenuItemImageMenuItemItemIdImagePostResponses = {
-    /**
-     * Successful Response
-     */
-    200: MenuItemImageResponse;
-};
-
-export type AddMenuItemImageMenuItemItemIdImagePostResponse = AddMenuItemImageMenuItemItemIdImagePostResponses[keyof AddMenuItemImageMenuItemItemIdImagePostResponses];
-
-export type DeleteMenuItemImageMenuItemImageImageIdDeleteData = {
-    body?: never;
-    path: {
-        /**
-         * Image Id
-         */
-        image_id: string;
-    };
-    query?: never;
-    url: '/menu/item/image/{image_id}';
-};
-
-export type DeleteMenuItemImageMenuItemImageImageIdDeleteErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type DeleteMenuItemImageMenuItemImageImageIdDeleteError = DeleteMenuItemImageMenuItemImageImageIdDeleteErrors[keyof DeleteMenuItemImageMenuItemImageImageIdDeleteErrors];
-
-export type DeleteMenuItemImageMenuItemImageImageIdDeleteResponses = {
-    /**
-     * Successful Response
-     */
-    204: void;
-};
-
-export type DeleteMenuItemImageMenuItemImageImageIdDeleteResponse = DeleteMenuItemImageMenuItemImageImageIdDeleteResponses[keyof DeleteMenuItemImageMenuItemImageImageIdDeleteResponses];
+export type UpdateMenuItemMessSlugMenuItemsItemIdPutResponse = UpdateMenuItemMessSlugMenuItemsItemIdPutResponses[keyof UpdateMenuItemMessSlugMenuItemsItemIdPutResponses];
 
 export type CreateOrderOrdersPostData = {
     body: OrderCreate;

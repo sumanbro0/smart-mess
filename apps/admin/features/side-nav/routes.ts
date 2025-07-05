@@ -35,12 +35,13 @@ export const navData = {
             role: ["admin", "owner"] as R,
         },
         {
-            title: "Items",
-            url: "/items",
-            icon: IconListDetails,
+            title: "Tables",
+            url: "/tables",
+            icon: IconTable,
             role: ["admin", "owner", "staff"] as R,
 
         },
+
         {
             title: "Categories",
             url: "/categories",
@@ -49,12 +50,13 @@ export const navData = {
 
         },
         {
-            title: "Tables",
-            url: "/tables",
-            icon: IconTable,
+            title: "Items",
+            url: "/items",
+            icon: IconListDetails,
             role: ["admin", "owner", "staff"] as R,
 
         },
+
         {
             title: "Orders",
             url: "/orders",

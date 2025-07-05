@@ -12,7 +12,7 @@ const PageHeader = ({
   return (
     <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
       <div className="">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {title}
         </h1>
         <p className="text-muted-foreground max-w-[600px] ">{description}</p>

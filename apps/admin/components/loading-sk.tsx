@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import TableSk from "./table-sk";
 import CardsSk from "./cards-sk";
+import PageHeaderSkeleton from "./page-header-sk";
 
 interface LoadingProps {
   showSectionCards?: boolean;
@@ -45,7 +46,7 @@ export function PageLoading({
           </div>
         </header>
       )}
-
+      <PageHeaderSkeleton />
       {/* Section Cards */}
       {showSectionCards && <CardsSk cardCount={cardCount} />}
 

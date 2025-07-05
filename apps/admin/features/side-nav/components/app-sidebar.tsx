@@ -9,27 +9,27 @@ import {
   SidebarHeader,
   SidebarMenu,
 } from "@/components/ui/sidebar";
-import { usersCurrentUserUsersMeGet } from "@/client";
 import { TeamSwitcher } from "./team-switcher";
 import { getQueryClient } from "@/providers/get-query-client";
 import {
-  messQueryOptions,
   messQueryOptionsWithSlug,
   useWhoamiQueryOptions,
 } from "../../mess/api/use-mess-api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { TeamSwitcherSkeleton } from "./team-switcher-sk";
 import NavMainSk from "./nav-main-sk";
+import { useGetUserQueryOptions } from "@/features/auth/api/user";
+import { NavUserSkeleton } from "./nav-user-sk";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   slug: string;
 }
 
 export async function AppSidebar({ slug, ...props }: AppSidebarProps) {
-  const user = await usersCurrentUserUsersMeGet();
   const queryClient = getQueryClient();
   void queryClient.prefetchQuery(messQueryOptionsWithSlug(slug));
   void queryClient.prefetchQuery(useWhoamiQueryOptions(slug));
+  void queryClient.prefetchQuery(useGetUserQueryOptions());
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -49,7 +49,11 @@ export async function AppSidebar({ slug, ...props }: AppSidebarProps) {
         </React.Suspense>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user.data ?? null} />
+        <React.Suspense fallback={<NavUserSkeleton />}>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <NavUser />
+          </HydrationBoundary>
+        </React.Suspense>
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,13 +1,9 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
-from enum import Enum
 import uuid
+from .enums import SpicinessEnum
 
-class SpicinessEnum(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
 
 # Base schemas
 class MenuItemImageBase(BaseModel):
@@ -30,21 +26,34 @@ class MenuItemImageResponse(MenuItemImageBase):
 
 class MenuItemCategoryBase(BaseModel):
     name: str
+    image: Optional[str] = None
+    slug: str
     description: Optional[str] = None
     is_active: bool = True
+    mess_id: Optional[uuid.UUID] = None
+
+
+class MenuItemCategoryDisplay(BaseModel):
+    name:str
 
 class MenuItemCategoryCreate(MenuItemCategoryBase):
-    menu_id: uuid.UUID
+    pass
 
 class MenuItemCategoryUpdate(BaseModel):
     name: Optional[str] = None
+    image: Optional[str] = None
+    slug: Optional[str] = None
     description: Optional[str] = None
     is_active: Optional[bool] = None
+    mess_id: Optional[uuid.UUID] = None
+
+class CategoryResponse(MenuItemCategoryBase):
+    id: uuid.UUID
+
 
 class MenuItemCategoryResponse(MenuItemCategoryBase):
     id: uuid.UUID
-    menu_id: uuid.UUID
-    menu_items: Optional[List['MenuItemResponse']] = []
+    mess_id: uuid.UUID
 
     class Config:
         from_attributes = True
@@ -52,68 +61,56 @@ class MenuItemCategoryResponse(MenuItemCategoryBase):
 class MenuItemBase(BaseModel):
     name: str
     description: Optional[str] = None
-    price: int
+    price: float
     in_stock: bool = True
     is_active: bool = True
-    calories: Optional[int] = None
+    calories: Optional[float] = None
     spiciness: Optional[SpicinessEnum] = None
+    primary_image: Optional[str] = None
+    images: Optional[List[str]] = None
     is_veg: bool = False
 
+    class Config:
+        use_enum_values = True
+
 class MenuItemCreate(MenuItemBase):
-    menu_id: uuid.UUID
+    mess_id: Optional[uuid.UUID] = None
     category_id: uuid.UUID
-    images: Optional[List[bytes]] = Field(default=[], description="List of image file data")
+    primary_image: Optional[str] = None
+    images: Optional[List[str]] = Field(default=[], description="List of image file data")
 
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[int] = None
+    price: Optional[float] = None
     in_stock: Optional[bool] = None
     category_id: Optional[uuid.UUID] = None
     is_active: Optional[bool] = None
-    calories: Optional[int] = None
+    calories: Optional[float] = None
     spiciness: Optional[SpicinessEnum] = None
     is_veg: Optional[bool] = None
-    images: Optional[List[bytes]] = Field(None, description="List of image file data")
+    primary_image: Optional[str] = None
+    images: Optional[List[str]] = Field(None, description="List of image file data")
 
 class MenuItemResponse(MenuItemBase):
     id: uuid.UUID
-    menu_id: uuid.UUID
+    mess_id: uuid.UUID
     category_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
-    images: List[MenuItemImageResponse] = []
-    category: Optional[MenuItemCategoryResponse] = None
+    images: Optional[List[str]] = [] 
+  
 
     class Config:
         from_attributes = True
 
-class MenuBase(BaseModel):
-    title: str
-    description: Optional[str] = None
-    is_active: bool = True
-
-class MenuCreate(MenuBase):
-    mess_id: uuid.UUID
-    image: Optional[bytes] = Field(None, description="Menu image file data")
-
-class MenuUpdate(BaseModel):
-    title: Optional[str] = None
-    description: Optional[str] = None
-    is_active: Optional[bool] = None
-    image: Optional[bytes] = Field(None, description="Menu image file data")
-
-class MenuResponse(MenuBase):
+class MenuItemDisplayResponse(MenuItemBase):
     id: uuid.UUID
-    mess_id: uuid.UUID
-    created_at: datetime
-    updated_at: datetime
-    image_url: Optional[str] = None
-    items: List[MenuItemResponse] = []
-    categories: List[MenuItemCategoryResponse] = []
+    category:Optional[MenuItemCategoryDisplay] = None
+   
 
-    class Config:
-        from_attributes = True
+class MenuItemCreateResponse(BaseModel):
+    id: uuid.UUID
 
 MenuItemCategoryResponse.model_rebuild()
 MenuItemResponse.model_rebuild()

@@ -29,20 +29,18 @@ import { toast } from "sonner";
 import { deletePersistentCookie } from "@/lib/cookie";
 import { Loader2 } from "lucide-react";
 import { DEFAULT_AVATAR } from "@/lib/constant";
-import { UserRead } from "@/client/types.gen";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useGetUserQueryOptions } from "@/features/auth/api/user";
+import { NavUserSkeleton } from "./nav-user-sk";
 
-interface NavUserProps {
-  user: UserRead | null | undefined;
-}
-
-export function NavUser({ user }: NavUserProps) {
+export function NavUser() {
+  const { data: user, isError } = useSuspenseQuery(useGetUserQueryOptions());
   const { isMobile } = useSidebar();
   const { mutate: logout, isPending } = useLogout();
-  // const [mounted, setMounted] = useState(false);
 
-  // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
+  if (isError) {
+    return <NavUserSkeleton />;
+  }
 
   const handleLogout = () => {
     logout(undefined, {

@@ -1,270 +1,203 @@
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Request
-from sqlalchemy.orm import Session
-from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from sqlalchemy.orm import defer, joinedload
 from db.session import get_async_session
-from . import schema, models
+from .schema import CategoryResponse, MenuItemCategoryCreate, MenuItemCategoryUpdate, MenuItemCategoryResponse, MenuItemCreate, MenuItemCreateResponse, MenuItemDisplayResponse, MenuItemUpdate, MenuItemResponse
+from .models import MenuItem, MenuItemCategory
 import uuid
-from datetime import datetime, UTC
 from upload.route import file_router
+from .dependencies import get_mess_and_user_context, require_mess_access, MessContext
 
-router = APIRouter(prefix="/menu", tags=["menu"])
+router = APIRouter(prefix="/{mess_slug}/menu", tags=["menu"])
 
-# Menu Routes
-@router.post("/", response_model=schema.MenuResponse)
-async def create_menu(
-    request: Request,
-    menu: schema.MenuCreate,
-    db: Session = Depends(get_async_session)
+# Category Routes
+@router.post("/categories", response_model=MenuItemCategoryResponse)
+async def create_category(
+    category: MenuItemCategoryCreate,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
 ):
-    db_menu = models.Menu(**menu.model_dump(exclude={'image'}))
-    if menu.image:
-        # Upload image using the file router
-        upload_response = await file_router.url_for("upload_file")(request=request, file=menu.image)
-        db_menu.image = upload_response["url"]
-    db.add(db_menu)
-    db.commit()
-    db.refresh(db_menu)
-    return db_menu
+    category.mess_id = context.mess.id
 
-@router.get("/{menu_id}", response_model=schema.MenuResponse)
-def get_menu(menu_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    menu = db.query(models.Menu).filter(models.Menu.id == menu_id).first()
-    if not menu:
-        raise HTTPException(status_code=404, detail="Menu not found")
-    return menu
+    result = await db.execute(
+        select(MenuItemCategory).filter(
+            MenuItemCategory.slug == category.slug,
+            MenuItemCategory.mess_id == context.mess.id
+        )
+    )
+    if result.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Category with this slug already exists")
 
-@router.put("/{menu_id}", response_model=schema.MenuResponse)
-async def update_menu(
-    request: Request,
-    menu_id: uuid.UUID,
-    menu: schema.MenuUpdate,
-    db: Session = Depends(get_async_session)
-):
-    db_menu = db.query(models.Menu).filter(models.Menu.id == menu_id).first()
-    if not db_menu:
-        raise HTTPException(status_code=404, detail="Menu not found")
-    
-    update_data = menu.model_dump(exclude_unset=True)
-    if 'image' in update_data:
-        if db_menu.image:
-            # Extract category and filename from the URL
-            image_url = db_menu.image
-            category = image_url.split('/')[-2]
-            filename = image_url.split('/')[-1]
-            # Delete old image
-            await file_router.url_for("delete_file")(category=category, filename=filename)
-        
-        # Upload new image
-        upload_response = await file_router.url_for("upload_file")(request=request, file=update_data.pop('image'))
-        update_data['image'] = upload_response["url"]
-    
-    for key, value in update_data.items():
-        setattr(db_menu, key, value)
-    
-    db.commit()
-    db.refresh(db_menu)
-    return db_menu
-
-@router.delete("/{menu_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_menu(menu_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    db_menu = db.query(models.Menu).filter(models.Menu.id == menu_id).first()
-    if not db_menu:
-        raise HTTPException(status_code=404, detail="Menu not found")
-    
-    if db_menu.image:
-        # Extract category and filename from the URL
-        image_url = db_menu.image
-        category = image_url.split('/')[-2]
-        filename = image_url.split('/')[-1]
-        # Delete image
-        await file_router.url_for("delete_file")(category=category, filename=filename)
-    
-    db.delete(db_menu)
-    db.commit()
-
-# MenuItemCategory Routes
-@router.post("/category", response_model=schema.MenuItemCategoryResponse)
-def create_category(
-    category: schema.MenuItemCategoryCreate,
-    db: Session = Depends(get_async_session)
-):
-    db_category = models.MenuItemCategory(**category.model_dump())
+    db_category = MenuItemCategory(**category.model_dump())
     db.add(db_category)
-    db.commit()
-    db.refresh(db_category)
+    await db.commit()
+    await db.refresh(db_category)   
     return db_category
 
-@router.get("/category/{category_id}", response_model=schema.MenuItemCategoryResponse)
-def get_category(category_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    category = db.query(models.MenuItemCategory).filter(models.MenuItemCategory.id == category_id).first()
+@router.get("/categories", response_model=list[CategoryResponse])
+async def get_categories(
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(select(MenuItemCategory).filter(MenuItemCategory.mess_id == context.mess.id))
+    categories = result.scalars().all()
+    return categories
+
+@router.get("/categories/{category_id}", response_model=MenuItemCategoryResponse)
+async def get_category(
+    category_id: uuid.UUID,
+    context: MessContext = Depends(require_mess_access),  # Read-only access
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(
+        select(MenuItemCategory).filter(
+            MenuItemCategory.id == category_id,
+            MenuItemCategory.mess_id == context.mess.id
+        )
+    )
+    category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
     return category
 
-@router.put("/category/{category_id}", response_model=schema.MenuItemCategoryResponse)
-def update_category(
+@router.put("/categories/{category_id}", response_model=MenuItemCategoryResponse)
+async def update_category(
     category_id: uuid.UUID,
-    category: schema.MenuItemCategoryUpdate,
-    db: Session = Depends(get_async_session)
+    category: MenuItemCategoryUpdate,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
 ):
-    db_category = db.query(models.MenuItemCategory).filter(models.MenuItemCategory.id == category_id).first()
+    result = await db.execute(
+        select(MenuItemCategory).filter(
+            MenuItemCategory.id == category_id,
+            MenuItemCategory.mess_id == context.mess.id
+        )
+    )
+    db_category = result.scalar_one_or_none()
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
     
     for key, value in category.model_dump(exclude_unset=True).items():
         setattr(db_category, key, value)
     
-    db.commit()
-    db.refresh(db_category)
+    await db.commit()
+    await db.refresh(db_category)
     return db_category
 
-@router.delete("/category/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_category(category_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    db_category = db.query(models.MenuItemCategory).filter(models.MenuItemCategory.id == category_id).first()
+@router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_category(
+    category_id: uuid.UUID,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(
+        select(MenuItemCategory).filter(
+            MenuItemCategory.id == category_id,
+            MenuItemCategory.mess_id == context.mess.id
+        )
+    )
+    db_category = result.scalar_one_or_none()
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
     
-    db.delete(db_category)
-    db.commit()
+    await db.delete(db_category)
+    await db.commit()
 
-# MenuItem Routes
-@router.post("/item", response_model=schema.MenuItemResponse)
+# Menu Item Routes
+@router.post("/items", response_model=MenuItemCreateResponse)
 async def create_menu_item(
     request: Request,
-    item: schema.MenuItemCreate,
-    db: Session = Depends(get_async_session)
+    item: MenuItemCreate,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
 ):
-    db_item = models.MenuItem(**item.model_dump(exclude={'images'}))
+    item.mess_id = context.mess.id
+    db_item = MenuItem(**item.model_dump())
     db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
+    await db.commit()
+    await db.refresh(db_item)
     
-    if item.images:
-        for image_data in item.images:
-            # Upload image using the file router
-            upload_response = await file_router.url_for("upload_file")(request=request, file=image_data)
-            db_image = models.MenuItemImage(
-                image=upload_response["url"],
-                menu_item_id=db_item.id,
-                is_primary=len(db_item.images) == 0
-            )
-            db.add(db_image)
-        db.commit()
-        db.refresh(db_item)
-    
-    return db_item
+    return MenuItemCreateResponse(id=db_item.id)
 
-@router.get("/item/{item_id}", response_model=schema.MenuItemResponse)
-def get_menu_item(item_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    item = db.query(models.MenuItem).filter(models.MenuItem.id == item_id).first()
+@router.get("/items", response_model=list[MenuItemDisplayResponse])
+async def get_menu_items(
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(select(MenuItem).options(
+        joinedload(MenuItem.category).load_only(MenuItemCategory.name),
+        ).filter(MenuItem.mess_id == context.mess.id)
+        )
+    items = result.scalars().all()
+    return items
+
+
+@router.get("/items/{item_id}", response_model=MenuItemResponse)
+async def get_menu_item(
+    item_id: uuid.UUID,
+    context: MessContext = Depends(get_mess_and_user_context),
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(
+        select(MenuItem).filter(
+            MenuItem.id == item_id,
+            MenuItem.mess_id == context.mess.id
+        )
+    )
+    item = result.scalar_one_or_none()
     if not item:
         raise HTTPException(status_code=404, detail="Menu item not found")
     return item
 
-@router.put("/item/{item_id}", response_model=schema.MenuItemResponse)
+@router.put("/items/{item_id}", response_model=MenuItemResponse)
 async def update_menu_item(
-    request: Request,
     item_id: uuid.UUID,
-    item: schema.MenuItemUpdate,
-    db: Session = Depends(get_async_session)
+    item: MenuItemUpdate,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
 ):
-    db_item = db.query(models.MenuItem).filter(models.MenuItem.id == item_id).first()
+    result = await db.execute(
+        select(MenuItem).filter(
+            MenuItem.id == item_id,
+            MenuItem.mess_id == context.mess.id
+        )
+    )
+    db_item = result.scalar_one_or_none()
     if not db_item:
         raise HTTPException(status_code=404, detail="Menu item not found")
     
     update_data = item.model_dump(exclude_unset=True)
-    if 'images' in update_data:
-        images = update_data.pop('images')
-        # Delete existing images
-        for image in db_item.images:
-            # Extract category and filename from the URL
-            image_url = image.image
-            category = image_url.split('/')[-2]
-            filename = image_url.split('/')[-1]
-            # Delete image
-            await file_router.url_for("delete_file")(category=category, filename=filename)
-            db.delete(image)
-        
-        # Add new images
-        for image_data in images:
-            # Upload new image
-            upload_response = await file_router.url_for("upload_file")(request=request, file=image_data)
-            db_image = models.MenuItemImage(
-                image=upload_response["url"],
-                menu_item_id=item_id,
-                is_primary=len(db_item.images) == 0
-            )
-            db.add(db_image)
-    
     for key, value in update_data.items():
         setattr(db_item, key, value)
     
-    db.commit()
-    db.refresh(db_item)
+    await db.commit()
+    await db.refresh(db_item)
     return db_item
 
-@router.delete("/item/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_menu_item(item_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    db_item = db.query(models.MenuItem).filter(models.MenuItem.id == item_id).first()
+@router.delete("/items/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_menu_item(
+    item_id: uuid.UUID,
+    context: MessContext = Depends(require_mess_access),
+    db: AsyncSession = Depends(get_async_session)
+):
+    result = await db.execute(
+        select(MenuItem).filter(
+            MenuItem.id == item_id,
+            MenuItem.mess_id == context.mess.id
+        )
+    )
+    db_item = result.scalar_one_or_none()
     if not db_item:
         raise HTTPException(status_code=404, detail="Menu item not found")
     
     # Delete associated images
     for image in db_item.images:
-        # Extract category and filename from the URL
         image_url = image.image
         category = image_url.split('/')[-2]
         filename = image_url.split('/')[-1]
-        # Delete image
         await file_router.url_for("delete_file")(category=category, filename=filename)
-        db.delete(image)
+        await db.delete(image)
     
-    db.delete(db_item)
-    db.commit()
-
-# MenuItemImage Routes
-@router.post("/item/{item_id}/image", response_model=schema.MenuItemImageResponse)
-async def add_menu_item_image(
-    request: Request,
-    item_id: uuid.UUID,
-    image: UploadFile = File(...),
-    is_primary: bool = False,
-    db: Session = Depends(get_async_session)
-):
-    db_item = db.query(models.MenuItem).filter(models.MenuItem.id == item_id).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Menu item not found")
-    
-    # Upload image using the file router
-    upload_response = await file_router.url_for("upload_file")(request=request, file=image)
-    
-    if is_primary:
-        # Set all other images as non-primary
-        for existing_image in db_item.images:
-            existing_image.is_primary = False
-    
-    db_image = models.MenuItemImage(
-        image=upload_response["url"],
-        menu_item_id=item_id,
-        is_primary=is_primary
-    )
-    db.add(db_image)
-    db.commit()
-    db.refresh(db_image)
-    return db_image
-
-@router.delete("/item/image/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_menu_item_image(image_id: uuid.UUID, db: Session = Depends(get_async_session)):
-    db_image = db.query(models.MenuItemImage).filter(models.MenuItemImage.id == image_id).first()
-    if not db_image:
-        raise HTTPException(status_code=404, detail="Image not found")
-    
-    # Extract category and filename from the URL
-    image_url = db_image.image
-    category = image_url.split('/')[-2]
-    filename = image_url.split('/')[-1]
-    # Delete image
-    await file_router.url_for("delete_file")(category=category, filename=filename)
-    
-    db.delete(db_image)
-    db.commit()
+    await db.delete(db_item)
+    await db.commit()

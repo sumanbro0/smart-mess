@@ -24,10 +24,10 @@ const DashboardLayout = async ({
         }
       >
         <Suspense fallback={<AppSidebarSk variant="inset" />}>
-          <AppSidebar slug={subdomain} variant="inset" />
+          <AppSidebar slug={subdomain} variant="inset" className="" />
         </Suspense>
         <SidebarInset className="h-screen flex flex-col">
-          <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shrink-0">
+          <div className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-card/60 shrink-0">
             <SiteHeader />
           </div>
           <ScrollArea className="flex-1 min-h-0">

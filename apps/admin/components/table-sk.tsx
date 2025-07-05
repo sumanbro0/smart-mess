@@ -11,7 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const TableSk = ({ tableRows = 5 }: { tableRows?: number }) => {
   return (
-    <div className="px-4 lg:px-6">
+    <div className="">
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
