@@ -227,22 +227,13 @@ const Preferences: React.FC<PreferencesProps> = ({ className }) => {
           </RadioGroup>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            onClick={handleSave}
-            className="w-full sm:h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm sm:text-base"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            Save
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full h-12 sm:h-10 text-sm sm:text-base"
-            asChild
-          >
-            <Link href={""}>Recommend</Link>
-          </Button>
-        </div>
+        <Button
+          onClick={handleSave}
+          className="w-full sm:h-10 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-sm sm:text-base"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          Update Preferences
+        </Button>
 
         {(calorieMins?.length > 0 ||
           calorieMaxes?.length > 0 ||
