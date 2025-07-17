@@ -128,7 +128,7 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
     cell: ({ row }) => {
       const price = row.getValue("price") as number;
       return (
-        <div className="font-medium text-foreground">₹{price.toFixed(2)}</div>
+        <div className="font-medium text-foreground">{price.toFixed(2)}</div>
       );
     },
     size: 100,
@@ -142,7 +142,7 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
       const category = row.original.category?.name as string;
       return (
         <div className="flex items-center">
-          <Badge variant="outline" className="font-medium">
+          <Badge variant="secondary" className="font-normal text-xs">
             {category}
           </Badge>
         </div>
@@ -198,40 +198,11 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
       if (!spiciness)
         return <span className="text-xs text-muted-foreground">-</span>;
 
-      const spicinessConfig = {
-        low: {
-          label: "Low",
-          color: "bg-green-100 text-green-800 border-green-200",
-        },
-        medium: {
-          label: "Medium",
-          color: "bg-yellow-100 text-yellow-800 border-yellow-200",
-        },
-        high: {
-          label: "High",
-          color: "bg-red-100 text-red-800 border-red-200",
-        },
-      };
-
-      const config = spicinessConfig[spiciness as keyof typeof spicinessConfig];
-
       return (
-        <div className="flex items-center gap-1">
-          <IconFlame
-            className={cn(
-              "h-3 w-3",
-              spiciness === "high"
-                ? "text-red-500"
-                : spiciness === "medium"
-                  ? "text-yellow-500"
-                  : "text-green-500"
-            )}
-          />
-          <Badge
-            variant="outline"
-            className={cn("text-xs font-medium", config.color)}
-          >
-            {config.label}
+        <div className="flex items-center gap-1.5">
+          <IconFlame className="h-3 w-3 text-muted-foreground" />
+          <Badge variant="outline" className="text-xs font-normal border-muted">
+            {spiciness.charAt(0).toUpperCase() + spiciness.slice(1)}
           </Badge>
         </div>
       );
@@ -246,19 +217,9 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
     cell: ({ row }) => {
       const isVeg = row.getValue("is_veg") as boolean;
       return (
-        <div className="flex items-center gap-1">
-          <IconLeaf
-            className={cn("h-3 w-3", isVeg ? "text-green-500" : "text-red-500")}
-          />
-          <Badge
-            variant="outline"
-            className={cn(
-              "text-xs font-medium",
-              isVeg
-                ? "bg-green-100 text-green-800 border-green-200"
-                : "bg-red-100 text-red-800 border-red-200"
-            )}
-          >
+        <div className="flex items-center gap-1.5">
+          <IconLeaf className="h-3 w-3 text-muted-foreground" />
+          <Badge variant="outline" className="text-xs font-normal border-muted">
             {isVeg ? "Vegetarian" : "Non-Veg"}
           </Badge>
         </div>
@@ -274,24 +235,16 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
     cell: ({ row }) => {
       const inStock = row.getValue("in_stock") as boolean;
       return (
-        <div className="flex items-center">
-          <Badge
-            variant={inStock ? "default" : "secondary"}
+        <div className="flex items-center gap-1.5">
+          <div
             className={cn(
-              "font-medium px-3 py-1 text-xs",
-              inStock
-                ? "border-green-500 text-green-500 bg-transparent"
-                : "border-red-500 text-red-500 bg-transparent"
+              "w-2 h-2 rounded-full",
+              inStock ? "bg-green-500" : "bg-red-500"
             )}
-          >
-            <div
-              className={cn(
-                "w-1.5 h-1.5 rounded-full mr-2",
-                inStock ? "bg-green-500" : "bg-red-500"
-              )}
-            />
+          />
+          <span className="text-xs text-muted-foreground">
             {inStock ? "In Stock" : "Out of Stock"}
-          </Badge>
+          </span>
         </div>
       );
     },
@@ -305,24 +258,16 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <div className="flex items-center">
-          <Badge
-            variant={isActive ? "default" : "secondary"}
+        <div className="flex items-center gap-1.5">
+          <div
             className={cn(
-              "font-medium px-3 py-1 text-xs",
-              isActive
-                ? "border-green-500 text-green-500 bg-transparent"
-                : "border-gray-500 text-gray-500 bg-transparent"
+              "w-2 h-2 rounded-full",
+              isActive ? "bg-green-500" : "bg-gray-400"
             )}
-          >
-            <div
-              className={cn(
-                "w-1.5 h-1.5 rounded-full mr-2",
-                isActive ? "bg-green-500" : "bg-gray-400"
-              )}
-            />
+          />
+          <span className="text-xs text-muted-foreground">
             {isActive ? "Active" : "Inactive"}
-          </Badge>
+          </span>
         </div>
       );
     },

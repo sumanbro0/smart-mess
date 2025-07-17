@@ -27,10 +27,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(cookieName)?.value;
-  setupServerInterceptor({ token });
-
   return (
     <html lang="en" className="h-full overflow-hidden">
       <body

@@ -40,6 +40,17 @@ async def get_mess_by_slug(
     return mess
 
 
+@router.get("/{slug}/public",response_model=MessRead)
+async def get_mess_by_slug_public(
+    slug:str,
+    db:AsyncSession=Depends(get_async_session)
+):
+    """Get mess by slug public"""
+    mess=await mess_crud.get_by_slug(db,slug=slug)
+    if not mess:
+        raise HTTPException(status_code=404,detail="Mess not found")
+    return mess
+
 
 
 @router.get("/{slug}/whoami",response_model=RoleRead)

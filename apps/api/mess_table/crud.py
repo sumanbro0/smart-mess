@@ -35,7 +35,6 @@ class MessTableCRUD:
     db: AsyncSession, 
     obj_in: MessTableCreate,
     mess_id: UUID,
-    base_url: str
     ) -> MessTable:
         """Create a new mess table"""
         db_obj = MessTable(
@@ -46,23 +45,8 @@ class MessTableCRUD:
         )
 
         db.add(db_obj)
-        await db.flush() 
-        
-        try:
-            qr_url = qr_service.generate_table_qr_code(
-                table_id=str(db_obj.id),
-                table_name=str(db_obj.table_name),
-                mess_slug=db_obj.mess.slug
-            )
-            
-            db_obj.qr_code_url = f"{base_url}{qr_url}"
-            await db.commit() 
-            await db.refresh(db_obj)
-            
-        except Exception:
-            await db.rollback()
-            raise
-
+        await db.commit()
+        await db.refresh(db_obj)
         return db_obj
 
     async def update(
@@ -84,7 +68,6 @@ class MessTableCRUD:
         """Delete a mess table"""
         obj = await self.get(db, id)
         if obj:
-            qr_service.delete_qr_code(obj.qr_code_url)
             await db.delete(obj)
             await db.commit()
 

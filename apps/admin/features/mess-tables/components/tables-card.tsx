@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useTransition } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,20 +11,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import {
-  MoreHorizontal,
   Edit,
   Trash2,
   Users,
   QrCode,
   Table,
   MoreVertical,
+  Loader2,
 } from "lucide-react";
 
 interface MessTableData {
   id: string;
   table_name: string;
   capacity: number;
-  qr_code_url?: string;
   mess_id: string;
   created_at: string;
   updated_at: string;
@@ -36,7 +35,7 @@ interface TablesCardProps {
   className?: string;
   onEdit: () => void;
   onDelete: () => void;
-  onDownloadQR: () => void;
+  onDownloadQR: () => Promise<void>;
 }
 
 const TablesCard: React.FC<TablesCardProps> = ({
@@ -46,6 +45,12 @@ const TablesCard: React.FC<TablesCardProps> = ({
   onDelete,
   onDownloadQR,
 }) => {
+  const [isPending, startTransition] = useTransition();
+  const handleDownloadQR = () => {
+    startTransition(async () => {
+      await onDownloadQR();
+    });
+  };
   return (
     <Card className={` p-4 hover:shadow-md transition-shadow ${className}`}>
       <CardContent className="p-0 h-full flex flex-col">
@@ -69,12 +74,10 @@ const TablesCard: React.FC<TablesCardProps> = ({
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              {data.qr_code_url && (
-                <DropdownMenuItem onClick={onDownloadQR} className="text-sm">
-                  <QrCode className="mr-2 h-4 w-4" />
-                  QR Code
-                </DropdownMenuItem>
-              )}
+              <DropdownMenuItem onClick={handleDownloadQR} className="text-sm">
+                <QrCode className="mr-2 h-4 w-4" />
+                QR Code
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={onDelete}
@@ -94,10 +97,14 @@ const TablesCard: React.FC<TablesCardProps> = ({
           </div>
 
           <div
-            onClick={onDownloadQR}
+            onClick={handleDownloadQR}
             className="flex items-center gap-1 cursor-pointer hover:text-primary transition-all transform hover:scale-105 ease-in-out duration-300"
           >
-            <QrCode className="h-4 w-4 text-muted-foreground" />
+            {isPending ? (
+              <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+            ) : (
+              <QrCode className="h-4 w-4 text-muted-foreground" />
+            )}
             <span className="text-sm text-muted-foreground">QR Ready</span>
           </div>
 

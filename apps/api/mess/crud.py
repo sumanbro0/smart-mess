@@ -1,8 +1,8 @@
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from auth.models import Customer
 from .models import Mess
 from .schema import MessCreate, MessUpdate
 
@@ -87,6 +87,13 @@ class MessCRUD:
         """Get a mess by slug"""
         result = await db.execute(select(Mess).filter(Mess.slug == slug))
         return result.scalar_one_or_none()
+    
+    async def add_customer(self, db: AsyncSession, slug: str, customer: Customer) -> None:
+        """Add a customer to a mess"""
+        mess = await self.get_by_slug(db, slug)
+        if mess:
+            mess.customers.append(customer)
+            await db.commit()
     
 
 

@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Plus, MapPin, DollarSign, Building2, Globe } from "lucide-react";
+import { Plus, MapPin, Globe } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MessFormModal from "@/features/mess/components/mess-form-modal";
-import { MessRead } from "@/client";
 import Image from "next/image";
 import { DEFAULT_AVATAR } from "@/lib/constant";
 import { toast } from "sonner";

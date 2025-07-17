@@ -7,6 +7,7 @@ import {
   whoamiMessSlugWhoamiGet,
 } from "@/client";
 import { MessFormSchema } from "@/features/mess/schemas/mess-schema";
+import { getPersistentCookie } from "@/lib/cookie";
 import { getQueryClient } from "@/providers/get-query-client";
 import { queryOptions, useMutation } from "@tanstack/react-query";
 
@@ -16,6 +17,7 @@ export const messQueryOptions = queryOptions({
     const messes = await getMessesMessGet();
     return messes.data ?? [];
   },
+  enabled: !!getPersistentCookie(),
 });
 
 export const messQueryOptionsWithId = (id: string | null) => {
@@ -52,7 +54,7 @@ export const messQueryOptionsWithSlug = (slug: string | null) => {
 
       return mess.data ?? null;
     },
-    enabled: !!slug,
+    enabled: !!slug && !!getPersistentCookie(),
   });
 };
 
@@ -92,9 +94,6 @@ export const useUpdateMessMutation = () => {
       if (!data.id) {
         throw new Error("Mess ID is required");
       }
-      console.log("***************************");
-      console.log(data);
-      console.log("***************************");
       const mess = await updateMessMessMessIdPut({
         path: {
           mess_id: data.id,

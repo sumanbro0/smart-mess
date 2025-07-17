@@ -16,13 +16,11 @@ import { useLogout } from "@/features/auth/api/logout";
 import { toast } from "sonner";
 import { deletePersistentCookie } from "@/lib/cookie";
 import { DEFAULT_AVATAR } from "@/lib/constant";
-import { UserRead } from "@/client/types.gen";
+import { useGetUserQueryOptions } from "@/features/auth/api/user";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
-interface DashboardHeaderUserProps {
-  user: UserRead | null | undefined;
-}
-
-export function DashboardHeaderUser({ user }: DashboardHeaderUserProps) {
+export function DashboardHeaderUser() {
+  const { data: user } = useSuspenseQuery(useGetUserQueryOptions());
   const { mutate: logout, isPending } = useLogout();
 
   const handleLogout = () => {

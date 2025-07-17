@@ -25,6 +25,22 @@ class UserCreate(schemas.BaseUserCreate):
     is_superuser: Optional[bool] = False
     is_verified: Optional[bool] = False
 
+class CustomerRead(schemas.BaseUser[UUID]):
+    id: UUID
+    email: EmailStr
+    name: Optional[str] = None
+    image: Optional[str] = None
+    is_active: bool = True
+    is_verified: bool = False
+
+class CustomerCreate(schemas.BaseUserCreate):
+    email: EmailStr
+    password: str
+    name: Optional[str] = None
+    image: Optional[str] = None
+    is_active: Optional[bool] = True
+    is_verified: Optional[bool] = False
+
 
 class UserUpdate(schemas.BaseUserUpdate):
     password: Optional[str] = None
@@ -39,3 +55,8 @@ class UserUpdate(schemas.BaseUserUpdate):
 class RoleRead(BaseModel):
     id: UUID
     role: UserRole
+
+class CustomerSessionTokenRead(BaseModel):
+    id: UUID
+    mess_id: UUID
+    token: str

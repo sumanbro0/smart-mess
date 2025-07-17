@@ -104,6 +104,11 @@ class MenuItemResponse(MenuItemBase):
     class Config:
         from_attributes = True
 
+
+class MenuResponse(BaseModel):
+    currency: str
+    items: List[MenuItemResponse]
+
 class MenuItemDisplayResponse(MenuItemBase):
     id: uuid.UUID
     category:Optional[MenuItemCategoryDisplay] = None

@@ -4,6 +4,9 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { AppSidebarSk } from "@/features/side-nav/components/app-sidebar-sk";
+import { setupServerInterceptor } from "@/lib/server-interceptor";
+import { cookies } from "next/headers";
+import { cookieName } from "@/lib/cookie";
 const DashboardLayout = async ({
   children,
   params,
@@ -12,6 +15,9 @@ const DashboardLayout = async ({
   params: Promise<{ subdomain: string }>;
 }) => {
   const { subdomain } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  setupServerInterceptor({ token });
   return (
     <div className="h-full overflow-hidden">
       <SidebarProvider

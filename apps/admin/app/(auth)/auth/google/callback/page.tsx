@@ -1,6 +1,10 @@
 "use client";
 
-import { oauthGoogleDatabaseCallbackAuthGoogleCallbackGet } from "@/client";
+import {
+  createCustomerSessionAuthMessSlugCustomerSessionPost,
+  oauthGoogleCustomerDatabaseCallbackAuthCustomerGoogleCallbackGet,
+  oauthGoogleDatabaseCallbackAuthGoogleCallbackGet,
+} from "@/client";
 import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
@@ -23,13 +27,6 @@ const AuthCallback = () => {
         const state = searchParams.get("state");
         const error = searchParams.get("error");
 
-        console.log("OAuth Callback Parameters:", {
-          hasCode: !!code,
-          hasState: !!state,
-          error,
-        });
-
-        // If there's an error from Google, redirect to login
         if (error) {
           console.error("Google OAuth error:", error);
           router.replace(
@@ -48,12 +45,58 @@ const AuthCallback = () => {
           return;
         }
 
+        const stateData = JSON.parse(atob(state)) as {
+          mess_slug: string;
+          original_state: string;
+        };
+        console.log("stateData", stateData);
+        if (stateData.mess_slug) {
+          const messSlug = stateData.mess_slug;
+
+          const tokenResponse =
+            await oauthGoogleCustomerDatabaseCallbackAuthCustomerGoogleCallbackGet(
+              {
+                query: {
+                  code: code,
+                  state: stateData.original_state,
+                },
+              }
+            );
+
+          if (tokenResponse.error) {
+            router.replace(
+              `/login?error=google_auth_failed&message=${encodeURIComponent(tokenResponse.error.detail as string)}`
+            );
+            return;
+          }
+
+          const token = (tokenResponse as any).data.access_token;
+
+          const res =
+            await createCustomerSessionAuthMessSlugCustomerSessionPost({
+              query: {
+                token: token,
+              },
+              path: {
+                mess_slug: messSlug,
+              },
+            });
+
+          if (res.status === 201) {
+            router.replace(
+              `${process.env.NEXT_PUBLIC_MENU_URL}/${messSlug}/verify?session_id=${res.data}`
+            );
+          }
+          console.log("res", res);
+          return;
+        }
+
         try {
           console.log("Exchanging code for token...");
           const response =
             (await oauthGoogleDatabaseCallbackAuthGoogleCallbackGet({
               query: {
-                state: state,
+                state: stateData.original_state,
                 code: code,
               },
             })) as OAuthResponse;
@@ -94,7 +137,7 @@ const AuthCallback = () => {
     };
 
     handleCallback();
-  }, [searchParams, router]);
+  }, []);
 
   // Show loading state while processing
   return (

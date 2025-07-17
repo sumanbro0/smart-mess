@@ -7,8 +7,8 @@ from fastapi import Depends
 from typing import Optional, AsyncGenerator
 from fastapi_users.authentication.strategy import DatabaseStrategy
 from db.session import get_async_session
-from .models import AccessToken, User
-from .main import UserManager
+from .models import AccessToken, User, Customer,CustomerAccessToken
+from .main import CustomerManager, UserManager
 from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyAccessTokenDatabase,
 )
@@ -40,26 +40,65 @@ class CustomDatabaseStrategy(DatabaseStrategy):
             return None
             
         return user
+    
+
+class CustomerDatabaseStrategy(DatabaseStrategy):
+    def __init__(self, database: SQLAlchemyAccessTokenDatabase):
+        super().__init__(database, lifetime_seconds=None)
+    
+    async def read_token(self, token: Optional[str], user_manager: CustomerManager) -> Optional[Customer]:
+        if not token:
+            return None
+        
+        user = await super().read_token(token, user_manager)
+        if not user:
+            return None
+        
+        if not user.is_active:
+            try:
+                await self.database.delete(token)
+            except Exception:
+                pass 
+            return None
+        
+        return user
 
 
 
-# Function to get database strategy - Fixed dependency injection
 async def get_database_strategy(
     session: AsyncSession = Depends(get_async_session)
 ) -> CustomDatabaseStrategy:
     access_tokens_db = SQLAlchemyAccessTokenDatabase(session, AccessToken)
     
-    # Strategy with configurable lifetime (1 hour = 3600 seconds)
     return CustomDatabaseStrategy(
         access_tokens_db,
     )
 
+async def get_customer_database_strategy(
+    session: AsyncSession = Depends(get_async_session)
+) -> CustomerDatabaseStrategy:
+    access_tokens_db = SQLAlchemyAccessTokenDatabase(session, CustomerAccessToken)
+    
+    return CustomerDatabaseStrategy(
+        access_tokens_db,
+    )
+
+
+
+
 # Bearer transport
-bearer_transport = BearerTransport(tokenUrl=f"/auth/login")  # Fixed URL
+bearer_transport = BearerTransport(tokenUrl=f"/auth/login") 
 auth_backend = AuthenticationBackend(
     name="database",
     transport=bearer_transport,
     get_strategy=get_database_strategy,    
+)
+
+customer_bearer_transport = BearerTransport(tokenUrl=f"/auth/customer/login")
+customer_auth_backend = AuthenticationBackend(
+    name="customer_database",
+    transport=customer_bearer_transport,
+    get_strategy=get_customer_database_strategy,
 )
 
 

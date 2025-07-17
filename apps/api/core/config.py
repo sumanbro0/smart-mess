@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str
     BASE_URL: str="http://127.0.0.1:8000"
     CLIENT_URL: str="http://localhost:3000"
+    MENU_URL: str="http://localhost:3001"
 
     @field_validator("DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: Optional[str], info: Dict[str, Any]) -> Any:
@@ -30,7 +31,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str]=["http://localhost:8000","http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: List[str]=["http://localhost:8000","http://localhost:3000","http://localhost:3001"]
     
     class Config:
         case_sensitive = True

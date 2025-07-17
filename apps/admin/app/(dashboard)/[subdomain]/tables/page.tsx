@@ -21,11 +21,9 @@ const Tablespage = async ({
       <PageHeader title="Tables" description="Manage your tables">
         <TablesModal initialData={undefined} />
       </PageHeader>
-      <React.Suspense fallback={<TablesSk cardCount={24} />}>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <TablesGrid subdomain={subdomain} />
-        </HydrationBoundary>
-      </React.Suspense>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <TablesGrid subdomain={subdomain} />
+      </HydrationBoundary>
     </div>
   );
 };

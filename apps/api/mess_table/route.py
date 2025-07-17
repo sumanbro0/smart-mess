@@ -11,6 +11,10 @@ from auth.security import current_active_user
 from .schema import MessTableRead, MessTableCreate, MessTableUpdate
 from .crud import mess_table_crud
 from mess.crud import mess_crud
+from fastapi.responses import StreamingResponse
+import io
+import qrcode
+from core.config import settings
 
 
 router = APIRouter(prefix="/mess/{mess_slug}/tables", tags=["mess-tables"])
@@ -61,7 +65,7 @@ async def create_mess_table(
     if not mess or mess.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Mess not found")
     base_url=request.base_url.__str__().rstrip("/")
-    return await mess_table_crud.create(db, obj_in=table_data, mess_id=mess.id, base_url=base_url)
+    return await mess_table_crud.create(db, obj_in=table_data, mess_id=mess.id)
 
 
 @router.put("/{table_id}", response_model=MessTableRead)
@@ -101,3 +105,37 @@ async def delete_mess_table(
     
     await mess_table_crud.remove(db, id=table_id)
     return {"message": "Table deleted successfully"}
+
+
+@router.get("/{table_id}/download-qr")
+async def download_table_qr(
+    mess_slug: str,
+    table_id: UUID,
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(current_active_user)
+):
+    """Download QR code for a table (URL: {settings.MENU_URL}/{mess.slug}/{tid})"""
+    # Find mess and check ownership
+    mess = await mess_crud.get_by_slug(db, slug=mess_slug)
+    if not mess or mess.owner_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Mess not found")
+    # Find table and check it belongs to mess
+    table = await mess_table_crud.get(db, id=table_id)
+    if not table or table.mess_id != mess.id:
+        raise HTTPException(status_code=404, detail="Table not found")
+    # Build QR URL
+    qr_url = f"{settings.MENU_URL.rstrip('/')}/{mess.slug}/{table.id}"
+    # Generate QR code in memory
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(qr_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buf = io.BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return StreamingResponse(buf, media_type="image/png", headers={"Content-Disposition": f"attachment; filename=table_{table.table_name}.png"})

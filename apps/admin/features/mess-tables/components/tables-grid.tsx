@@ -13,14 +13,11 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 
-import { PlusIcon } from "lucide-react";
 import { TableFormData } from "../schemas";
 import TablesForm from "./tables-form";
-import { downloadFile } from "@/lib/file";
+import { downloadTableQrMessMessSlugTablesTableIdDownloadQrGet } from "@/client";
 
 const TablesGrid = ({ subdomain }: { subdomain: string }) => {
   const { data } = useSuspenseQuery(useMessTablesQueryOptions(subdomain));
@@ -58,8 +55,28 @@ const TablesGrid = ({ subdomain }: { subdomain: string }) => {
               handleDelete(table.id);
             }}
             onDownloadQR={async () => {
-              console.log(table.qr_code_url);
-              await downloadFile(table.qr_code_url ?? "");
+              const response =
+                await downloadTableQrMessMessSlugTablesTableIdDownloadQrGet({
+                  path: {
+                    mess_slug: subdomain,
+                    table_id: table.id,
+                  },
+                  responseType: "blob",
+                });
+
+              const blob = response.data as Blob;
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `table_${table.id}.png`;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+              window.open(
+                `${process.env.NEXT_PUBLIC_MENU_URL}/${subdomain}/${table.id}`,
+                "_blank"
+              );
             }}
           />
         ))}

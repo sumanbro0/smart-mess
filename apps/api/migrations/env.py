@@ -5,7 +5,7 @@ from sqlalchemy import pool
 from core.config import settings
 from alembic import context
 from db.base import Base
-from auth.models import User,AccessToken,OAuthAccount,SQLAlchemyUserDatabaseLocal
+from auth.models import User,AccessToken,OAuthAccount,SQLAlchemyUserDatabaseLocal,SQLAlchemyCustomerDatabase,Customer,CustomerOAuthAccount,CustomerSessionToken,CustomerAccessToken
 from mess.models import Mess,mess_customer,mess_staff
 from mess_table.models import MessTable
 from menu.models import  MenuItem, MenuItemCategory,SpicinessEnum

@@ -16,6 +16,9 @@ import { useTransition } from "react";
 
 import React from "react";
 import { setServerCookie } from "@/lib/server-utils";
+import { setupClientInterceptor } from "@/lib/client-interceptor";
+import { setupServerInterceptor } from "@/lib/server-interceptor";
+import Logo from "@/components/logo";
 
 const loginSchema = z.object({
   username: z.string().email("Please enter a valid email address"),
@@ -142,12 +145,12 @@ export function LoginForm({
             className="flex flex-col items-center gap-2 font-medium transition-transform hover:scale-105"
           >
             <div className="flex size-10 items-center justify-center rounded-md bg-primary/10">
-              <GalleryVerticalEnd className="size-7 text-primary" />
+              <Logo iconOnly />
             </div>
-            <span className="sr-only">Acme Inc.</span>
+            <span className="sr-only">Smart Mess</span>
           </a>
           <h1 className="text-2xl font-bold tracking-tight">
-            Welcome to Acme Inc.
+            Welcome to Smart Mess.
           </h1>
           <div className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}

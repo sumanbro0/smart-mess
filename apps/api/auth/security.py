@@ -6,9 +6,10 @@ from fastapi_users_db_sqlalchemy.access_token import (
 )
 from db.session import get_async_session
 from core.config import settings
-from auth.models import User, AccessToken
-from auth.main import  get_user_manager
-from auth.config import auth_backend
+from auth.models import User, AccessToken,Customer
+from auth.main import  get_user_manager,get_customer_manager
+from auth.config import auth_backend,customer_auth_backend
+from sqlalchemy import select, delete
 
 
 
@@ -21,10 +22,19 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](
     [auth_backend],
 )
 
+fastapi_customer = FastAPIUsers[Customer, uuid.UUID](
+    get_customer_manager,
+    [customer_auth_backend],
+)
+
+
 # Current user dependencies
 current_active_user = fastapi_users.current_user(active=True)
 current_active_verified_user = fastapi_users.current_user(active=True, verified=True)
 current_superuser = fastapi_users.current_user(active=True, superuser=True)
+current_active_customer = fastapi_customer.current_user(active=True)      
+
+
 
 # Utility functions for token management
 async def revoke_user_tokens(user_id: uuid.UUID):
@@ -33,13 +43,23 @@ async def revoke_user_tokens(user_id: uuid.UUID):
     async with get_async_session() as session:
         access_tokens_db = SQLAlchemyAccessTokenDatabase(session, AccessToken)
         # Get all user tokens and delete them
-        from sqlalchemy import select, delete
         
         result = await session.execute(
             select(AccessToken).where(AccessToken.user_id == user_id)
         )
         tokens = result.scalars().all()
         
+        for token in tokens:
+            await access_tokens_db.delete(token.token)
+
+async def revoke_customer_tokens(customer_id: uuid.UUID):
+    """Revoke all tokens for a specific customer"""
+    async with get_async_session() as session:
+        access_tokens_db = SQLAlchemyAccessTokenDatabase(session, AccessToken)
+        result = await session.execute(
+            select(AccessToken).where(AccessToken.user_id == customer_id)
+        )
+        tokens = result.scalars().all()
         for token in tokens:
             await access_tokens_db.delete(token.token)
 

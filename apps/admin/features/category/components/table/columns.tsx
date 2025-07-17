@@ -163,24 +163,16 @@ export const columns: ColumnDef<MenuItemCategoryType>[] = [
     cell: ({ row }) => {
       const isActive = row.getValue("is_active") as boolean;
       return (
-        <div className="flex items-center">
-          <Badge
-            variant={isActive ? "default" : "secondary"}
+        <div className="flex items-center gap-1.5">
+          <div
             className={cn(
-              "font-medium px-3 py-1 text-xs",
-              isActive
-                ? "border-green-500 text-green-500 bg-transparent"
-                : "border-gray-500 text-gray-500 bg-transparent"
+              "w-2 h-2 rounded-full",
+              isActive ? "bg-green-500" : "bg-gray-400"
             )}
-          >
-            <div
-              className={cn(
-                "w-1.5 h-1.5 rounded-full mr-2",
-                isActive ? "bg-green-500" : "bg-gray-400"
-              )}
-            />
+          />
+          <span className="text-xs text-muted-foreground">
             {isActive ? "Active" : "Inactive"}
-          </Badge>
+          </span>
         </div>
       );
     },

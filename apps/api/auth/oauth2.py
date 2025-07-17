@@ -1,6 +1,7 @@
+import base64
 from fastapi_users.router.oauth import get_oauth_router
-from .config import auth_backend
-from .main import get_user_manager
+from .config import auth_backend,customer_auth_backend
+from .main import get_customer_manager, get_user_manager
 from core.config import settings
 from httpx_oauth.clients.google import GoogleOAuth2
 import logging
@@ -8,7 +9,7 @@ from fastapi import HTTPException, Request
 from httpx import HTTPError, AsyncClient
 import json
 from fastapi.responses import JSONResponse
-from typing import Optional, Dict, Any
+from typing import Literal, Optional, Dict, Any
 import urllib.parse
 
 # Enable detailed logging
@@ -119,6 +120,7 @@ class CustomGoogleOAuth2(GoogleOAuth2):
         except Exception as e:
             logger.error(f"Unexpected error in get_access_token: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+    
 
     async def get_id_email(self, token: str) -> tuple[str, str]:
         """Get user ID and email from Google API."""
@@ -201,3 +203,17 @@ oauth2_router = get_oauth_router(
     associate_by_email=True,
     is_verified_by_default=True,
 )
+customer_oauth2_router = get_oauth_router(
+    oauth_client=CustomGoogleOAuth2(
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        scopes=["profile", "email"],
+    ),
+    get_user_manager=get_customer_manager,
+    backend=customer_auth_backend,
+    state_secret=settings.SECRET_KEY.get_secret_value(),
+    redirect_url=f"{settings.CLIENT_URL}/auth/google/callback",
+    associate_by_email=True,
+    is_verified_by_default=True,
+)
+

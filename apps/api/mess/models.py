@@ -6,7 +6,7 @@ import uuid
 from db.base import Base
 
 mess_customer = Table('mess_customer', Base.metadata,
-    Column('user_id', UUID(as_uuid=True), ForeignKey('user.id')),
+    Column('customer_id', UUID(as_uuid=True), ForeignKey('customer.id')),
     Column('mess_id', UUID(as_uuid=True), ForeignKey('mess.id'))
 )
 
@@ -38,6 +38,5 @@ class Mess(Base):
     menu_item_categories = relationship("MenuItemCategory", back_populates="mess")
     owner = relationship("User",  back_populates="messes")
     staff = relationship("User", secondary="mess_staff", back_populates="messes_as_staff")
-
-    # TODO: Add customer Before adding this.
-    # customers = relationship("User", secondary="mess_customer", back_populates="messes_as_customer")
+    customers = relationship("Customer", secondary="mess_customer", back_populates="visited")
+    customer_sessions=relationship("CustomerSessionToken",back_populates="mess")

@@ -16,8 +16,12 @@ export const setPersistentCookie = (token: string) => {
     });
 };
 
-export const getPersistentCookie = () => {
-    return getCookie(cookieName);
+export const getPersistentCookie = async () => {
+    const cookie = await getCookie(cookieName);
+    if (typeof cookie === 'string') {
+        return cookie;
+    }
+    return null;
 };
 
 
