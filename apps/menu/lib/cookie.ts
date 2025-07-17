@@ -21,8 +21,8 @@ export const getPersistentCookie = () => {
 };
 
 
-export const deletePersistentCookie = () => {
-    deleteCookie(cookieName, {
+export const deletePersistentCookie = async () => {
+    await deleteCookie(cookieName, {
         path: '/',
         sameSite: 'lax',
     });

@@ -1,5 +1,8 @@
+import base64
+import json
 from typing import  Optional
-from fastapi import Depends, HTTPException, Response, Request
+from urllib.parse import parse_qs
+from fastapi import Depends, HTTPException, Query, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_users.db import SQLAlchemyUserDatabase
@@ -36,11 +39,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):  # Changed to 
         safe: bool = False,
         request: Optional[Request] = None,
     ) -> User:
-        # Extract role from UserCreate if available
         create_dict = user_create.model_dump()
         
         if safe:
-            # If safe mode, remove role to prevent privilege escalation
             create_dict.pop("role", None)
             create_dict.pop("is_superuser", None)
         
@@ -156,8 +157,12 @@ class CustomerManager(UUIDIDMixin, BaseUserManager[Customer, uuid.UUID]):
       
         return await super().on_after_login(user, request, response)
 
-    async def on_after_register(self, user: Customer, request: Request | None = None):
-        print(f"User {user.id} has registered and is {user.is_active}.*********************************************************************************************************")
+    async def on_after_register(self, user: Customer,request: Request | None = None):
+        mess_slug=request.query_params.get("mess_slug")
+        mess=await mess_crud.get_by_slug(self.customer_db.session,slug=mess_slug)
+        if mess:
+            await mess_crud.add_customer(self.customer_db.session,mess.slug,user)
+        print(f"User {user.id} has registered to {mess_slug}  .*********************************************************************************************************")
     
 
 async def get_customer_manager(customer_db: SQLAlchemyCustomerDatabase = Depends(get_customer_db)):

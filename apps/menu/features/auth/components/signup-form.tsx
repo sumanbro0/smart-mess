@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import Image from "next/image";
-import { oauthGoogleCustomerDatabaseAuthorizeAuthCustomerGoogleAuthorizeGet } from "@/client";
 import { toast } from "sonner";
 import {
   IconLoader2,
@@ -14,26 +12,27 @@ import {
   IconEye,
   IconEyeOff,
 } from "@tabler/icons-react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useLoginMutation } from "../use-auth-api";
-import { setServerCookie } from "@/lib/server-utils";
+import { useSignupMutation } from "../use-auth-api";
 
-interface LoginFormProps {
+interface SignupFormProps {
   messName: string;
   slug: string;
   tableId: string;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
+const SignupForm: React.FC<SignupFormProps> = ({ messName, slug, tableId }) => {
   const [isPending, startTransition] = useTransition();
-  const [isGooglePending, startGoogleTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
-  const { mutate: login, isPending: isLoginPending } = useLoginMutation();
+  const { mutate: signup, isPending: isSignupPending } = useSignupMutation();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -43,69 +42,52 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.email || !formData.password) {
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       toast.error("Please fill in all fields");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
       return;
     }
 
     try {
       startTransition(async () => {
-        login(
+        signup(
           {
+            name: formData.name,
             email: formData.email,
             password: formData.password,
             slug: slug,
           },
           {
-            onSuccess: async (data) => {
-              toast.success("Login successful");
-              await setServerCookie(data?.access_token as string);
-              window.location.href = `/${slug}/${tableId}`;
+            onSuccess: () => {
+              toast.success("Account created successfully");
+              window.location.href = `/${slug}/login?t=${tableId}`;
             },
           }
         );
       });
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Failed to login");
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    try {
-      startGoogleTransition(async () => {
-        console.log("Initiating Google OAuth flow with PKCE");
-
-        const { data } =
-          await oauthGoogleCustomerDatabaseAuthorizeAuthCustomerGoogleAuthorizeGet();
-
-        if (data?.authorization_url) {
-          const url = new URL(data.authorization_url);
-          const currentState = url.searchParams.get("state") || "";
-          const stateData = {
-            original_state: currentState,
-            mess_slug: slug,
-            table_id: tableId,
-          };
-          console.log("stateData", stateData);
-          const encodedState = btoa(JSON.stringify(stateData));
-          url.searchParams.set("state", encodedState);
-          url.searchParams.set("from", "menu");
-
-          window.location.href = url.toString();
-        } else {
-          console.error("No authorization URL received");
-          toast.error("Failed to get authorization URL");
-        }
-      });
-    } catch (error) {
-      console.error("Google OAuth error:", error);
-      toast.error("Failed to start Google sign in");
+      console.error("Signup error:", error);
+      toast.error("Failed to create account");
     }
   };
 
   return (
-    <Card className="max-w-md w-full mx-auto p-8 flex flex-col items-center gap-6 bg-card">
+    <Card className="max-w-md w-full mx-auto px-8 flex flex-col items-center gap-6 bg-card">
       <div className="w-full flex items-center justify-start mb-2">
         <Link href={`/${slug}/${tableId}`}>
           <Button
@@ -118,17 +100,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
           </Button>
         </Link>
       </div>
+
       <div>
         <div className="text-center text-xl font-semibold">
-          Welcome back to {messName || "Smart Mess"}!
+          Join {messName || "Smart Mess"}!
         </div>
 
         <div className="text-sm text-muted-foreground text-center mb-6">
-          Sign in to your account to continue
+          Create your account to get started
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="w-full space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Full Name</Label>
+          <Input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="Enter your full name"
+            value={formData.name}
+            onChange={handleInputChange}
+            required
+          />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -149,7 +145,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
+              placeholder="Create a password"
               value={formData.password}
               onChange={handleInputChange}
               required
@@ -170,61 +166,57 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoginPending}>
-          {isLoginPending ? (
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm your password"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              required
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <IconEyeOff className="h-4 w-4" />
+              ) : (
+                <IconEye className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isSignupPending}>
+          {isSignupPending ? (
             <>
               <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
+              Creating account...
             </>
           ) : (
-            "Sign In"
+            "Create Account"
           )}
         </Button>
       </form>
 
-      <div className="relative w-full">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="gap-2 w-full relative"
-        disabled={isGooglePending}
-        onClick={handleGoogleLogin}
-      >
-        {isGooglePending ? (
-          <IconLoader2 className="animate-spin" />
-        ) : (
-          <Image
-            src="/google.png"
-            alt="Google"
-            width={20}
-            height={20}
-            className="rounded-full absolute left-4 top-1/2 -translate-y-1/2"
-          />
-        )}
-        Continue with Google
-      </Button>
-
       <div className="text-center text-sm">
-        Don't have an account?{" "}
-        <Link href={`/${slug}/signup?t=${tableId}`}>
+        Already have an account?{" "}
+        <Link href={`/${slug}/login?t=${tableId}`}>
           <Button variant="link" className="p-0 h-auto font-semibold">
-            Sign up
+            Sign in
           </Button>
         </Link>
       </div>
 
-      <div className="text-xs text-muted-foreground text-center">
-        By continuing, you agree to our{" "}
+      <div className="text-xs text-muted-foreground text-center mt-2">
+        By creating an account, you agree to our{" "}
         <a href="/privacy-policy" className="underline hover:text-primary">
           Privacy Policy
         </a>{" "}
@@ -235,7 +227,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
         .
       </div>
 
-      <div className="text-xs text-muted-foreground text-center">
+      <div className="text-xs text-muted-foreground text-center mt-2">
         Need help?{" "}
         <a
           href="mailto:support@smartmess.com"
@@ -249,4 +241,4 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
   );
 };
 
-export default LoginForm;
+export default SignupForm;

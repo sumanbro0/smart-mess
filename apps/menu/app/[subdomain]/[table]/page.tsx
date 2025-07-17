@@ -5,6 +5,8 @@ import { getQueryClient } from "@/providers/get-query-client";
 import { HydrationBoundary } from "@tanstack/react-query";
 import { dehydrate } from "@tanstack/react-query";
 import React, { Suspense } from "react";
+import { cookieName } from "@/lib/cookie";
+import { cookies } from "next/headers";
 
 const TableMenuPage = async ({
   params,
@@ -18,7 +20,9 @@ const TableMenuPage = async ({
     vegTypesArray: string;
   }>;
 }) => {
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  const queryClient = getQueryClient({ token });
   const { subdomain, table } = await params;
   const { calorieMins, calorieMaxes, spices, vegTypesArray } =
     await searchParams;

@@ -1,5 +1,5 @@
 import { MenuItemDisplayResponse } from "@/client";
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,8 +9,19 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { ShoppingCart, Info, Heart, Sparkles, Flame } from "lucide-react";
+import {
+  ShoppingCart,
+  Info,
+  Heart,
+  Sparkles,
+  Flame,
+  Leaf,
+  Drumstick,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCartStore } from "@/features/cart/use-cart-store";
+import { motion, AnimatePresence } from "motion/react";
 
 interface MenuItemCardProps {
   item: MenuItemDisplayResponse;
@@ -23,6 +34,10 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
   currency,
   className,
 }) => {
+  const addToCart = useCartStore((state) => state.addToCart);
+  const [isAdding, setIsAdding] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const formatPrice = (price: number) => {
     return `${currency} ${price.toFixed(2)}`;
   };
@@ -53,9 +68,20 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
     }
   };
 
-  const handleAddToCart = (item: MenuItemDisplayResponse) => {
-    // TODO: Implement add to cart functionality
-    console.log("Add to cart:", item);
+  const handleAddToCart = async (item: MenuItemDisplayResponse) => {
+    if (isAdding) return;
+
+    setIsAdding(true);
+
+    addToCart(item);
+
+    setShowSuccess(true);
+
+    // Reset after success animation
+    setTimeout(() => {
+      setShowSuccess(false);
+      setIsAdding(false);
+    }, 2000);
   };
 
   const handleViewDetails = (item: MenuItemDisplayResponse) => {
@@ -67,6 +93,26 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
     // TODO: Implement favorite functionality
     console.log("Toggle favorite:", item);
   };
+
+  const renderVegBadgeOverlay = (isVeg: boolean) => (
+    <div className="absolute top-2 left-2 z-10">
+      <div
+        className={cn(
+          "w-5 h-5 rounded-full flex items-center justify-center shadow-sm border",
+          isVeg
+            ? "bg-emerald-500 text-white border-emerald-400"
+            : "bg-red-500 text-white border-red-400"
+        )}
+        title={isVeg ? "Vegetarian" : "Non-Vegetarian"}
+      >
+        {isVeg ? (
+          <Leaf className="w-3 h-3" />
+        ) : (
+          <Drumstick className="w-3 h-3" />
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <Card
@@ -97,19 +143,8 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
 
-          {/* Top badges */}
-          <div className="absolute top-3 left-3 flex gap-2">
-            {item.is_veg ? (
-              <Badge className="bg-emerald-500/90 text-white text-xs border-0 backdrop-blur-sm">
-                <Sparkles className="w-3 h-3 mr-1" />
-                Veg
-              </Badge>
-            ) : (
-              <Badge className="bg-red-500/90 text-white text-xs border-0 backdrop-blur-sm">
-                Non-Veg
-              </Badge>
-            )}
-          </div>
+          {/* Veg/Non-Veg Badge Overlay */}
+          {renderVegBadgeOverlay(item.is_veg ?? false)}
 
           {/* Favorite button */}
           <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
@@ -139,8 +174,8 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
       {/* Content Section */}
       <CardContent className="px-4 space-y-4 pt-0">
-        {/* Badges */}
-        <div className="flex gap-2">
+        {/* Badges - now only spiciness and calories */}
+        <div className="flex flex-wrap gap-2">
           {item.spiciness && (
             <Badge
               variant="outline"
@@ -199,15 +234,89 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
             <span className="hidden sm:inline">Details</span>
           </Button>
 
-          <Button
-            size="sm"
-            className="flex-1 h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 border-0"
-            onClick={() => handleAddToCart(item)}
-            disabled={!item.in_stock}
-          >
-            <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Add to Cart</span>
-          </Button>
+          <motion.div className="flex-1">
+            <Button
+              size="sm"
+              className={cn(
+                "w-full h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border-0 relative overflow-hidden",
+                showSuccess
+                  ? "bg-emerald-600"
+                  : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 hover:shadow-emerald-500/25"
+              )}
+              onClick={() => handleAddToCart(item)}
+              disabled={!item.in_stock || isAdding}
+            >
+              <AnimatePresence mode="wait">
+                {showSuccess ? (
+                  <motion.div
+                    key="success"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="flex items-center justify-center"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [0, 1.2, 1] }}
+                      transition={{
+                        duration: 0.5,
+                        ease: "easeOut",
+                        times: [0, 0.6, 1],
+                      }}
+                    >
+                      <Check className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                    </motion.div>
+                    <span className="hidden sm:inline">Added!</span>
+                  </motion.div>
+                ) : isAdding ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 1,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    >
+                      <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                    </motion.div>
+                    <span className="hidden sm:inline">Adding...</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="default"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center"
+                  >
+                    <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Add to Cart</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Ripple effect */}
+              <AnimatePresence>
+                {isAdding && (
+                  <motion.div
+                    initial={{ scale: 0, opacity: 0.5 }}
+                    animate={{ scale: 4, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute inset-0 bg-white/20 rounded-full"
+                  />
+                )}
+              </AnimatePresence>
+            </Button>
+          </motion.div>
         </div>
       </CardFooter>
     </Card>

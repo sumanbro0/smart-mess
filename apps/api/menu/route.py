@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import defer, joinedload
+from sqlalchemy.orm import  joinedload
 from db.session import get_async_session
 from .schema import CategoryResponse, MenuItemCategoryCreate, MenuItemCategoryUpdate, MenuItemCategoryResponse, MenuItemCreate, MenuItemCreateResponse, MenuItemDisplayResponse, MenuItemUpdate, MenuItemResponse, MenuResponse
 from .models import MenuItem, MenuItemCategory
@@ -9,7 +9,7 @@ import uuid
 from upload.route import file_router
 from .dependencies import get_mess_and_user_context, require_mess_access, MessContext
 from mess.crud import mess_crud
-from .collab_filter import get_menu_recommendations
+from .recommendation import get_menu_recommendations_content_based
 
 router = APIRouter(prefix="/{mess_slug}/menu", tags=["menu"])
 
@@ -109,11 +109,13 @@ async def delete_category(
 # Menu Item Routes
 @router.post("/items", response_model=MenuItemCreateResponse)
 async def create_menu_item(
-    request: Request,
     item: MenuItemCreate,
     context: MessContext = Depends(require_mess_access),
     db: AsyncSession = Depends(get_async_session)
 ):
+    print("***************************")
+    print(item)
+    print("***************************")
     item.mess_id = context.mess.id
     db_item = MenuItem(**item.model_dump())
     db.add(db_item)
@@ -160,7 +162,7 @@ async def get_menu_items_display(
     ).filter(MenuItem.mess_id == mess.id))
 
     items = result.scalars().all()
-    filtered_items = get_menu_recommendations(items=items, calorie_mins=calorieMins, calorie_maxes=calorieMaxes, spices=spices, vegTypesArray=vegTypesArray)
+    filtered_items = get_menu_recommendations_content_based(items=items, calorie_mins=calorieMins, calorie_maxes=calorieMaxes, spices=spices, vegTypesArray=vegTypesArray)
     return MenuResponse(currency=mess.currency, items=filtered_items)
 
 @router.get("/items/{item_id}", response_model=MenuItemResponse)
@@ -187,6 +189,9 @@ async def update_menu_item(
     context: MessContext = Depends(require_mess_access),
     db: AsyncSession = Depends(get_async_session)
 ):
+    print("***************************")
+    print(item)
+    print("***************************")
     result = await db.execute(
         select(MenuItem).filter(
             MenuItem.id == item_id,

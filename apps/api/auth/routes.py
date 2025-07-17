@@ -4,7 +4,7 @@ from .schemas import CustomerCreate, CustomerRead, CustomerSessionTokenRead, Use
 from .oauth2 import oauth2_router,customer_oauth2_router
 from .models import Customer, CustomerSessionToken, User
 from fastapi import Depends
-from .security import current_active_user, fastapi_users,current_active_customer
+from .security import current_active_user, fastapi_users,current_active_customer,fastapi_customer
 from db.session import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from mess.models import Mess, mess_customer
@@ -41,13 +41,13 @@ router.include_router(
 
 # Customer Auth Routes
 router.include_router(
-    fastapi_users.get_auth_router(customer_auth_backend),
+    fastapi_customer.get_auth_router(customer_auth_backend),
     prefix="/customer",
     tags=["customer"],
 )
 
 router.include_router(
-    fastapi_users.get_register_router(CustomerRead, CustomerCreate),
+    fastapi_customer.get_register_router(CustomerRead, CustomerCreate),
     prefix="/customer",
     tags=["customer"],
 )
@@ -57,14 +57,14 @@ router.include_router(customer_oauth2_router, prefix="/customer/google")
 
 
 router.include_router(
-    fastapi_users.get_reset_password_router(),
+    fastapi_customer.get_reset_password_router(),
     prefix="/customer",
     tags=["customer"],
 
 )
 
 router.include_router(
-    fastapi_users.get_verify_router(CustomerRead),
+    fastapi_customer.get_verify_router(CustomerRead),
     prefix="/customer",
     tags=["customer"],
 )

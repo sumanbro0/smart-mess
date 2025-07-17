@@ -113,7 +113,6 @@ export const useUpdateMessMutation = () => {
     onSuccess: async (data) => {
       queryClient.invalidateQueries({ queryKey: ["mess"] });
       queryClient.invalidateQueries({ queryKey: ["mess", data?.id] });
-      window.location.reload();
     },
   });
 };

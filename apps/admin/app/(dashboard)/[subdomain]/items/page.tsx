@@ -8,6 +8,8 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Metadata } from "next";
 import Link from "next/link";
 import React from "react";
+import { cookieName } from "@/lib/cookie";
+import { cookies } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Menu Items | Admin",
@@ -20,7 +22,9 @@ const MenuItemsPage = async ({
   params: Promise<{ subdomain: string }>;
 }) => {
   const { subdomain } = await params;
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  const queryClient = getQueryClient({ token });
   await queryClient.prefetchQuery(getMenuItemsQueryOptions(subdomain));
 
   return (

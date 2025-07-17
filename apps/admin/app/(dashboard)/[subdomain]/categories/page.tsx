@@ -5,6 +5,8 @@ import { CategoriesTable } from "@/features/category/components/caategories";
 import { getQueryClient } from "@/providers/get-query-client";
 import { categoryQueryOptions } from "@/features/category/api/use-category-api";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { cookieName } from "@/lib/cookie";
+import { cookies } from "next/headers";
 
 const CategoriesPage = async ({
   params,
@@ -12,7 +14,9 @@ const CategoriesPage = async ({
   params: Promise<{ subdomain: string }>;
 }) => {
   const { subdomain } = await params;
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  const queryClient = getQueryClient({ token });
   void queryClient.prefetchQuery(categoryQueryOptions(subdomain));
   return (
     <div className="space-y-12">

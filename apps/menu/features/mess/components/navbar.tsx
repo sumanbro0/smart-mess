@@ -1,8 +1,7 @@
 "use client";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import React from "react";
 import { useMessBySlugQueryOptions } from "../use-mess-api";
-import { Bell } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -18,22 +17,34 @@ import {
   useLogoutMutation,
 } from "@/features/auth/use-auth-api";
 import { cn } from "@/lib/utils";
+import CartSheet from "@/features/cart/components/cart-sheet";
+import Link from "next/link";
+import { deleteServerCookie } from "@/lib/server-utils";
+import { deletePersistentCookie } from "@/lib/cookie";
+import { setupClientInterceptor } from "@/lib/client-interceptor";
 
-const NavBar = ({ slug }: { slug: string }) => {
+const NavBar = ({ slug, table_id }: { slug: string; table_id: string }) => {
   const { data: mess } = useSuspenseQuery(useMessBySlugQueryOptions(slug));
-  const { data: user } = useSuspenseQuery(useCurrentUserQueryOptions());
+  const { data: user, refetch } = useSuspenseQuery(
+    useCurrentUserQueryOptions()
+  );
   const { mutate: logout, isPending: logoutPending } = useLogoutMutation();
+
   return (
     <nav
-      className="w-full px-4 sm:px-8 py-2 flex items-center justify-between bg-background border-b border-border shadow-sm"
-      style={{ minHeight: "64px" }}
+      className="w-full px-4 sm:px-8 py-2 flex items-center justify-between bg-background  shadow-sm sticky top-0 z-40"
+      style={{ minHeight: "72px" }}
     >
-      <div className="flex items-center gap-3 min-w-0">
-        <Avatar>
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        <Avatar className="w-10 h-10 sm:w-12 sm:h-12 ">
           {mess?.logo ? (
-            <AvatarImage src={mess.logo} alt={mess?.name || "Logo"} />
+            <AvatarImage
+              src={mess.logo}
+              alt={mess?.name || "Logo"}
+              className="object-contain w-full h-full"
+            />
           ) : (
-            <AvatarFallback>
+            <AvatarFallback className="text-xl sm:text-2xl">
               {mess?.name
                 ? mess.name
                     .split(" ")
@@ -45,44 +56,39 @@ const NavBar = ({ slug }: { slug: string }) => {
             </AvatarFallback>
           )}
         </Avatar>
-        <div className="relative flex items-center">
+        <div className="relative flex flex-col justify-center min-w-0">
           <span
-            className="font-bold text-lg truncate"
+            className="font-semibold  sm:text-xl  truncate text-foreground"
             style={{ color: "var(--foreground)" }}
           >
             {mess?.name || "Smart Mess"}
           </span>
-          <span
-            className="absolute -top-1 -right-8 text-xs font-medium text-gray-600 select-none"
-            style={{ letterSpacing: "1px" }}
-          >
-            BETA
-          </span>
         </div>
       </div>
       {/* Right: Notification, Login/Profile */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        <button
-          className="rounded-full p-2 hover:bg-accent transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="Notifications"
-          style={{ color: "var(--muted-foreground)" }}
-        >
-          <Bell className="w-5 h-5" />
-        </button>
+      <div className="flex items-center gap-2 sm:gap-4">
+        {/* Cart Icon with badge */}
+        <CartSheet currency={mess?.currency || "₹"} />
         {/* Auth section */}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar
                 className={cn(
-                  "cursor-pointer",
+                  "cursor-pointer border border-border shadow-md bg-white w-10 h-10 sm:w-12 sm:h-12",
                   logoutPending && "animate-pulse"
                 )}
               >
                 {user.image ? (
-                  <AvatarImage src={user.image} alt={user.name || "Profile"} />
+                  <AvatarImage
+                    src={user.image}
+                    alt={user.name || "Profile"}
+                    height={48}
+                    width={48}
+                    className="object-cover w-full h-full"
+                  />
                 ) : (
-                  <AvatarFallback>
+                  <AvatarFallback className="text-base sm:text-lg">
                     {user.name
                       ? user.name
                           .split(" ")
@@ -115,8 +121,10 @@ const NavBar = ({ slug }: { slug: string }) => {
                 onSelect={() => {
                   /* TODO: Logout logic */
                   logout(undefined, {
-                    onSuccess: () => {
-                      window.location.reload();
+                    onSuccess: async () => {
+                      await deletePersistentCookie();
+                      setupClientInterceptor();
+                      window.location.href = `/${slug}/login?t=${table_id}`;
                     },
                   });
                 }}
@@ -126,17 +134,15 @@ const NavBar = ({ slug }: { slug: string }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button
-            size="sm"
-            className="rounded-full px-4 py-1.5 h-8 sm:h-9 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
-            style={{ minWidth: 0 }}
-            onClick={() => {
-              // TODO: Replace with your login logic (open modal, redirect, etc.)
-              window.location.href = "/login";
-            }}
-          >
-            Login
-          </Button>
+          <Link href={`/${slug}/login?t=${table_id}`}>
+            <Button
+              size="sm"
+              className="rounded-full px-4 py-1.5 h-8 sm:h-9 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+              style={{ minWidth: 0 }}
+            >
+              Login
+            </Button>
+          </Link>
         )}
       </div>
     </nav>

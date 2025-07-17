@@ -8,6 +8,8 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import { cookieName } from "@/lib/cookie";
+import { cookies } from "next/headers";
 
 const UpdateMenuItemPage = async ({
   params,
@@ -15,7 +17,9 @@ const UpdateMenuItemPage = async ({
   params: Promise<{ subdomain: string; mid: string }>;
 }) => {
   const { subdomain, mid } = await params;
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  const queryClient = getQueryClient({ token });
   void queryClient.prefetchQuery(categoryQueryOptions(subdomain));
   void queryClient.prefetchQuery(getMenuItemQueryOptions(subdomain, mid));
 

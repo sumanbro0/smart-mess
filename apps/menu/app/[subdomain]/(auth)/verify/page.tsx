@@ -14,6 +14,7 @@ const VerifySession = () => {
   const router = useRouter();
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
+    const tableId = searchParams.get("t");
 
     const fetchSession = async () => {
       if (!sessionId) {
@@ -40,7 +41,7 @@ const VerifySession = () => {
         await setServerCookie(session.data.token);
         setupClientInterceptor();
 
-        router.replace(`/${subdomain}`);
+        router.replace(`/${subdomain}/${tableId}`);
       }
     };
     fetchSession();

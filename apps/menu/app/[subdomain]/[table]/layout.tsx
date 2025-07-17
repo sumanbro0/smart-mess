@@ -1,9 +1,10 @@
-import { client } from "@/client/client.gen";
 import { useCurrentUserQueryOptions } from "@/features/auth/use-auth-api";
 import NavBar, { NavBarSkeleton } from "@/features/mess/components/navbar";
 import { useMessBySlugQueryOptions } from "@/features/mess/use-mess-api";
+import { cookieName } from "@/lib/cookie";
 import { getQueryClient } from "@/providers/get-query-client";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { cookies } from "next/headers";
 import React, { Suspense } from "react";
 
 const MenuLayout = async ({
@@ -13,7 +14,10 @@ const MenuLayout = async ({
   children: React.ReactNode;
   params: Promise<{ subdomain: string; table: string }>;
 }) => {
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+
+  const queryClient = getQueryClient({ token });
   const { subdomain, table } = await params;
   void queryClient.prefetchQuery(useMessBySlugQueryOptions(subdomain));
   void queryClient.prefetchQuery(useCurrentUserQueryOptions());
@@ -22,7 +26,7 @@ const MenuLayout = async ({
     <>
       <Suspense fallback={<NavBarSkeleton />}>
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <NavBar slug={subdomain} />
+          <NavBar slug={subdomain} table_id={table} />
         </HydrationBoundary>
       </Suspense>
       {children}

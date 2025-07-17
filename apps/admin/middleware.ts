@@ -6,7 +6,7 @@ import { cookieName } from './lib/cookie'
 export function middleware(request: NextRequest) {
 
 
-    if (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname.startsWith('/signup')) {
+    if (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.includes('/auth') || request.nextUrl.pathname.startsWith('/signup')) {
         return NextResponse.next()
     }
 

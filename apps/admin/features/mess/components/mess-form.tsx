@@ -70,10 +70,10 @@ const MessForm = ({
   const [slugManuallyEdited, setSlugManuallyEdited] = React.useState(false);
 
   const handleSubmit = (data: MessFormSchema) => {
-    console.log("Form data:", data);
     if (initialData) {
       updateMess(data, {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          window.location.replace(`/${data?.slug}/settings`);
           toast.success("Mess updated successfully");
         },
         onError: (error) => {

@@ -4,14 +4,14 @@ from sklearn.preprocessing import StandardScaler
 from typing import List
 from .models import MenuItem
 
-def get_menu_recommendations(items: List[MenuItem], 
+def get_menu_recommendations_content_based(items: List[MenuItem], 
                            calorie_mins: List[int], 
                            calorie_maxes: List[int],
                            spices: List[str], 
                            vegTypesArray: List[str],
                            top_k: int = 10) -> List[MenuItem]:
     """
-    Get personalized menu items recommendations using cosine similarity
+    Get personalized menu items recommendations using content based filtering and cosine similarity
     """
     if not items:
         return []

@@ -48,6 +48,7 @@ const AuthCallback = () => {
         const stateData = JSON.parse(atob(state)) as {
           mess_slug: string;
           original_state: string;
+          table_id: string;
         };
         console.log("stateData", stateData);
         if (stateData.mess_slug) {
@@ -59,7 +60,11 @@ const AuthCallback = () => {
                 query: {
                   code: code,
                   state: stateData.original_state,
-                },
+                  mess_slug: messSlug,
+                } as any,
+                // params: {
+                //   mess_slug: messSlug,
+                // },
               }
             );
 
@@ -84,10 +89,9 @@ const AuthCallback = () => {
 
           if (res.status === 201) {
             router.replace(
-              `${process.env.NEXT_PUBLIC_MENU_URL}/${messSlug}/verify?session_id=${res.data}`
+              `${process.env.NEXT_PUBLIC_MENU_URL}/${messSlug}/verify?session_id=${res.data}&t=${stateData.table_id}`
             );
           }
-          console.log("res", res);
           return;
         }
 

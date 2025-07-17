@@ -20,13 +20,17 @@ import { TeamSwitcherSkeleton } from "./team-switcher-sk";
 import NavMainSk from "./nav-main-sk";
 import { useGetUserQueryOptions } from "@/features/auth/api/user";
 import { NavUserSkeleton } from "./nav-user-sk";
+import { cookieName } from "@/lib/cookie";
+import { cookies } from "next/headers";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   slug: string;
 }
 
 export async function AppSidebar({ slug, ...props }: AppSidebarProps) {
-  const queryClient = getQueryClient();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(cookieName)?.value;
+  const queryClient = getQueryClient({ token });
   void queryClient.prefetchQuery(messQueryOptionsWithSlug(slug));
   void queryClient.prefetchQuery(useWhoamiQueryOptions(slug));
   void queryClient.prefetchQuery(useGetUserQueryOptions());
