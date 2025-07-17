@@ -43,15 +43,13 @@ def get_menu_recommendations_content_based(items: List[MenuItem],
     else:
         avg_calories = 500
 
-    veg_vals={'veg': 1, 'non-veg': 0, None: 0}
     if vegTypesArray:
-        veg_pref = sum(veg_vals.get(veg_type, 0) for veg_type in vegTypesArray) / len(vegTypesArray)
+        veg_pref = sum(veg_pref_map.get(veg_type, 0) for veg_type in vegTypesArray) / len(vegTypesArray)
     else:
         veg_pref = 0.5
     
-    spice_values = {'low': 0.0, 'medium': 0.5, 'high': 1.0}
     if spices:
-        avg_spiciness = sum(spice_values.get(spice, 0) for spice in spices) / len(spices)
+        avg_spiciness = sum(spiciness_map.get(spice, 0) for spice in spices) / len(spices)
     else:
         avg_spiciness = 0.25
 

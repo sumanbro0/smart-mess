@@ -7,7 +7,7 @@ from .schema import CategoryResponse, MenuItemCategoryCreate, MenuItemCategoryUp
 from .models import MenuItem, MenuItemCategory
 import uuid
 from upload.route import file_router
-from .dependencies import get_mess_and_user_context, require_mess_access, MessContext
+from mess.dependencies import get_mess_and_user_context, require_mess_access, MessContext
 from mess.crud import mess_crud
 from .recommendation import get_menu_recommendations_content_based
 

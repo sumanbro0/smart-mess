@@ -2,9 +2,6 @@ import sys
 import os
 
 from fastapi.staticfiles import StaticFiles
-
-# from .middleware.login_rate_limiter import LoginRateLimitMiddleware
-# from .middleware.token_middleware import AccessTokenMiddleware
 sys.path.append(os.path.dirname(__file__))
 
 from typing import Union

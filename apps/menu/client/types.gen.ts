@@ -1862,37 +1862,6 @@ export type GetCustomerSessionAuthMessSlugCustomerSessionSessionIdGetResponses =
 
 export type GetCustomerSessionAuthMessSlugCustomerSessionSessionIdGetResponse = GetCustomerSessionAuthMessSlugCustomerSessionSessionIdGetResponses[keyof GetCustomerSessionAuthMessSlugCustomerSessionSessionIdGetResponses];
 
-export type MyCustomersAuthMyCustomersGetData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/my-customers';
-};
-
-export type MyCustomersAuthMyCustomersGetResponses = {
-    /**
-     * Response My Customers Auth My Customers Get
-     * Successful Response
-     */
-    200: Array<UserRead>;
-};
-
-export type MyCustomersAuthMyCustomersGetResponse = MyCustomersAuthMyCustomersGetResponses[keyof MyCustomersAuthMyCustomersGetResponses];
-
-export type MyStaffAuthMyStaffGetData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/my-staff';
-};
-
-export type MyStaffAuthMyStaffGetResponses = {
-    /**
-     * Successful Response
-     */
-    200: unknown;
-};
-
 export type UploadFileFilesUploadPostData = {
     body: BodyUploadFileFilesUploadPost;
     path?: never;
@@ -2444,6 +2413,37 @@ export type UpdateMessMessMessIdPutResponses = {
 };
 
 export type UpdateMessMessMessIdPutResponse = UpdateMessMessMessIdPutResponses[keyof UpdateMessMessMessIdPutResponses];
+
+export type GetCustomersMessMessSlugCustomersGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query?: never;
+    url: '/mess/{mess_slug}/customers';
+};
+
+export type GetCustomersMessMessSlugCustomersGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCustomersMessMessSlugCustomersGetError = GetCustomersMessMessSlugCustomersGetErrors[keyof GetCustomersMessMessSlugCustomersGetErrors];
+
+export type GetCustomersMessMessSlugCustomersGetResponses = {
+    /**
+     * Response Get Customers Mess  Mess Slug  Customers Get
+     * Successful Response
+     */
+    200: Array<CustomerRead>;
+};
+
+export type GetCustomersMessMessSlugCustomersGetResponse = GetCustomersMessMessSlugCustomersGetResponses[keyof GetCustomersMessMessSlugCustomersGetResponses];
 
 export type GetMessTablesMessMessSlugTablesGetData = {
     body?: never;

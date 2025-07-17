@@ -3,14 +3,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from uuid import UUID
 from db.session import get_async_session
-from auth.models import User
+from auth.models import Customer, User
 from auth.security import current_active_user
 from .schema import MessRead, MessCreate, MessUpdate
 from mess.crud import mess_crud
 from auth.enums import UserRole
-from auth.schemas import RoleRead
-from mess.models import Mess, mess_staff
+from auth.schemas import CustomerRead, RoleRead
+from mess.models import Mess, mess_customer, mess_staff
 from sqlalchemy import select
+from mess.dependencies import require_mess_access,MessContext
 
 router = APIRouter(prefix="/mess", tags=["mess"])
 
@@ -137,3 +138,17 @@ async def delete_mess(
         raise HTTPException(status_code=404, detail="Mess not found")
     await mess_crud.remove(db, id=mess_id)
     return {"message": "Mess deleted successfully"}
+
+
+@router.get("/{mess_slug}/customers",response_model=list[CustomerRead])
+async def get_customers(
+    mess_context:MessContext = Depends(require_mess_access),
+    db:AsyncSession=Depends(get_async_session)
+):
+    """Get all customers for a specific mess"""
+    
+    stmt = select(Customer).join(mess_customer).where(mess_customer.c.mess_id == mess_context.mess.id)
+    result = await db.execute(stmt)
+    customers = result.scalars().all()
+    
+    return customers
