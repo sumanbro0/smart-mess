@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str]=["http://localhost:8000","http://localhost:3000","http://localhost:3001"]
+    BACKEND_CORS_ORIGINS: List[str]=["http://localhost:8000","http://localhost:3000","http://localhost:3001","http://10.10.1.68/3001"]
     
     class Config:
         case_sensitive = True
