@@ -35,7 +35,6 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 current_active_customer = fastapi_customer.current_user(active=True)      
 
 
-
 # Utility functions for token management
 async def revoke_user_tokens(user_id: uuid.UUID):
     """Revoke all tokens for a specific user"""

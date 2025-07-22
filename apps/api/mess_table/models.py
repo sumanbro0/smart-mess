@@ -4,6 +4,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 from db.base import Base
+from orders.models import Order, OrderStatusEnum
+
 
 
 class MessTable(Base):
@@ -21,5 +23,7 @@ class MessTable(Base):
     mess = relationship("Mess", back_populates="tables")
     orders = relationship("Order", back_populates="table")
 
-
+    @property
+    def has_new_orders(self):
+        return self.orders.filter(Order.status == OrderStatusEnum.PENDING).count() > 0
   

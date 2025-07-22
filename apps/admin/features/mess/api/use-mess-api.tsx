@@ -10,6 +10,7 @@ import { MessFormSchema } from "@/features/mess/schemas/mess-schema";
 import { getPersistentCookie } from "@/lib/cookie";
 import { getQueryClient } from "@/providers/get-query-client";
 import { queryOptions, useMutation } from "@tanstack/react-query";
+import { useMessStore } from "../use-mess-store";
 
 export const messQueryOptions = queryOptions({
   queryKey: ["mess"],

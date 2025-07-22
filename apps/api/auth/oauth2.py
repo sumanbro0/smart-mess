@@ -23,6 +23,7 @@ GOOGLE_CLIENT_SECRET = settings.GOOGLE_CLIENT_SECRET
 logger.info(f"Initializing OAuth2 with CLIENT_URL: {settings.CLIENT_URL}")
 logger.info(f"Google Client ID: {GOOGLE_CLIENT_ID[:10]}...")  # Log only first 10 chars for security
 
+   
 class CustomGoogleOAuth2(GoogleOAuth2):
     async def get_access_token(
         self,
@@ -125,60 +126,13 @@ class CustomGoogleOAuth2(GoogleOAuth2):
     async def get_id_email(self, token: str) -> tuple[str, str]:
         """Get user ID and email from Google API."""
         try:
-            logger.debug("Attempting to get user ID and email from Google API")
             async with AsyncClient() as client:
                 response = await client.get(
                     "https://www.googleapis.com/oauth2/v2/userinfo",
-                    headers={
-                        "Authorization": f"Bearer {token}",
-                        "Accept": "application/json",
-                    },
+                    headers={"Authorization": f"Bearer {token}"}
                 )
-                
-                if response.status_code != 200:
-                    error_data = response.json()
-                    logger.error(f"Failed to get user info: {error_data}")
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "user_info_error",
-                            "error_description": error_data.get("error_description", "Failed to get user info"),
-                            "error_code": error_data.get("error", "unknown_error"),
-                        }
-                    )
-
-                user_info = response.json()
-                logger.debug(f"Successfully retrieved user info: {user_info.get('email')}")
-                
-                if not user_info.get("id") or not user_info.get("email"):
-                    logger.error("Missing required user info fields")
-                    raise HTTPException(
-                        status_code=400,
-                        detail={
-                            "error": "missing_user_info",
-                            "error_description": "Google API response missing required fields",
-                        }
-                    )
-
-                return user_info["id"], user_info["email"]
-
-        except HTTPError as e:
-            logger.error(f"HTTP error getting user info: {str(e)}")
-            if hasattr(e, 'response'):
-                logger.error(f"Response status: {e.response.status_code}")
-                logger.error(f"Response headers: {dict(e.response.headers)}")
-                try:
-                    error_body = e.response.json()
-                    logger.error(f"Response body: {json.dumps(error_body, indent=2)}")
-                except:
-                    logger.error(f"Raw response content: {e.response.text}")
-            raise HTTPException(
-                status_code=500,
-                detail={
-                    "error": "user_info_error",
-                    "error_description": "Failed to get user info from Google",
-                }
-            )
+                data= response.json()
+                return data["id"], data["email"]
         except Exception as e:
             logger.error(f"Unexpected error getting user info: {str(e)}")
             raise HTTPException(
@@ -188,6 +142,7 @@ class CustomGoogleOAuth2(GoogleOAuth2):
                     "error_description": f"Unexpected error: {str(e)}",
                 }
             )
+
 
 # Create OAuth2 router with error handling
 oauth2_router = get_oauth_router(

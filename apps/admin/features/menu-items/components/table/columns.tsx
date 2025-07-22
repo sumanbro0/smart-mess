@@ -86,10 +86,8 @@ export const columns: ColumnDef<MenuItemDisplay>[] = [
     ),
     cell: ({ row }) => {
       const primaryImage = row.original.primary_image;
-      const images = row.original.images;
       const name = row.original.name;
-      const imageUrl =
-        primaryImage || (images && images.length > 0 ? images[0] : null);
+      const imageUrl = primaryImage || null;
 
       return (
         <div className="flex items-center justify-center">

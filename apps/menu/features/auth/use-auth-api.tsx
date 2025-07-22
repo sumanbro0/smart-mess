@@ -3,7 +3,6 @@ import {
   authCustomerDatabaseLogoutAuthCustomerLogoutPost,
   getMeAuthCustomerMeGet,
   registerRegisterAuthCustomerRegisterPost,
-  RegisterRegisterAuthCustomerRegisterPostData,
 } from "@/client";
 import { getPersistentCookie } from "@/lib/cookie";
 import { getQueryClient } from "@/providers/get-query-client";
@@ -73,6 +72,9 @@ export const useLoginMutation = () => {
           mess_slug: data.slug,
         } as any,
       });
+      if (res.error?.detail) {
+        throw new Error(res.error.detail as string);
+      }
       return res.data;
     },
     onSuccess: () => {

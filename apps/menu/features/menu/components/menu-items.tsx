@@ -2,7 +2,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMenuItemsQueryOptions } from "../use-menu-api";
 import MenuItemCard from "./card";
-import FilterPopover from "./filter-popover";
 import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -33,8 +32,6 @@ export const MenuItems = ({ slug }: { slug: string }) => {
           <MenuItemCard key={item.id} item={item} currency={data.currency} />
         ))}
       </div>
-
-      <FilterPopover />
     </>
   );
 };

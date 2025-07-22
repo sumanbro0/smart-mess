@@ -12,9 +12,16 @@ import { DEFAULT_AVATAR } from "@/lib/constant";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { messQueryOptionsWithSlug } from "../../mess/api/use-mess-api";
 import { TeamSwitcherSkeleton } from "./team-switcher-sk";
+import { useMessStore } from "@/features/mess/use-mess-store";
 
 export function TeamSwitcher({ slug }: { slug: string }) {
   const { data: activeTeam } = useSuspenseQuery(messQueryOptionsWithSlug(slug));
+
+  React.useEffect(() => {
+    if (activeTeam) {
+      useMessStore.setState({ mess: activeTeam ?? null, isLoading: false });
+    }
+  }, [activeTeam]);
 
   const TeamContent = () => {
     if (!activeTeam) {

@@ -19,7 +19,6 @@ import {
 import { cn } from "@/lib/utils";
 import CartSheet from "@/features/cart/components/cart-sheet";
 import Link from "next/link";
-import { deleteServerCookie } from "@/lib/server-utils";
 import { deletePersistentCookie } from "@/lib/cookie";
 import { setupClientInterceptor } from "@/lib/client-interceptor";
 
@@ -68,7 +67,10 @@ const NavBar = ({ slug, table_id }: { slug: string; table_id: string }) => {
       {/* Right: Notification, Login/Profile */}
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Cart Icon with badge */}
-        <CartSheet currency={mess?.currency || "₹"} />
+        <CartSheet
+          currency={mess?.currency || "₹"}
+          isAuthenticated={!!user?.id}
+        />
         {/* Auth section */}
         {user ? (
           <DropdownMenu>

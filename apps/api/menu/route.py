@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -10,6 +11,8 @@ from upload.route import file_router
 from mess.dependencies import get_mess_and_user_context, require_mess_access, MessContext
 from mess.crud import mess_crud
 from .recommendation import get_menu_recommendations_content_based
+from auth.dep import optional_current_customer
+from auth.models import Customer
 
 router = APIRouter(prefix="/{mess_slug}/menu", tags=["menu"])
 
@@ -127,7 +130,7 @@ async def create_menu_item(
 @router.get("/items", response_model=list[MenuItemDisplayResponse])
 async def get_menu_items(
     context: MessContext = Depends(require_mess_access),
-    db: AsyncSession = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session),
 ):
     result = await db.execute(select(MenuItem).options(
         joinedload(MenuItem.category).load_only(MenuItemCategory.name),
@@ -144,9 +147,11 @@ async def get_menu_items_display(
     calorieMaxes: list[int] = Query(default=[]),
     spices: list[str] = Query(default=[]),
     vegTypesArray: list[str] = Query(default=[]),
-    db: AsyncSession = Depends(get_async_session)
+    db: AsyncSession = Depends(get_async_session),
+    auth: Optional[Customer] = Depends(optional_current_customer)
 ):
     print("_________________________")
+    print(auth)
     print(calorieMins)
     print(calorieMaxes)
     print(spices)
@@ -162,6 +167,7 @@ async def get_menu_items_display(
     ).filter(MenuItem.mess_id == mess.id))
 
     items = result.scalars().all()
+    
     filtered_items = get_menu_recommendations_content_based(items=items, calorie_mins=calorieMins, calorie_maxes=calorieMaxes, spices=spices, vegTypesArray=vegTypesArray)
     return MenuResponse(currency=mess.currency, items=filtered_items)
 

@@ -9,7 +9,7 @@ from .schema import MessRead, MessCreate, MessUpdate
 from mess.crud import mess_crud
 from auth.enums import UserRole
 from auth.schemas import CustomerRead, RoleRead
-from mess.models import Mess, mess_customer, mess_staff
+from mess.models import Mess,  mess_staff
 from sqlalchemy import select
 from mess.dependencies import require_mess_access,MessContext
 
@@ -35,7 +35,7 @@ async def get_mess_by_slug(
     current_user: User = Depends(current_active_user),
 ):
     """Get mess by slug"""
-    mess = await mess_crud.get_by_slug(db, slug=slug)
+    mess = await mess_crud.get_by_slug(db,slug=slug)
     if not mess or mess.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Mess not found")
     return mess
@@ -97,7 +97,7 @@ async def create_mess(
     mess_data.owner_id = current_user.id
 
     mess_data.slug = mess_data.slug.lower()
-    if await mess_crud.get_by_slug(db, slug=mess_data.slug):
+    if await mess_crud.get_by_slug(db,slug=mess_data.slug):
         raise HTTPException(status_code=400, detail="Mess with this slug already exists")
      
 
@@ -147,7 +147,7 @@ async def get_customers(
 ):
     """Get all customers for a specific mess"""
     
-    stmt = select(Customer).join(mess_customer).where(mess_customer.c.mess_id == mess_context.mess.id)
+    stmt = select(Customer).where(Customer.mess_id == mess_context.mess.id)
     result = await db.execute(stmt)
     customers = result.scalars().all()
     

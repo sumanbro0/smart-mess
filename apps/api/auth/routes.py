@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException,status
+from fastapi import APIRouter, HTTPException, Query,status
+from fastapi.security import OAuth2PasswordRequestForm
 from .schemas import CustomerCreate, CustomerRead, CustomerSessionTokenRead, UserRead, UserCreate
 from .oauth2 import oauth2_router,customer_oauth2_router
 from .models import Customer, CustomerSessionToken, User
@@ -8,11 +9,10 @@ from db.session import get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import  select
 from uuid import UUID
-from .config import auth_backend, customer_auth_backend
+from .config import CustomerDatabaseStrategy, auth_backend, customer_auth_backend, get_customer_database_strategy
 from mess.crud import mess_crud
-
+from .main import CustomerManager, get_customer_manager
 router = APIRouter(prefix="/auth",tags=["auth"])
-
 
 router.include_router(
     fastapi_users.get_auth_router(auth_backend),
@@ -37,18 +37,37 @@ router.include_router(
 
 )
 
-# Customer Auth Routes
+@router.post("/customer/login")
+async def customer_login(
+    credentials: OAuth2PasswordRequestForm = Depends(),
+    mess_slug: str = Query(...),
+    strategy: CustomerDatabaseStrategy = Depends(get_customer_database_strategy),
+    customer_manager: CustomerManager = Depends(get_customer_manager)
+):
+    print("********************** Customer Login **********************")
+    print(credentials, mess_slug)
+    print("**********************")
+    user = await customer_manager.authenticate_with_mess(credentials, mess_slug)
+    if not user:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    return await customer_auth_backend.login(strategy, user)
+
+
 router.include_router(
     fastapi_customer.get_auth_router(customer_auth_backend),
     prefix="/customer",
     tags=["customer"],
 )
 
+
+
+
 router.include_router(
     fastapi_customer.get_register_router(CustomerRead, CustomerCreate),
     prefix="/customer",
     tags=["customer"],
 )
+
 
 
 router.include_router(customer_oauth2_router, prefix="/customer/google")

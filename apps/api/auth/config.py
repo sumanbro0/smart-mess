@@ -62,6 +62,8 @@ class CustomerDatabaseStrategy(DatabaseStrategy):
             return None
         
         return user
+    
+    
 
 
 

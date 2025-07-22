@@ -1,14 +1,9 @@
 from sqlalchemy import Column, String,  Boolean, DateTime, ForeignKey, Table, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from datetime import datetime,UTC, timezone
+from datetime import datetime, timezone
 import uuid
 from db.base import Base
-
-mess_customer = Table('mess_customer', Base.metadata,
-    Column('customer_id', UUID(as_uuid=True), ForeignKey('customer.id')),
-    Column('mess_id', UUID(as_uuid=True), ForeignKey('mess.id'))
-)
 
 mess_staff = Table('mess_staff', Base.metadata,
     Column('user_id', UUID(as_uuid=True), ForeignKey('user.id')),
@@ -31,12 +26,11 @@ class Mess(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
-    # Relationships
     tables = relationship("MessTable", back_populates="mess")
     orders = relationship("Order", back_populates="mess")
     menu_items = relationship("MenuItem", back_populates="mess")
     menu_item_categories = relationship("MenuItemCategory", back_populates="mess")
-    owner = relationship("User",  back_populates="messes")
+    owner = relationship("User", back_populates="messes")
     staff = relationship("User", secondary="mess_staff", back_populates="messes_as_staff")
-    customers = relationship("Customer", secondary="mess_customer", back_populates="visited")
-    customer_sessions=relationship("CustomerSessionToken",back_populates="mess")
+    customers = relationship("Customer", back_populates="mess")
+    customer_sessions = relationship("CustomerSessionToken", back_populates="mess")

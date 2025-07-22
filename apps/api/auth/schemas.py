@@ -8,7 +8,7 @@ from auth.enums import UserRole
 class UserRead(schemas.BaseUser[UUID]):
     id: UUID
     email: EmailStr
-    name: Optional[str] = None
+    name: str
     image: Optional[str] = None
     is_active: bool = True
     is_superuser: bool = False

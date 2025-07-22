@@ -22,7 +22,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ className }) => {
         <PopoverTrigger asChild>
           <Button
             size="lg"
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 border-0 z-50"
+            className=" h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 border-0 z-50"
             onClick={() => setIsOpen(true)}
           >
             <Filter className="h-5 w-5 sm:h-6 sm:w-6" />

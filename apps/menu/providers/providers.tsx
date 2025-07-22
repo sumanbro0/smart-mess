@@ -11,7 +11,7 @@ export default async function Providers({
     <QueryProvider>
       <NuqsAdapter>
         {children}
-        <Toaster />
+        <Toaster position="top-right" richColors />
       </NuqsAdapter>
     </QueryProvider>
   );

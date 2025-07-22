@@ -9,6 +9,7 @@ import { IconLoader } from "@tabler/icons-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { setServerCookie } from "@/lib/server-utils";
+import { safeAtob } from "@/lib/utils";
 
 interface OAuthResponse {
   data: {
@@ -26,7 +27,7 @@ const AuthCallback = () => {
         const code = searchParams.get("code");
         const state = searchParams.get("state");
         const error = searchParams.get("error");
-
+        console.log(state);
         if (error) {
           console.error("Google OAuth error:", error);
           router.replace(
@@ -45,13 +46,41 @@ const AuthCallback = () => {
           return;
         }
 
-        const stateData = JSON.parse(atob(state)) as {
-          mess_slug: string;
-          original_state: string;
-          table_id: string;
-        };
+        let stateData:
+          | {
+              mess_slug: string;
+              original_state: string;
+              table_id: string;
+            }
+          | undefined;
+
+        try {
+          const decodedState = safeAtob(state);
+          if (decodedState) {
+            stateData = JSON.parse(decodedState);
+          } else {
+            stateData = {
+              mess_slug: "",
+              original_state: state || "",
+              table_id: "",
+            };
+          }
+        } catch (parseError) {
+          console.warn("Failed to parse state parameter:", parseError);
+          stateData = {
+            mess_slug: "",
+            original_state: state || "",
+            table_id: "",
+          };
+        }
         console.log("stateData", stateData);
-        if (stateData.mess_slug) {
+        if (
+          stateData?.mess_slug &&
+          stateData?.mess_slug != "dashboard" &&
+          stateData?.table_id &&
+          stateData?.table_id != "dashboard" &&
+          stateData?.original_state
+        ) {
           const messSlug = stateData.mess_slug;
 
           const tokenResponse =
@@ -62,9 +91,6 @@ const AuthCallback = () => {
                   state: stateData.original_state,
                   mess_slug: messSlug,
                 } as any,
-                // params: {
-                //   mess_slug: messSlug,
-                // },
               }
             );
 
@@ -94,39 +120,46 @@ const AuthCallback = () => {
           }
           return;
         }
+        if (
+          stateData?.mess_slug === "dashboard" &&
+          stateData?.table_id === "dashboard"
+        ) {
+          try {
+            console.log("Exchanging code for token...");
+            const response =
+              (await oauthGoogleDatabaseCallbackAuthGoogleCallbackGet({
+                query: {
+                  state: stateData?.original_state,
+                  code: code,
+                },
+              })) as OAuthResponse;
 
-        try {
-          console.log("Exchanging code for token...");
-          const response =
-            (await oauthGoogleDatabaseCallbackAuthGoogleCallbackGet({
-              query: {
-                state: stateData.original_state,
-                code: code,
-              },
-            })) as OAuthResponse;
+            console.log("Response:", response);
 
-          console.log("Response:", response);
+            if (response.data?.access_token) {
+              console.log("OAuth flow completed successfully");
+              await setServerCookie(response.data.access_token);
+              router.replace("/");
+              return;
+            } else {
+              throw new Error("No access token received");
+            }
+          } catch (apiError: unknown) {
+            console.error("API Call Error:", apiError);
+            const errorMessage =
+              apiError instanceof Error
+                ? apiError.message
+                : "Failed to authenticate with Google";
 
-          // If successful, set cookie and redirect to dashboard
-          if (response.data?.access_token) {
-            console.log("OAuth flow completed successfully");
-            await setServerCookie(response.data.access_token);
-            router.replace("/dashboard");
-            return;
-          } else {
-            throw new Error("No access token received");
+            // router.replace(
+            //   `/login?error=api_call_failed&message=${encodeURIComponent(errorMessage)}`
+            // );
           }
-        } catch (apiError: unknown) {
-          console.error("API Call Error:", apiError);
-          const errorMessage =
-            apiError instanceof Error
-              ? apiError.message
-              : "Failed to authenticate with Google";
-
-          router.replace(
-            `/login?error=api_call_failed&message=${encodeURIComponent(errorMessage)}`
-          );
         }
+
+        // router.replace(
+        //   `/login?error=auth_failed&message=${encodeURIComponent("Invalid Action")}`
+        // );
       } catch (error) {
         console.error("Error during Google OAuth callback:", error);
         const errorMessage =
@@ -134,9 +167,9 @@ const AuthCallback = () => {
             ? error.message
             : "Unknown error occurred during authentication";
 
-        router.replace(
-          `/login?error=auth_failed&message=${encodeURIComponent(errorMessage)}`
-        );
+        // router.replace(
+        //   `/login?error=auth_failed&message=${encodeURIComponent(errorMessage)}`
+        // );
       }
     };
 

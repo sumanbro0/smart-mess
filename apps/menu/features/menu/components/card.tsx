@@ -146,21 +146,6 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
           {/* Veg/Non-Veg Badge Overlay */}
           {renderVegBadgeOverlay(item.is_veg ?? false)}
 
-          {/* Favorite button */}
-          {/* <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-8 w-8 p-0 rounded-full bg-white/95 hover:bg-white shadow-lg border-0 backdrop-blur-sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFavorite(item);
-              }}
-            >
-              <Heart className="w-4 h-4 text-slate-600 hover:text-red-500 transition-colors" />
-            </Button>
-          </div> */}
-
           {/* Out of Stock Overlay */}
           {!item.in_stock && (
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm">
@@ -206,7 +191,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
               {item.name}
             </h3>
             <div className="flex-shrink-0 text-right">
-              <p className="font-bold text-sm sm:text-lg  bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent">
+              <p className="font-bold text-sm sm:text-lg   text-primary">
                 {formatPrice(item.price)}
               </p>
             </div>
@@ -240,11 +225,15 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
               className={cn(
                 "w-full h-8 sm:h-9 text-xs sm:text-sm px-2 sm:px-3 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 border-0 relative overflow-hidden",
                 showSuccess
-                  ? "bg-emerald-600"
-                  : "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 hover:shadow-emerald-500/25"
+                  ? "bg-gradient-to-r from-emerald-500 to-emerald-600 shadow-emerald-500/25"
+                  : "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 hover:shadow-orange-500/25"
               )}
-              onClick={() => handleAddToCart(item)}
-              disabled={!item.in_stock || isAdding}
+              onClick={() => {
+                if (!item.in_stock) return;
+                if (isAdding) return;
+                handleAddToCart(item);
+              }}
+              disabled={!item.in_stock}
             >
               <AnimatePresence mode="wait">
                 {showSuccess ? (

@@ -1,11 +1,21 @@
 from typing import List, Optional
 from uuid import UUID
+from async_lru import alru_cache
 from sqlalchemy import select,insert
 from sqlalchemy.ext.asyncio import AsyncSession
-from auth.models import Customer
-from .models import Mess,mess_customer
+from db.session import get_async_session
+from .models import Mess
 from .schema import MessCreate, MessUpdate
 
+@alru_cache(maxsize=100, ttl=300)
+async def _get_mess_by_slug_cached(slug: str) -> Optional[Mess]:
+    async for db in get_async_session():  
+        result = await db.execute(select(Mess).filter(Mess.slug == slug))
+        mess = result.scalar_one_or_none()
+        if mess:
+            db.expunge(mess)
+        return mess
+        break  
 
 class MessCRUD:
     async def get(self, db: AsyncSession, id: UUID) -> Optional[Mess]:
@@ -72,6 +82,7 @@ class MessCRUD:
                 print(f"db_obj.slug after setattr: {db_obj.slug}") 
         await db.commit()
         await db.refresh(db_obj)
+        _get_mess_by_slug_cached.cache_clear()
         print("***************************")
         print(db_obj.slug)
         print("***************************")
@@ -80,30 +91,16 @@ class MessCRUD:
     async def remove(self, db: AsyncSession, id: UUID) -> None:
         """Delete a mess"""
         obj = await self.get(db, id)
+        _get_mess_by_slug_cached.cache_clear()
         if obj:
             await db.delete(obj)
             await db.commit()
 
     async def get_by_slug(self, db: AsyncSession, slug: str) -> Optional[Mess]:
         """Get a mess by slug"""
-        result = await db.execute(select(Mess).filter(Mess.slug == slug))
-        return result.scalar_one_or_none()
-    
-    async def add_customer(self, db: AsyncSession, slug: str, customer: Customer) -> None:
-        """Add a customer to a mess"""
-        mess = await self.get_by_slug(db, slug)
-        
-        if not mess:
-            raise ValueError(f"Mess with slug '{slug}' not found")
-        
-        # Direct insert into association table
-        stmt = insert(mess_customer).values(
-            mess_id=mess.id,
-            customer_id=customer.id
-        )
-        
-        await db.execute(stmt)
-        await db.commit()
+
+        return await _get_mess_by_slug_cached(slug)
+
     
 
 

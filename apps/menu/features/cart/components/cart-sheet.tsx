@@ -2,26 +2,27 @@
 import React, { useCallback } from "react";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { ShoppingCart, ShoppingBag } from "lucide-react";
+import { ShoppingCart, ShoppingBag, XIcon, ArrowLeftIcon } from "lucide-react";
 import { useCartStore } from "../use-cart-store";
 import CartItem from "./cart-item";
+import CartFooter from "./cart-footer";
+import { useIsMobile } from "@/lib/utils";
 
-const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
+const CartSheet: React.FC<{ currency: string; isAuthenticated: boolean }> = ({
+  currency,
+  isAuthenticated,
+}) => {
   const cart = useCartStore((state) => state.cart);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeFromCart = useCartStore((state) => state.removeFromCart);
-  const clearCart = useCartStore((state) => state.clearCart);
-  const getTotalPrice = useCartStore((state) => state.getTotalPrice);
-
   const handleQuantityChange = useCallback(
     (itemId: string, quantity: number) => {
       if (quantity < 1) return;
@@ -30,7 +31,6 @@ const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
     [updateQuantity]
   );
 
-  const totalPrice = getTotalPrice();
   const itemCount = cart.reduce((sum, { quantity }) => sum + quantity, 0);
 
   return (
@@ -52,7 +52,8 @@ const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
 
       <SheetContent
         side="right"
-        className="p-0 flex flex-col w-full sm:max-w-md cart-sheet"
+        className="flex flex-col w-full cart-sheet "
+        hideCloseButton
       >
         <style jsx global>{`
           .cart-sheet input[type="number"]::-webkit-outer-spin-button,
@@ -65,19 +66,28 @@ const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
           }
         `}</style>
 
-        <SheetHeader className="border-b bg-muted/30 px-6 py-4">
-          <SheetTitle className="flex items-center gap-3 text-lg font-semibold">
-            <ShoppingBag className="w-5 h-5 text-primary" />
-            Order Cart
-            {itemCount > 0 && (
-              <span className="text-sm font-normal text-muted-foreground">
-                ({itemCount} {itemCount === 1 ? "item" : "items"})
-              </span>
-            )}
-          </SheetTitle>
+        <SheetHeader className="border-b bg-muted/30 px-6 min-h-[56px]">
+          <div className="flex justify-between items-center w-full">
+            <div className="flex items-center gap-3 flex-1">
+              <SheetClose className="mr-2 flex-shrink-0 sm:hidden">
+                <ArrowLeftIcon className="w-5 h-5" />
+              </SheetClose>
+              <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
+                Order Cart
+                {itemCount > 0 && (
+                  <span className="text-sm font-normal text-muted-foreground">
+                    ({itemCount} {itemCount === 1 ? "item" : "items"})
+                  </span>
+                )}
+              </SheetTitle>
+            </div>
+            <SheetClose className="flex-shrink-0 hidden sm:block" asChild>
+              <XIcon className="w-5 h-5" />
+            </SheetClose>
+          </div>
         </SheetHeader>
 
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col overflow-hidden">
           {cart.length === 0 ? (
             <div className="flex-1 flex flex-col items-center justify-center p-8">
               <div className="text-center space-y-4">
@@ -93,7 +103,7 @@ const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
               </div>
             </div>
           ) : (
-            <ScrollArea className="flex-1 px-4 py-4">
+            <ScrollArea className="flex-1 px-4  h-0">
               <div className="space-y-3">
                 {cart.map(({ item, quantity }) => (
                   <CartItem
@@ -109,41 +119,9 @@ const CartSheet: React.FC<{ currency: string }> = ({ currency }) => {
             </ScrollArea>
           )}
         </div>
-
-        {cart.length > 0 && (
-          <>
-            <Separator />
-            <SheetFooter className="p-6 space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-base">
-                  <span className="font-medium">Subtotal</span>
-                  <span className="font-bold text-lg">
-                    {currency}
-                    {totalPrice.toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearCart}
-                    className="flex-1"
-                  >
-                    Clear Cart
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-primary hover:bg-primary/90"
-                  >
-                    Order
-                  </Button>
-                </div>
-              </div>
-            </SheetFooter>
-          </>
-        )}
+        <div className="px-4 pb-4 pt-2">
+          <CartFooter currency={currency} isAuthenticated={isAuthenticated} />
+        </div>
       </SheetContent>
     </Sheet>
   );

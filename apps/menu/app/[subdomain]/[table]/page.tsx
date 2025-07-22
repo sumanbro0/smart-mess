@@ -7,6 +7,9 @@ import { dehydrate } from "@tanstack/react-query";
 import React, { Suspense } from "react";
 import { cookieName } from "@/lib/cookie";
 import { cookies } from "next/headers";
+import NavBar, { NavBarSkeleton } from "@/features/mess/components/navbar";
+import { useMessBySlugQueryOptions } from "@/features/mess/use-mess-api";
+import { useCurrentUserQueryOptions } from "@/features/auth/use-auth-api";
 
 const TableMenuPage = async ({
   params,
@@ -37,15 +40,18 @@ const TableMenuPage = async ({
       vegTypesArray: vegTypesArray ? vegTypesArray.split(",") : undefined,
     })
   );
+
   return (
-    <div className="container mx-auto md:p-10 p-4 space-y-6 ">
-      <h1 className="text-2xl font-medium">Items You May Like</h1>
-      <Suspense fallback={<MenuItemsSkeleton />}>
-        <HydrationBoundary state={dehydrate(queryClient)}>
-          <MenuItems slug={subdomain} />
-        </HydrationBoundary>
-      </Suspense>
-    </div>
+    <>
+      <div className="container mx-auto md:p-10 p-4 space-y-6 ">
+        <h1 className="text-2xl font-medium">Items You May Like</h1>
+        <Suspense fallback={<MenuItemsSkeleton />}>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <MenuItems slug={subdomain} />
+          </HydrationBoundary>
+        </Suspense>
+      </div>
+    </>
   );
 };
 

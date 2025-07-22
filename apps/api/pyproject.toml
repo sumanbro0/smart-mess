@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "aiomcache>=0.8.2",
     "alembic>=1.15.2",
+    "async-lru>=2.0.5",
     "asyncpg>=0.30.0",
     "bcrypt>=4.3.0",
     "fastapi-users[sqlalchemy]>=14.0.1",
@@ -20,6 +21,7 @@ dependencies = [
     "pydantic-settings>=2.9.1",
     "pydantic[email]>=2.11.4",
     "pyjwt>=2.10.1",
+    "python-socketio[asyncio]>=5.13.0",
     "qrcode>=8.2",
     "scikit-learn>=1.7.0",
     "sqlalchemy>=2.0.40",

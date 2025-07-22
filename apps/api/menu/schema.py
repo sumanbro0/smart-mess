@@ -67,7 +67,7 @@ class MenuItemBase(BaseModel):
     calories: Optional[float] = None
     spiciness: Optional[SpicinessEnum] = None
     primary_image: Optional[str] = None
-    images: Optional[List[str]] = None
+    # images: Optional[List[str]] = None
     is_veg: bool = False
 
     class Config:
@@ -98,7 +98,6 @@ class MenuItemResponse(MenuItemBase):
     category_id: uuid.UUID
     created_at: datetime
     updated_at: datetime
-    images: Optional[List[str]] = [] 
   
 
     class Config:

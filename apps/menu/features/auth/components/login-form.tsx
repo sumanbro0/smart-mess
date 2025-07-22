@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition, useState } from "react";
+import React, { useTransition, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,32 +13,62 @@ import {
   IconArrowLeft,
   IconEye,
   IconEyeOff,
+  IconMail,
+  IconLock,
 } from "@tabler/icons-react";
-import { useSearchParams } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLoginMutation } from "../use-auth-api";
 import { setServerCookie } from "@/lib/server-utils";
 
 interface LoginFormProps {
   messName: string;
+  messLogo?: string | null;
   slug: string;
   tableId: string;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
+const LoginForm: React.FC<LoginFormProps> = ({
+  messName,
+  messLogo,
+  slug,
+  tableId,
+}) => {
   const [isPending, startTransition] = useTransition();
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState({ email: false, password: false });
+  const searchParams = useSearchParams();
+  const err = searchParams.get("err");
+  const router = useRouter();
+
+  useEffect(() => {
+    if (err === "unauth") {
+      toast.error("You are not authorized to access this page");
+      router.push(`/${slug}/login?t=${tableId}`);
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+
   const { mutate: login, isPending: isLoginPending } = useLoginMutation();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleFocus = (field: "email" | "password") => {
+    setIsFocused((prev) => ({ ...prev, [field]: true }));
+  };
+
+  const handleBlur = (field: "email" | "password") => {
+    setIsFocused((prev) => ({ ...prev, [field]: false }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -105,46 +135,66 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
   };
 
   return (
-    <Card className="max-w-md w-full mx-auto p-8 flex flex-col items-center gap-6 bg-card">
-      <div className="w-full flex items-center justify-start mb-2">
-        <Link href={`/${slug}/${tableId}`}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-muted-foreground hover:text-foreground"
-          >
-            <IconArrowLeft size={16} />
-            Back to Menu
-          </Button>
-        </Link>
+    <Card className="w-full max-w-md mx-auto p-6 sm:p-8">
+      <div className="text-center mb-8">
+        <div className="w-16 h-16 mx-auto mb-4  rounded-2xl flex items-center justify-center overflow-hidden">
+          {messLogo ? (
+            <Image
+              src={messLogo}
+              alt={`${messName} logo`}
+              width={48}
+              height={48}
+              className="w-full h-full object-contain"
+            />
+          ) : (
+            <IconMail className="w-8 h-8 text-primary-foreground" />
+          )}
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-semibold mb-2">
+          Welcome back!
+        </h1>
+        <p className="text-base sm:text-lg text-muted-foreground">
+          Sign in to{" "}
+          <span className="font-semibold text-foreground">
+            {messName || "Smart Mess"}
+          </span>
+        </p>
       </div>
-      <div>
-        <div className="text-center text-xl font-semibold">
-          Welcome back to {messName || "Smart Mess"}!
-        </div>
 
-        <div className="text-sm text-muted-foreground text-center mb-6">
-          Sign in to your account to continue
-        </div>
-      </div>
-
-      <form onSubmit={handleSubmit} className="w-full space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="email" className="text-sm font-medium">
+            Email address
+          </Label>
           <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <IconMail className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleInputChange}
+              onFocus={() => handleFocus("email")}
+              onBlur={() => handleBlur("email")}
+              className={`pl-12 pr-4 py-3 h-12 text-base transition-all duration-200 ${
+                isFocused.email ? "ring-2 ring-ring ring-offset-2" : ""
+              }`}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="password" className="text-sm font-medium">
+            Password
+          </Label>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <IconLock className="h-5 w-5 text-muted-foreground" />
+            </div>
             <Input
               id="password"
               name="password"
@@ -152,28 +202,37 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
               placeholder="Enter your password"
               value={formData.password}
               onChange={handleInputChange}
+              onFocus={() => handleFocus("password")}
+              onBlur={() => handleBlur("password")}
+              className={`pl-12 pr-12 py-3 h-12 text-base transition-all duration-200 ${
+                isFocused.password ? "ring-2 ring-ring ring-offset-2" : ""
+              }`}
               required
             />
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground transition-colors"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
-                <IconEyeOff className="h-4 w-4" />
+                <IconEyeOff className="h-5 w-5" />
               ) : (
-                <IconEye className="h-4 w-4" />
+                <IconEye className="h-5 w-5" />
               )}
             </Button>
           </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={isLoginPending}>
+        <Button
+          type="submit"
+          className="w-full h-12 text-base font-semibold"
+          disabled={isLoginPending}
+        >
           {isLoginPending ? (
             <>
-              <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
+              <IconLoader2 className="mr-2 h-5 w-5 animate-spin" />
               Signing in...
             </>
           ) : (
@@ -182,12 +241,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
         </Button>
       </form>
 
-      <div className="relative w-full">
+      <div className="relative my-8">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-background px-4 text-muted-foreground font-medium">
             Or continue with
           </span>
         </div>
@@ -196,54 +255,77 @@ const LoginForm: React.FC<LoginFormProps> = ({ messName, slug, tableId }) => {
       <Button
         type="button"
         variant="outline"
-        className="gap-2 w-full relative"
+        className="w-full h-12 text-base font-medium relative"
         disabled={isGooglePending}
         onClick={handleGoogleLogin}
       >
         {isGooglePending ? (
-          <IconLoader2 className="animate-spin" />
+          <IconLoader2 className="animate-spin h-5 w-5" />
         ) : (
-          <Image
-            src="/google.png"
-            alt="Google"
-            width={20}
-            height={20}
-            className="rounded-full absolute left-4 top-1/2 -translate-y-1/2"
-          />
+          <>
+            <Image
+              src="/google.png"
+              alt="Google"
+              width={20}
+              height={20}
+              className="absolute left-4 top-1/2 -translate-y-1/2"
+            />
+            <span className="ml-8">Continue with Google</span>
+          </>
         )}
-        Continue with Google
       </Button>
 
-      <div className="text-center text-sm">
-        Don't have an account?{" "}
-        <Link href={`/${slug}/signup?t=${tableId}`}>
-          <Button variant="link" className="p-0 h-auto font-semibold">
-            Sign up
+      <div className="text-center mt-8 space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link href={`/${slug}/signup?t=${tableId}`}>
+            <Button variant="link" className="p-0 h-auto font-semibold">
+              Sign up
+            </Button>
+          </Link>
+        </p>
+
+        <div className="text-xs text-muted-foreground space-y-1">
+          <p>
+            By continuing, you agree to our{" "}
+            <a
+              href="/privacy-policy"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a
+              href="/terms"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </a>
+          </p>
+          <p>
+            Need help?{" "}
+            <a
+              href="mailto:support@smartmess.com"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Contact support
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t">
+        <Link href={`/${slug}/${tableId}`}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <IconArrowLeft size={18} />
+            <span className="hidden sm:inline">Back to Menu</span>
+            <span className="sm:hidden">Back to Menu</span>
           </Button>
         </Link>
-      </div>
-
-      <div className="text-xs text-muted-foreground text-center">
-        By continuing, you agree to our{" "}
-        <a href="/privacy-policy" className="underline hover:text-primary">
-          Privacy Policy
-        </a>{" "}
-        and{" "}
-        <a href="/terms" className="underline hover:text-primary">
-          Terms of Service
-        </a>
-        .
-      </div>
-
-      <div className="text-xs text-muted-foreground text-center">
-        Need help?{" "}
-        <a
-          href="mailto:support@smartmess.com"
-          className="underline hover:text-primary"
-        >
-          Contact support
-        </a>
-        .
       </div>
     </Card>
   );

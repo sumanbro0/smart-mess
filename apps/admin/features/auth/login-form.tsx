@@ -16,8 +16,6 @@ import { useTransition } from "react";
 
 import React from "react";
 import { setServerCookie } from "@/lib/server-utils";
-import { setupClientInterceptor } from "@/lib/client-interceptor";
-import { setupServerInterceptor } from "@/lib/server-interceptor";
 import Logo from "@/components/logo";
 
 const loginSchema = z.object({
@@ -117,17 +115,19 @@ export function LoginForm({
 
   const handleGoogleLogin = async () => {
     try {
-      console.log("Initiating Google OAuth flow with PKCE");
-
-      // Get authorization URL with PKCE
       const { data } =
         await oauthGoogleDatabaseAuthorizeAuthGoogleAuthorizeGet();
-
       if (data?.authorization_url) {
-        console.log("Received authorization URL, redirecting...");
-        window.location.href = data.authorization_url;
+        const url = new URL(data.authorization_url);
+        const original_state = url.searchParams.get("state");
+        const state = JSON.stringify({
+          mess_slug: "dashboard",
+          original_state: original_state,
+          table_id: "dashboard",
+        });
+        url.searchParams.set("state", btoa(state));
+        window.location.href = url.toString();
       } else {
-        console.error("No authorization URL received");
         toast.error("Failed to get authorization URL");
       }
     } catch (error) {

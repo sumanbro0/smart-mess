@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseOAuthAccountTableUUID, SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
-from sqlalchemy import Column, Enum, Integer, String, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from fastapi_users_db_sqlalchemy.access_token import (
@@ -8,11 +8,8 @@ from fastapi_users_db_sqlalchemy.access_token import (
 )
 from db.base import Base
 from sqlalchemy.orm import relationship, selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
-from db.session import get_async_session
-from fastapi_users_db_sqlalchemy.access_token import SQLAlchemyAccessTokenDatabase
 from sqlalchemy.sql import select
+from sqlalchemy import UniqueConstraint
 
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):
     pass
@@ -54,20 +51,26 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 
 
 
+class Customer(SQLAlchemyBaseUserTableUUID, Base):
+    __tablename__ = "customer"
 
-class Customer(SQLAlchemyBaseUserTableUUID,Base):
-    __tablename__="customer"
-
-    name = Column(String, nullable=True)
+    name = Column(String, nullable=True,default="Customer")
     image = Column(String, nullable=True, default="https://avatar.tobi.sh/jane")
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
+    mess_id = Column(UUID(as_uuid=True), ForeignKey('mess.id'), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.now)
+    
+    __table_args__ = (
+        UniqueConstraint('mess_id', 'email', name='unique_customer_mess_email'),
+    )
+    
     oauth_accounts = relationship("CustomerOAuthAccount", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
     access_tokens = relationship("CustomerAccessToken", back_populates="user", cascade="all, delete-orphan", lazy="selectin")
-    visited = relationship("Mess",secondary="mess_customer", back_populates="customers")
+    mess = relationship("Mess", back_populates="customers")
+    orders = relationship("Order", back_populates="customer")
 
 
 class CustomerSessionToken(Base):
@@ -180,8 +183,8 @@ class SQLAlchemyCustomerDatabase(SQLAlchemyUserDatabase):
 
     
 
-async def get_access_token_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyAccessTokenDatabase(session, AccessToken)
+# async def get_access_token_db(session: AsyncSession = Depends(get_async_session)):
+#     yield SQLAlchemyAccessTokenDatabase(session, AccessToken)
 
-async def get_customer_access_token_db(session: AsyncSession = Depends(get_async_session)):
-    yield SQLAlchemyAccessTokenDatabase(session, CustomerAccessToken)
+# async def get_customer_access_token_db(session: AsyncSession = Depends(get_async_session)):
+#     yield SQLAlchemyAccessTokenDatabase(session, CustomerAccessToken)

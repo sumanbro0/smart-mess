@@ -2,11 +2,13 @@ import sys
 import os
 
 from fastapi.staticfiles import StaticFiles
+import socketio
 sys.path.append(os.path.dirname(__file__))
 
 from typing import Union
 from contextlib import asynccontextmanager
-from fastapi import Depends, FastAPI
+from fastapi import  FastAPI
+from core.socket import sio
 from fastapi.middleware.cors import CORSMiddleware
 from auth.security import fastapi_users
 from core.config import settings
@@ -19,7 +21,6 @@ from mess.route import router as mess_router
 from mess_table.route import router as mess_table_router
 from menu.route import router as menu_router
 from orders.route import router as orders_router
-from utils.mess import get_mess_id
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
+socket_app = socketio.ASGIApp(sio,app)
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.add_middleware(
