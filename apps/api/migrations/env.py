@@ -9,7 +9,7 @@ from auth.models import User,AccessToken,OAuthAccount,SQLAlchemyUserDatabaseLoca
 from mess.models import Mess,mess_staff
 from mess_table.models import MessTable
 from menu.models import  MenuItem, MenuItemCategory,SpicinessEnum
-from orders.models import Order, OrderItem, OrderTransaction,OrderStatusEnum,OrderTransactionStatusEnum
+from orders.models import Order, OrderItem, OrderStatusEnum,OrderTransaction,OrderTransactionStatusEnum,PaymentMethodEnum
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

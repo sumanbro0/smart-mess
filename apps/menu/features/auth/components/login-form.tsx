@@ -78,27 +78,25 @@ const LoginForm: React.FC<LoginFormProps> = ({
       return;
     }
 
-    try {
-      startTransition(async () => {
-        login(
-          {
-            email: formData.email,
-            password: formData.password,
-            slug: slug,
+    startTransition(async () => {
+      login(
+        {
+          email: formData.email,
+          password: formData.password,
+          slug: slug,
+        },
+        {
+          onSuccess: async (data) => {
+            toast.success("Login successful");
+            await setServerCookie(data?.access_token as string);
+            window.location.href = `/${slug}/${tableId}`;
           },
-          {
-            onSuccess: async (data) => {
-              toast.success("Login successful");
-              await setServerCookie(data?.access_token as string);
-              window.location.href = `/${slug}/${tableId}`;
-            },
-          }
-        );
-      });
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Failed to login");
-    }
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
+    });
   };
 
   const handleGoogleLogin = async () => {

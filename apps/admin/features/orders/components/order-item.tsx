@@ -4,7 +4,18 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, X } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useCancelOrderItem } from "../use-orders-api";
+import { useUpdateOrderStatus, useCancelOrderItem } from "../use-orders-api";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 interface OrderItemProps {
   item: OrderItemResponse;
@@ -12,6 +23,7 @@ interface OrderItemProps {
   canCancelItems: boolean;
   messSlug: string;
   isLast: boolean;
+  isLastRemainingItem: boolean;
 }
 
 export const OrderItem = ({
@@ -20,22 +32,40 @@ export const OrderItem = ({
   canCancelItems,
   messSlug,
   isLast,
+  isLastRemainingItem,
 }: OrderItemProps) => {
-  const { mutate: cancelOrderItem } = useCancelOrderItem();
-
+  const { mutate: cancelOrderItem, isPending: isCancellingOrderItem } =
+    useCancelOrderItem();
+  const { mutate: updateOrderStatus, isPending: isUpdatingOrderStatus } =
+    useUpdateOrderStatus();
   const handleCancelClick = () => {
-    cancelOrderItem(
-      {
-        orderId: item.order_id,
-        messSlug,
-        itemId: item.id,
-      },
-      {
-        onError: (error) => {
-          toast.error(error.message);
+    if (isLastRemainingItem) {
+      updateOrderStatus(
+        {
+          orderId: item.order_id,
+          messSlug,
+          status: "cancelled",
         },
-      }
-    );
+        {
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
+    } else {
+      cancelOrderItem(
+        {
+          orderId: item.order_id,
+          messSlug,
+          itemId: item.id,
+        },
+        {
+          onError: (error) => {
+            toast.error(error.message);
+          },
+        }
+      );
+    }
   };
 
   return (
@@ -86,16 +116,49 @@ export const OrderItem = ({
           </div>
         </div>
 
-        {canCancelItems && !item.is_cancelled && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 flex-shrink-0 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
-            onClick={handleCancelClick}
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        )}
+        {canCancelItems &&
+          !item.is_cancelled &&
+          (isLastRemainingItem ? (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 flex-shrink-0 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Cancel Last Item?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cancelling this item will cancel the whole order. Are you
+                    sure you want to continue?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Keep Item</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancelClick}>
+                    Cancel Item & Order
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 flex-shrink-0 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors"
+              onClick={handleCancelClick}
+            >
+              {isCancellingOrderItem || isUpdatingOrderStatus ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <X className="w-4 h-4" />
+              )}
+            </Button>
+          ))}
       </div>
 
       {!isLast && <Separator className="my-0 bg-border/50" />}

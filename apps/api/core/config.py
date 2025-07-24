@@ -18,7 +18,8 @@ class Settings(BaseSettings):
     BASE_URL: str="http://127.0.0.1:8000"
     CLIENT_URL: str="http://localhost:3000"
     MENU_URL: str="http://localhost:3001"
-
+    KHALTI_URL: str="https://dev.khalti.com/api/v2/epayment/initiate/"
+    KHALTI_SECRET_KEY: str="live_secret_key_68791341fdd94846a146f0457ff7b455"
     @field_validator("DATABASE_URI", mode="before")
     def assemble_db_connection(cls, v: Optional[str], info: Dict[str, Any]) -> Any:
         if isinstance(v, str):

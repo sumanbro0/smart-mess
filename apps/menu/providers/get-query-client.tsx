@@ -24,25 +24,15 @@ function makeQueryClient() {
 
 let browserQueryClient: QueryClient | undefined = undefined;
 
-export function getQueryClient({
-  token,
-  slug,
-}: {
-  token?: string;
-  slug?: string;
-} = {}) {
-  if (!isServer) {
-    setupClientInterceptor();
-  }
+export function getQueryClient({ token }: { token?: string } = {}) {
   if (isServer) {
+    setupServerInterceptor({ token });
     return makeQueryClient();
   } else {
     if (!browserQueryClient) {
       browserQueryClient = makeQueryClient();
     }
-    if (token) {
-      setupServerInterceptor({ token });
-    }
+    setupClientInterceptor();
     return browserQueryClient;
   }
 }

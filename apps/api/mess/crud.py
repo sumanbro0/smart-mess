@@ -15,7 +15,6 @@ async def _get_mess_by_slug_cached(slug: str) -> Optional[Mess]:
         if mess:
             db.expunge(mess)
         return mess
-        break  
 
 class MessCRUD:
     async def get(self, db: AsyncSession, id: UUID) -> Optional[Mess]:

@@ -17,6 +17,11 @@ export type AdminOrderItemResponse = {
      * Total Price
      */
     total_price: number;
+    /**
+     * Is Paid
+     */
+    is_paid: boolean;
+    transaction?: OrderTransactionResponse | null;
 };
 
 /**
@@ -46,6 +51,7 @@ export type AdminOrderResponse = {
     has_added_items: boolean;
     customer?: UserRead | null;
     table?: MessTableRead | null;
+    transaction?: OrderTransactionBase | null;
 };
 
 /**
@@ -345,6 +351,11 @@ export type CustomerOrderItemResponse = {
      * Total Price
      */
     total_price: number;
+    /**
+     * Is Paid
+     */
+    is_paid: boolean;
+    transaction?: OrderTransactionResponse | null;
 };
 
 /**
@@ -945,6 +956,20 @@ export type MessUpdate = {
 };
 
 /**
+ * MyOrderResponse
+ */
+export type MyOrderResponse = {
+    /**
+     * Orders
+     */
+    orders: Array<AdminOrderResponse>;
+    /**
+     * Currency
+     */
+    currency: string;
+};
+
+/**
  * OAuth2AuthorizeResponse
  */
 export type OAuth2AuthorizeResponse = {
@@ -1075,9 +1100,9 @@ export type OrderPopupResponse = {
 export type OrderStatusEnum = 'pending' | 'received' | 'preparing' | 'ready' | 'served' | 'completed' | 'cancelled';
 
 /**
- * OrderTransactionCreate
+ * OrderTransactionBase
  */
-export type OrderTransactionCreate = {
+export type OrderTransactionBase = {
     /**
      * Transaction Id
      */
@@ -1087,10 +1112,7 @@ export type OrderTransactionCreate = {
      */
     amount: number;
     status?: OrderTransactionStatusEnum;
-    /**
-     * Order Id
-     */
-    order_id: string;
+    payment_method: PaymentMethodEnum;
 };
 
 /**
@@ -1106,6 +1128,7 @@ export type OrderTransactionResponse = {
      */
     amount: number;
     status?: OrderTransactionStatusEnum;
+    payment_method: PaymentMethodEnum;
     /**
      * Id
      */
@@ -1114,6 +1137,14 @@ export type OrderTransactionResponse = {
      * Order Id
      */
     order_id: string;
+    /**
+     * Payment Url
+     */
+    payment_url: string;
+    /**
+     * Payment Id
+     */
+    payment_id: string;
     /**
      * Created At
      */
@@ -1130,17 +1161,6 @@ export type OrderTransactionResponse = {
 export type OrderTransactionStatusEnum = 'pending' | 'success' | 'failed';
 
 /**
- * OrderTransactionUpdate
- */
-export type OrderTransactionUpdate = {
-    status?: OrderTransactionStatusEnum | null;
-    /**
-     * Amount
-     */
-    amount?: number | null;
-};
-
-/**
  * OrderUpdate
  */
 export type OrderUpdate = {
@@ -1154,6 +1174,11 @@ export type OrderUpdate = {
      */
     is_cancelled?: boolean | null;
 };
+
+/**
+ * PaymentMethodEnum
+ */
+export type PaymentMethodEnum = 'cash' | 'esewa' | 'khalti' | 'stripe';
 
 /**
  * ResponseMessage
@@ -2792,6 +2817,37 @@ export type CreateCategoryMessSlugMenuCategoriesPostResponses = {
 
 export type CreateCategoryMessSlugMenuCategoriesPostResponse = CreateCategoryMessSlugMenuCategoriesPostResponses[keyof CreateCategoryMessSlugMenuCategoriesPostResponses];
 
+export type GetMenuCategoriesMessSlugMenuMenuCategoriesGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query?: never;
+    url: '/{mess_slug}/menu/menu-categories';
+};
+
+export type GetMenuCategoriesMessSlugMenuMenuCategoriesGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMenuCategoriesMessSlugMenuMenuCategoriesGetError = GetMenuCategoriesMessSlugMenuMenuCategoriesGetErrors[keyof GetMenuCategoriesMessSlugMenuMenuCategoriesGetErrors];
+
+export type GetMenuCategoriesMessSlugMenuMenuCategoriesGetResponses = {
+    /**
+     * Response Get Menu Categories  Mess Slug  Menu Menu Categories Get
+     * Successful Response
+     */
+    200: Array<CategoryResponse>;
+};
+
+export type GetMenuCategoriesMessSlugMenuMenuCategoriesGetResponse = GetMenuCategoriesMessSlugMenuMenuCategoriesGetResponses[keyof GetMenuCategoriesMessSlugMenuMenuCategoriesGetResponses];
+
 export type DeleteCategoryMessSlugMenuCategoriesCategoryIdDeleteData = {
     body?: never;
     path: {
@@ -2967,19 +3023,27 @@ export type GetMenuItemsDisplayMessSlugMenuItemsDisplayGetData = {
         /**
          * Caloriemins
          */
-        calorieMins?: Array<number>;
+        calorieMins?: number;
         /**
          * Caloriemaxes
          */
-        calorieMaxes?: Array<number>;
+        calorieMaxes?: number;
         /**
-         * Spices
+         * Spicelevel
          */
-        spices?: Array<string>;
+        spiceLevel?: string;
         /**
-         * Vegtypesarray
+         * Vegtype
          */
-        vegTypesArray?: Array<string>;
+        vegType?: string;
+        /**
+         * Category
+         */
+        category?: string;
+        /**
+         * Q
+         */
+        q?: string;
     };
     url: '/{mess_slug}/menu/items/display';
 };
@@ -3134,6 +3198,37 @@ export type GetOrdersMessSlugOrdersIncompleteGetResponses = {
 };
 
 export type GetOrdersMessSlugOrdersIncompleteGetResponse = GetOrdersMessSlugOrdersIncompleteGetResponses[keyof GetOrdersMessSlugOrdersIncompleteGetResponses];
+
+export type GetMyOrdersMessSlugOrdersMyOrdersGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query?: never;
+    url: '/{mess_slug}/orders/my-orders';
+};
+
+export type GetMyOrdersMessSlugOrdersMyOrdersGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetMyOrdersMessSlugOrdersMyOrdersGetError = GetMyOrdersMessSlugOrdersMyOrdersGetErrors[keyof GetMyOrdersMessSlugOrdersMyOrdersGetErrors];
+
+export type GetMyOrdersMessSlugOrdersMyOrdersGetResponses = {
+    /**
+     * Response Get My Orders  Mess Slug  Orders My Orders Get
+     * Successful Response
+     */
+    200: MyOrderResponse | null;
+};
+
+export type GetMyOrdersMessSlugOrdersMyOrdersGetResponse = GetMyOrdersMessSlugOrdersMyOrdersGetResponses[keyof GetMyOrdersMessSlugOrdersMyOrdersGetResponses];
 
 export type GetOrderMessSlugOrdersOrderIdAdminItemsGetData = {
     body?: never;
@@ -3299,9 +3394,10 @@ export type AddOrderItemMessSlugOrdersOrderIdItemsPostError = AddOrderItemMessSl
 
 export type AddOrderItemMessSlugOrdersOrderIdItemsPostResponses = {
     /**
+     * Response Add Order Item  Mess Slug  Orders  Order Id  Items Post
      * Successful Response
      */
-    200: OrderItemResponse;
+    200: Array<OrderItemCreate>;
 };
 
 export type AddOrderItemMessSlugOrdersOrderIdItemsPostResponse = AddOrderItemMessSlugOrdersOrderIdItemsPostResponses[keyof AddOrderItemMessSlugOrdersOrderIdItemsPostResponses];
@@ -3444,7 +3540,7 @@ export type UpdateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatchResponses =
 
 export type UpdateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatchResponse = UpdateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatchResponses[keyof UpdateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatchResponses];
 
-export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostData = {
+export type CompleteOrderMessSlugOrdersOrderIdCompletePostData = {
     body?: never;
     path: {
         /**
@@ -3457,26 +3553,26 @@ export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostData = {
         mess_slug: string;
     };
     query?: never;
-    url: '/{mess_slug}/orders/{order_id}/mark-paid';
+    url: '/{mess_slug}/orders/{order_id}/complete';
 };
 
-export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostErrors = {
+export type CompleteOrderMessSlugOrdersOrderIdCompletePostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostError = MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostErrors[keyof MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostErrors];
+export type CompleteOrderMessSlugOrdersOrderIdCompletePostError = CompleteOrderMessSlugOrdersOrderIdCompletePostErrors[keyof CompleteOrderMessSlugOrdersOrderIdCompletePostErrors];
 
-export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostResponses = {
+export type CompleteOrderMessSlugOrdersOrderIdCompletePostResponses = {
     /**
      * Successful Response
      */
     200: OrderUpdate;
 };
 
-export type MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostResponse = MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostResponses[keyof MarkOrderAsPaidMessSlugOrdersOrderIdMarkPaidPostResponses];
+export type CompleteOrderMessSlugOrdersOrderIdCompletePostResponse = CompleteOrderMessSlugOrdersOrderIdCompletePostResponses[keyof CompleteOrderMessSlugOrdersOrderIdCompletePostResponses];
 
 export type CancelOrderItemMessSlugOrdersOrderIdItemsItemIdCustomerCancelPatchData = {
     body?: never;
@@ -3622,36 +3718,6 @@ export type UpdateOrderItemMessSlugOrdersItemsItemIdPutResponses = {
 
 export type UpdateOrderItemMessSlugOrdersItemsItemIdPutResponse = UpdateOrderItemMessSlugOrdersItemsItemIdPutResponses[keyof UpdateOrderItemMessSlugOrdersItemsItemIdPutResponses];
 
-export type CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostData = {
-    body: OrderTransactionCreate;
-    path: {
-        /**
-         * Order Id
-         */
-        order_id: string;
-    };
-    query?: never;
-    url: '/{mess_slug}/orders/{order_id}/transactions';
-};
-
-export type CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostError = CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostErrors[keyof CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostErrors];
-
-export type CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostResponses = {
-    /**
-     * Successful Response
-     */
-    200: OrderTransactionResponse;
-};
-
-export type CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostResponse = CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostResponses[keyof CreateOrderTransactionMessSlugOrdersOrderIdTransactionsPostResponses];
-
 export type GetOrderTransactionMessSlugOrdersTransactionsTransactionIdGetData = {
     body?: never;
     path: {
@@ -3682,35 +3748,83 @@ export type GetOrderTransactionMessSlugOrdersTransactionsTransactionIdGetRespons
 
 export type GetOrderTransactionMessSlugOrdersTransactionsTransactionIdGetResponse = GetOrderTransactionMessSlugOrdersTransactionsTransactionIdGetResponses[keyof GetOrderTransactionMessSlugOrdersTransactionsTransactionIdGetResponses];
 
-export type UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutData = {
-    body: OrderTransactionUpdate;
+export type CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostData = {
+    body?: never;
     path: {
         /**
-         * Transaction Id
+         * Order Id
          */
-        transaction_id: string;
+        order_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
     };
     query?: never;
-    url: '/{mess_slug}/orders/transactions/{transaction_id}';
+    url: '/{mess_slug}/orders/{order_id}/checkout/initiate/khalti';
 };
 
-export type UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutErrors = {
+export type CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutError = UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutErrors[keyof UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutErrors];
+export type CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostError = CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostErrors[keyof CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostErrors];
 
-export type UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutResponses = {
+export type CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostResponses = {
     /**
      * Successful Response
      */
     200: OrderTransactionResponse;
 };
 
-export type UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutResponse = UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutResponses[keyof UpdateOrderTransactionMessSlugOrdersTransactionsTransactionIdPutResponses];
+export type CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostResponse = CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostResponses[keyof CheckoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPostResponses];
+
+export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetData = {
+    body?: never;
+    path: {
+        /**
+         * Order Id
+         */
+        order_id: string;
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query: {
+        /**
+         * Is Success
+         */
+        is_success: boolean;
+        /**
+         * Transaction Id
+         */
+        transaction_id?: string | null;
+    };
+    url: '/{mess_slug}/orders/{order_id}/checkout/callback/khalti';
+};
+
+export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetError = CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetErrors[keyof CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetErrors];
+
+export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponses = {
+    /**
+     * Response Checkout Callback Khalti  Mess Slug  Orders  Order Id  Checkout Callback Khalti Get
+     * Successful Response
+     */
+    200: OrderTransactionResponse | null;
+};
+
+export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponse = CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponses[keyof CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponses];
 
 export type ReadRootGetData = {
     body?: never;

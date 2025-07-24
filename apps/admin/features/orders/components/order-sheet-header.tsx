@@ -12,6 +12,17 @@ import {
 import { useUpdateOrderStatus } from "../use-orders-api";
 import { toast } from "sonner";
 import { useTransition, useState, useEffect } from "react";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export const OrderSheetHeader = ({
   orderId,
@@ -23,6 +34,10 @@ export const OrderSheetHeader = ({
   status: OrderStatusEnum;
 }) => {
   const [isPending, startTransition] = useTransition();
+  const [pendingStatus, setPendingStatus] = useState<OrderStatusEnum | null>(
+    null
+  );
+  const [showDialog, setShowDialog] = useState(false);
 
   const statusOptions: { value: OrderStatusEnum; label: string }[] = [
     { value: "pending", label: "Pending" },
@@ -30,13 +45,21 @@ export const OrderSheetHeader = ({
     { value: "preparing", label: "Preparing" },
     { value: "ready", label: "Ready" },
     { value: "served", label: "Served" },
-    { value: "completed", label: "Completed" },
     { value: "cancelled", label: "Cancelled" },
   ];
 
   const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
 
   const handleStatusChange = (newStatus: OrderStatusEnum) => {
+    if (newStatus === "completed" || newStatus === "cancelled") {
+      setPendingStatus(newStatus);
+      setShowDialog(true);
+    } else {
+      doStatusChange(newStatus);
+    }
+  };
+
+  const doStatusChange = (newStatus: OrderStatusEnum) => {
     startTransition(async () => {
       try {
         await updateOrderStatus(
@@ -72,26 +95,61 @@ export const OrderSheetHeader = ({
         </div>
         <div className="flex items-center gap-3">
           {isPending && <Loader2Icon className="w-4 h-4 animate-spin" />}
-          <Select
-            value={status}
-            onValueChange={handleStatusChange}
-            disabled={!canModifyOrder}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {statusOptions.map((option) => (
-                <SelectItem
-                  key={option.value}
-                  value={option.value}
-                  className="text-xs"
+          <AlertDialog open={showDialog} onOpenChange={setShowDialog}>
+            <AlertDialogTrigger asChild>
+              <div>
+                <Select
+                  value={status}
+                  onValueChange={handleStatusChange}
+                  disabled={!canModifyOrder}
                 >
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statusOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="text-xs"
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {pendingStatus === "completed"
+                    ? "Mark order as completed?"
+                    : "Cancel order?"}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {pendingStatus === "completed"
+                    ? "Are you sure you want to mark this order as completed? This action cannot be undone."
+                    : "Are you sure you want to cancel this order? This action cannot be undone."}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setShowDialog(false)}>
+                  Keep Current Status
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    if (pendingStatus) doStatusChange(pendingStatus);
+                    setShowDialog(false);
+                  }}
+                >
+                  {pendingStatus === "completed"
+                    ? "Mark as Completed"
+                    : "Cancel Order"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </SheetHeader>

@@ -1,3 +1,4 @@
+from locale import currency
 from pydantic import BaseModel, Field, validator
 from typing import Optional, List
 from datetime import datetime
@@ -6,7 +7,7 @@ from auth.schemas import UserRead
 from mess.schema import MessRead
 from mess_table.schema import MessTableRead
 from menu.schema import MenuItemResponse
-from .models import OrderStatusEnum, OrderTransactionStatusEnum
+from .models import OrderStatusEnum, OrderTransactionStatusEnum,PaymentMethodEnum
 
 
 # OrderItem schemas
@@ -38,18 +39,28 @@ class CustomerOrderItemResponse(BaseModel):
     currency: str
     status: OrderStatusEnum
     total_price: int
+    is_paid: bool
+    transaction: Optional["OrderTransactionResponse"] = None
 
 class AdminOrderItemResponse(BaseModel):
     items: List[OrderItemResponse]
     currency: str
     status: OrderStatusEnum
     total_price: int
+    is_paid: bool
+    transaction: Optional["OrderTransactionResponse"] = None
+
+
 
 # OrderTransaction schemas
 class OrderTransactionBase(BaseModel):
     transaction_id: str
     amount: int = Field(..., ge=0)
     status: OrderTransactionStatusEnum = OrderTransactionStatusEnum.PENDING
+    payment_method: PaymentMethodEnum
+
+    class Config:
+        from_attributes = True
 
 class OrderTransactionCreate(OrderTransactionBase):
     order_id: uuid.UUID
@@ -61,6 +72,8 @@ class OrderTransactionUpdate(BaseModel):
 class OrderTransactionResponse(OrderTransactionBase):
     id: uuid.UUID
     order_id: uuid.UUID
+    payment_url: str
+    payment_id: str
     created_at: datetime
     updated_at: datetime
 
@@ -106,10 +119,23 @@ class AdminOrderResponse(BaseModel):
     has_added_items: bool
     customer: Optional['UserRead'] = None
     table: Optional['MessTableRead'] = None
-    
+    transaction: Optional["OrderTransactionBase"] = None
+
+    @property
+    def is_paid(self):
+        return self.transaction and self.transaction.status == OrderTransactionStatusEnum.SUCCESS
 
     class Config:
         from_attributes = True
+
+class MyOrderResponse(BaseModel):
+    orders:List[AdminOrderResponse]
+    currency:str
+
+    class Config:
+        from_attributes = True
+
+    
 
 
 

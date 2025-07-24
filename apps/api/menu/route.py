@@ -1,19 +1,20 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from sqlalchemy.orm import  joinedload
+from sqlalchemy import exists, select, func
+from sqlalchemy.orm import  selectinload, load_only
 from db.session import get_async_session
 from .schema import CategoryResponse, MenuItemCategoryCreate, MenuItemCategoryUpdate, MenuItemCategoryResponse, MenuItemCreate, MenuItemCreateResponse, MenuItemDisplayResponse, MenuItemUpdate, MenuItemResponse, MenuResponse
 from .models import MenuItem, MenuItemCategory
 import uuid
 from upload.route import file_router
-from mess.dependencies import get_mess_and_user_context, require_mess_access, MessContext
+from mess.dependencies import  get_mess_and_user_context, require_mess_access, MessContext
 from mess.crud import mess_crud
-from .recommendation import get_menu_recommendations_content_based
+from orders.models import Order, OrderItem
+from .recommendation import get_menu_recommendations_content_based, get_collaborative_filtering_recommendations
 from auth.dep import optional_current_customer
 from auth.models import Customer
-
+from .utils import get_user_menu_items, get_popular_menu_items
 router = APIRouter(prefix="/{mess_slug}/menu", tags=["menu"])
 
 # Category Routes
@@ -46,6 +47,19 @@ async def get_categories(
     db: AsyncSession = Depends(get_async_session)
 ):
     result = await db.execute(select(MenuItemCategory).filter(MenuItemCategory.mess_id == context.mess.id))
+    categories = result.scalars().all()
+    return categories
+
+
+@router.get("/menu-categories", response_model=list[CategoryResponse])
+async def get_menu_categories(
+    mess_slug: str,
+    db: AsyncSession = Depends(get_async_session)
+):
+    mess = await mess_crud.get_by_slug(db, mess_slug)
+    if not mess:
+        raise HTTPException(status_code=404, detail="Mess not found")
+    result = await db.execute(select(MenuItemCategory).filter(MenuItemCategory.mess_id == mess.id))
     categories = result.scalars().all()
     return categories
 
@@ -132,8 +146,9 @@ async def get_menu_items(
     context: MessContext = Depends(require_mess_access),
     db: AsyncSession = Depends(get_async_session),
 ):
+    # changed from joinedload to selectinload
     result = await db.execute(select(MenuItem).options(
-        joinedload(MenuItem.category).load_only(MenuItemCategory.name),
+        selectinload(MenuItem.category).load_only(MenuItemCategory.name),
         ).filter(MenuItem.mess_id == context.mess.id)
         )
     items = result.scalars().all()
@@ -143,10 +158,12 @@ async def get_menu_items(
 @router.get("/items/display", response_model=MenuResponse)
 async def get_menu_items_display(
     mess_slug: str,
-    calorieMins: list[int] = Query(default=[]),
-    calorieMaxes: list[int] = Query(default=[]),
-    spices: list[str] = Query(default=[]),
-    vegTypesArray: list[str] = Query(default=[]),
+    calorieMins: int = 0,
+    calorieMaxes: int = 0,
+    spiceLevel: str = "",
+    vegType: str = "",
+    category: str = "",
+    q: str = "",
     db: AsyncSession = Depends(get_async_session),
     auth: Optional[Customer] = Depends(optional_current_customer)
 ):
@@ -154,22 +171,103 @@ async def get_menu_items_display(
     print(auth)
     print(calorieMins)
     print(calorieMaxes)
-    print(spices)
-    print(vegTypesArray)
+    print(spiceLevel)
+    print(vegType)
+    print(category)
+    print(q)
     print("_________________________")
     
     mess = await mess_crud.get_by_slug(db, mess_slug)
 
     if not mess:
         raise HTTPException(status_code=404, detail="Mess not found")
-    result = await db.execute(select(MenuItem).options(
-        joinedload(MenuItem.category).load_only(MenuItemCategory.name),
-    ).filter(MenuItem.mess_id == mess.id))
-
-    items = result.scalars().all()
+    # changed from joinedload to selectinload
+    query = select(MenuItem).options(
+        selectinload(MenuItem.category).load_only(MenuItemCategory.name),
+    ).filter(MenuItem.mess_id == mess.id)
     
-    filtered_items = get_menu_recommendations_content_based(items=items, calorie_mins=calorieMins, calorie_maxes=calorieMaxes, spices=spices, vegTypesArray=vegTypesArray)
-    return MenuResponse(currency=mess.currency, items=filtered_items)
+    if category and category != "all":
+        query = query.filter(MenuItem.category.has(MenuItemCategory.slug == category))
+    
+    if q and q != "":
+        query = query.filter(MenuItem.name.ilike(f"%{q}%"))
+
+    if calorieMaxes and calorieMaxes != 0:
+        query = query.filter(MenuItem.calories <= calorieMaxes)
+    
+    if calorieMins and calorieMins != 0:
+        query = query.filter(MenuItem.calories >= calorieMins) 
+
+    if spiceLevel and spiceLevel != "":
+        query = query.filter(MenuItem.spiciness == spiceLevel)
+    
+    if vegType and vegType != "":
+        query = query.filter(MenuItem.is_veg == (vegType == "veg"))
+
+    
+    
+    result = await db.execute(query)
+    items = result.scalars().all()
+    try:
+        if auth and len(items) > 5:
+            print("***************************")
+            print(get_user_menu_items.cache_info())
+            print("***************************")
+            user_menu_items = await get_user_menu_items(auth.email)
+            calories=[]
+            spices=[]
+            vegTypesArray=[]
+            for item in user_menu_items:
+                calories.append(item.calories)
+                spices.append(item.spiciness)
+                vegTypesArray.append("veg" if item.is_veg else "non-veg")
+        
+            spices=list(set(spices)) if spices else []
+            vegTypesArray=list(set(vegTypesArray)) if vegTypesArray else []
+    
+            sorted_items =get_menu_recommendations_content_based(
+                items=items, 
+                calories=calories, 
+                spices=spices, 
+                vegTypesArray=vegTypesArray
+            )
+
+            if len(user_menu_items)< 5:
+                return MenuResponse(currency=mess.currency, items=sorted_items)
+
+            collab_sorted_items =await get_collaborative_filtering_recommendations(
+                items=sorted_items, 
+                user_id=auth.id, 
+            )
+
+            return MenuResponse(currency=mess.currency, items=collab_sorted_items)
+        else:
+            popular_items = await get_popular_menu_items()
+            calories=[]
+            spices=[]
+            vegTypesArray=[]
+            for item in popular_items:
+                calories.append(item.calories)
+                spices.append(item.spiciness)
+                vegTypesArray.append("veg" if item.is_veg else "non-veg")
+            print("***************************")
+            print(calories)
+            print(spices)
+            print(vegTypesArray)
+            print("***************************")
+            sorted_items =get_menu_recommendations_content_based(
+                items=items, 
+                calories=calories, 
+                spices=spices, 
+                vegTypesArray=vegTypesArray
+            )
+            return MenuResponse(currency=mess.currency, items=sorted_items)
+    except Exception as e:
+        print("*************************** error Recommendation ***************************")
+        print(e)
+        print("***************************")
+        return MenuResponse(currency=mess.currency, items=items)
+    
 
 @router.get("/items/{item_id}", response_model=MenuItemResponse)
 async def get_menu_item(

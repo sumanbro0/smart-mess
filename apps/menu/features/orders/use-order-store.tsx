@@ -15,5 +15,5 @@ export const useOrderStore = create<OrderStore>((set) => ({
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsSheetOpen: (isSheetOpen) => set({ isSheetOpen }),
   orderId: null,
-  setOrderId: (orderId) => set({ orderId, isLoading: orderId ? false : true }),
+  setOrderId: (orderId) => set({ orderId, isLoading: false }),
 }));

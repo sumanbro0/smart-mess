@@ -16,7 +16,7 @@
     "next-env.d.ts",
     "next.config.js",
     ".next/types/**/*.ts"
-  ],
+, "../admin/features/orders/components/order-receipt.tsx", "../../ignored/layout_a.tsx"  ],
   "exclude": [
     "node_modules"
   ]

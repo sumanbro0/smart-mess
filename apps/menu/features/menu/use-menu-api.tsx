@@ -1,18 +1,25 @@
-import { getMenuItemsDisplayMessSlugMenuItemsDisplayGet } from "@/client";
+import {
+  getMenuCategoriesMessSlugMenuMenuCategoriesGet,
+  getMenuItemsDisplayMessSlugMenuItemsDisplayGet,
+} from "@/client";
 import { queryOptions } from "@tanstack/react-query";
 
 export const useMenuItemsQueryOptions = ({
   slug,
   calorieMins,
   calorieMaxes,
-  spices,
-  vegTypesArray,
+  spiceLevel = "",
+  vegType = "",
+  category = "",
+  q,
 }: {
   slug: string;
-  calorieMins: number[] | undefined;
-  calorieMaxes: number[] | undefined;
-  spices: string[] | undefined;
-  vegTypesArray: string[] | undefined;
+  calorieMins: number;
+  calorieMaxes: number;
+  spiceLevel: string;
+  vegType: string;
+  category: string | null;
+  q: string | null;
 }) => {
   return queryOptions({
     queryKey: ["menu", slug],
@@ -24,8 +31,10 @@ export const useMenuItemsQueryOptions = ({
         query: {
           calorieMins,
           calorieMaxes,
-          spices,
-          vegTypesArray,
+          spiceLevel,
+          vegType,
+          category: category ?? "",
+          q: q ?? "",
         },
       });
       if (res.error) {
@@ -34,6 +43,26 @@ export const useMenuItemsQueryOptions = ({
         );
       }
       return res.data;
+    },
+    retry: false,
+  });
+};
+
+export const useMenuCategoriesQueryOptions = ({ slug }: { slug: string }) => {
+  return queryOptions({
+    queryKey: ["menu-categories", slug],
+    queryFn: async () => {
+      const res = await getMenuCategoriesMessSlugMenuMenuCategoriesGet({
+        path: {
+          mess_slug: slug,
+        },
+      });
+      if (res.error) {
+        throw new Error(
+          res.error.detail?.[0]?.msg ?? "Failed to get menu categories"
+        );
+      }
+      return res.data ?? [];
     },
   });
 };

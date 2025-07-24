@@ -4,7 +4,7 @@ import {
   updateOrderStatusMessSlugOrdersOrderIdStatusPatch,
   cancelOrderItemMessSlugOrdersOrderIdItemsItemIdAdminCancelPatch,
   OrderStatusEnum,
-  markOrderAsPaidMessSlugOrdersOrderIdMarkPaidPost,
+  completeOrderMessSlugOrdersOrderIdCompletePost,
   addOrderItemMessSlugOrdersOrderIdItemsPost,
   OrderItemCreate,
 } from "@/client";
@@ -191,7 +191,7 @@ export const useCancelOrderItem = () => {
   });
 };
 
-export const useMarkOrderAsPaid = () => {
+export const useCompleteOrder = () => {
   const queryClient = getQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -201,7 +201,7 @@ export const useMarkOrderAsPaid = () => {
       orderId: string;
       messSlug: string;
     }) => {
-      const response = await markOrderAsPaidMessSlugOrdersOrderIdMarkPaidPost({
+      const response = await completeOrderMessSlugOrdersOrderIdCompletePost({
         path: {
           mess_slug: messSlug,
           order_id: orderId,
@@ -214,33 +214,8 @@ export const useMarkOrderAsPaid = () => {
       }
       return response.data ?? null;
     },
-    onMutate: async ({ orderId, messSlug }) => {
-      await queryClient.cancelQueries({
-        queryKey: ["order", messSlug, orderId],
-      });
-      const previousOrder = queryClient.getQueryData([
-        "order",
-        messSlug,
-        orderId,
-      ]);
-      queryClient.setQueryData(["order", messSlug, orderId], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          is_paid: true,
-        };
-      });
-      return { previousOrder };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousOrder) {
-        queryClient.setQueryData(
-          ["order", variables.messSlug, variables.orderId],
-          context.previousOrder
-        );
-      }
-    },
-    onSettled: (data, error, variables) => {
+
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({
         queryKey: ["order", variables.messSlug, variables.orderId],
       });

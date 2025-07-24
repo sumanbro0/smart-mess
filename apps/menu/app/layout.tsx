@@ -3,9 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/providers";
-import { cookieName } from "@/lib/cookie";
-import { setupServerInterceptor } from "@/lib/server-interceptor";
-import { cookies } from "next/headers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,9 +30,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(cookieName)?.value;
-  setupServerInterceptor({ token });
   return (
     <html lang="en">
       <body

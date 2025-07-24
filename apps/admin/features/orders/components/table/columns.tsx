@@ -27,9 +27,15 @@ const SortableHeader = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 font-medium text-sm text-muted-foreground",
+        "flex items-center gap-2 font-medium text-sm text-muted-foreground cursor-pointer select-none",
         className
       )}
+      role="button"
+      tabIndex={0}
+      onClick={() => column.toggleSorting?.()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") column.toggleSorting?.();
+      }}
     >
       {children}
       {isSorted && (
@@ -147,6 +153,7 @@ export const columns: ColumnDef<AdminOrderResponse>[] = [
       );
     },
     size: 120,
+    enableSorting: true,
   },
   {
     accessorKey: "total_price",
@@ -177,6 +184,45 @@ export const columns: ColumnDef<AdminOrderResponse>[] = [
     cell: ({ row }) => {
       const status = row.getValue("status") as OrderStatusEnum;
       return <OrderStatusBadge status={status} />;
+    },
+    sortingFn: (rowA, rowB) => {
+      const statusOrder: { [key in OrderStatusEnum]: number } = {
+        pending: 1,
+        received: 2,
+        preparing: 3,
+        ready: 4,
+        served: 5,
+        completed: 6,
+        cancelled: 7,
+      };
+
+      const aStatus = rowA.getValue("status") as OrderStatusEnum;
+      const bStatus = rowB.getValue("status") as OrderStatusEnum;
+
+      return (statusOrder[aStatus] || 0) - (statusOrder[bStatus] || 0);
+    },
+    size: 140,
+    enableSorting: true,
+  },
+  {
+    accessorKey: "is_paid",
+    header: ({ column }) => (
+      <SortableHeader column={column}>Paid</SortableHeader>
+    ),
+    cell: ({ row }) => {
+      const isPaid = row.original.transaction?.status == "success";
+      return (
+        <Badge
+          variant="secondary"
+          className={cn(
+            "font-normal text-xs rounded-full",
+            isPaid &&
+              "bg-emerald-500/10 border border-emerald-500/20 text-emerald-500"
+          )}
+        >
+          {isPaid ? "Paid" : "Unpaid"}
+        </Badge>
+      );
     },
     size: 140,
   },

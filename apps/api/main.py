@@ -28,7 +28,8 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
-socket_app = socketio.ASGIApp(sio,app)
+
+# Configure app BEFORE creating socket_app
 app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.add_middleware(
@@ -38,7 +39,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# app.add_middleware(LoginRateLimitMiddleware)
 
 app.include_router(auth_router)
 app.include_router(file_router)
@@ -61,10 +61,10 @@ def read_root():
 async def health_check():
     return {"message": "API is running"}
 
-
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
+sio_app = socketio.ASGIApp(sio,other_asgi_app=app)
 
-
+app.mount("/socket.io", sio_app)

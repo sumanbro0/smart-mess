@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
 import uuid
 from db.base import Base
+from sqlalchemy import case
 
 class OrderStatusEnum(str,Enum):
     PENDING = "pending"
@@ -53,6 +54,17 @@ class Order(Base):
 
 
 
+status_order = case(
+    (Order.status == OrderStatusEnum.PENDING, 1),
+    (Order.status == OrderStatusEnum.RECEIVED, 2),
+    (Order.status == OrderStatusEnum.PREPARING, 3),
+    (Order.status == OrderStatusEnum.READY, 4),
+    (Order.status == OrderStatusEnum.SERVED, 5),
+    (Order.status == OrderStatusEnum.COMPLETED, 6),
+    (Order.status == OrderStatusEnum.CANCELLED, 7),
+    else_=99
+)
+
 class OrderItem(Base):
     __tablename__ = "order_items"
 
@@ -71,10 +83,12 @@ class OrderTransaction(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     order_id = Column(UUID(as_uuid=True), ForeignKey("orders.id",ondelete="CASCADE"), nullable=False,unique=True)
-    transaction_id = Column(String, nullable=False)
+    transaction_id = Column(String, nullable=False,unique=True,server_default="")
+    payment_url = Column(String, nullable=False,server_default="")
+    payment_id = Column(String, nullable=False,unique=True,server_default="")
     amount = Column(Integer, nullable=False)
     currency = Column(String, nullable=False)
-    payment_method = Column(SqlEnum(PaymentMethodEnum), nullable=False)
+    payment_method = Column(SqlEnum(PaymentMethodEnum,name="paymentmethodenum"), nullable=False)
     status = Column(SqlEnum(OrderTransactionStatusEnum), nullable=False, default=OrderTransactionStatusEnum.PENDING)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))

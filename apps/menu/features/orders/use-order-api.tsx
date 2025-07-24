@@ -6,11 +6,14 @@ import {
   addOrderItemMessSlugOrdersOrderIdItemsPost,
   OrderItemCreate,
   cancelOrderItemMessSlugOrdersOrderIdItemsItemIdCustomerCancelPatch,
-  OrderItemResponse,
   CustomerOrderItemResponse,
   OrderPopupResponse,
+  updateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatch,
+  checkoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPost,
+  getOrderTransactionMessSlugOrdersTransactionsTransactionIdGet,
+  getMyOrdersMessSlugOrdersMyOrdersGet,
 } from "@/client";
-import { queryOptions, useMutation } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { getQueryClient } from "@/providers/get-query-client";
 
 export const useGetOrderPopupQueryOptions = (
@@ -37,6 +40,30 @@ export const useGetOrderPopupQueryOptions = (
       return response.data ?? null;
     },
     retry: false,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useGetMyOrdersQueryOptions = (
+  messSlug: string,
+  enabled: boolean
+) => {
+  return queryOptions({
+    queryKey: ["my-orders", messSlug],
+    queryFn: async () => {
+      const response = await getMyOrdersMessSlugOrdersMyOrdersGet({
+        path: {
+          mess_slug: messSlug,
+        },
+      });
+      if (response.error) {
+        console.log("Error", response.error);
+        return null;
+      }
+      return response.data;
+    },
+    retry: false,
+    enabled: enabled,
   });
 };
 
@@ -66,6 +93,7 @@ export const useGetOrderQueryOptions = (
 };
 
 export const useCreateOrder = () => {
+  const queryClient = getQueryClient();
   return useMutation({
     mutationFn: async ({
       order,
@@ -86,6 +114,11 @@ export const useCreateOrder = () => {
         );
       }
       return response.data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["order-popup", variables.messSlug],
+      });
     },
   });
 };
@@ -218,6 +251,87 @@ export const useCancelOrderItem = () => {
       queryClient.invalidateQueries({
         queryKey: ["order-popup", variables.messSlug],
       });
+    },
+  });
+};
+
+export const useCancelOrder = () => {
+  const queryClient = getQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+      messSlug,
+    }: {
+      orderId: string;
+      messSlug: string;
+    }) => {
+      const response =
+        await updateOrderStatusMessSlugOrdersOrderIdCustomerCancelPatch({
+          path: {
+            mess_slug: messSlug,
+            order_id: orderId,
+          },
+        });
+      if (response.error) {
+        throw new Error(
+          response.error.detail?.[0]?.msg || "Something went wrong"
+        );
+      }
+      return response.data ?? null;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["order-popup", variables.messSlug],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["order", variables.orderId],
+      });
+    },
+  });
+};
+
+export const useCheckoutKhalti = () => {
+  return useMutation({
+    mutationFn: async ({
+      orderId,
+      messSlug,
+    }: {
+      orderId: string;
+      messSlug: string;
+    }) => {
+      const response =
+        await checkoutKhaltiMessSlugOrdersOrderIdCheckoutInitiateKhaltiPost({
+          path: {
+            mess_slug: messSlug,
+            order_id: orderId,
+          },
+        });
+      if (response.error) {
+        throw new Error(
+          response.error.detail?.[0]?.msg || "Something went wrong"
+        );
+      }
+      return response.data ?? null;
+    },
+  });
+};
+
+export const useGetOrderTransactionQuery = (transactionId: string) => {
+  return useQuery({
+    queryKey: ["order-transaction", transactionId],
+    queryFn: async () => {
+      const response =
+        await getOrderTransactionMessSlugOrdersTransactionsTransactionIdGet({
+          path: {
+            transaction_id: transactionId,
+          },
+        });
+      if (response.error) {
+        throw new Error(
+          response.error.detail?.[0]?.msg || "Something went wrong"
+        );
+      }
+      return response.data ?? null;
     },
   });
 };

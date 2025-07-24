@@ -13,6 +13,7 @@ export const useCurrentUserQueryOptions = () => {
     queryKey: ["customer", "me"],
     queryFn: async () => {
       const res = await getMeAuthCustomerMeGet();
+
       return res.data || null;
     },
     enabled: !!getPersistentCookie(),

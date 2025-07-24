@@ -1,10 +1,20 @@
+import React, { useCallback } from "react";
 import { SheetContent } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ShoppingBag } from "lucide-react";
-import { useCancelOrderItem, useGetOrderById } from "../use-orders-api";
+import { useGetOrderById } from "../use-orders-api";
 import { OrderSheetHeader } from "./order-sheet-header";
 import { OrderSheetFooter } from "./order-sheet-footer";
 import { OrderItem } from "./order-item";
+import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { IconCopy } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { toast } from "sonner";
 
 export const OrderSheetContent = ({
   orderId,
@@ -17,9 +27,11 @@ export const OrderSheetContent = ({
 }) => {
   const { data, isLoading } = useGetOrderById(orderId, messSlug, open);
 
-  const canCancelItems = !["served", "completed", "cancelled"].includes(
-    data?.status || "pending"
-  );
+  const canCancelItems =
+    !["served", "completed", "cancelled"].includes(data?.status || "pending") &&
+    !data?.is_paid;
+  const isLastRemainingItem =
+    data?.items.filter((item) => !item.is_cancelled).length === 1;
 
   return (
     <SheetContent
@@ -58,12 +70,59 @@ export const OrderSheetContent = ({
       ) : (
         <>
           <ScrollArea className="flex-1 h-0 ">
+            {data?.is_paid && (
+              <Card className="flex items-center border-emerald-500/20 bg-emerald-500/10 text-emerald-700 border mb-4 px-4 py-3 rounded-md">
+                <div className="flex flex-col flex-1 min-w-0">
+                  <CardTitle className="text-emerald-700 text-sm font-medium flex items-center gap-2">
+                    Paid with {data?.transaction?.payment_method}
+                  </CardTitle>
+                  {data?.transaction?.transaction_id && (
+                    <div className="flex  flex-wrap">
+                      <CardDescription className="">
+                        <span className="truncate flex-shrink-0 min-w-0 text-sm">
+                          Transaction ID:
+                        </span>
+                        <span
+                          className="font-mono select-all flex-1 min-w-0 break-all inline-flex items-center"
+                          tabIndex={0}
+                        >
+                          {data.transaction.transaction_id}
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 flex-shrink-0 ml-1 align-middle inline"
+                                onClick={() => {
+                                  if (data?.transaction?.transaction_id) {
+                                    navigator.clipboard.writeText(
+                                      data.transaction.transaction_id
+                                    );
+                                    toast.success("Transaction ID copied");
+                                  }
+                                }}
+                                aria-label="Copy Transaction ID"
+                              >
+                                <IconCopy className="w-4 h-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Copy Transaction ID</TooltipContent>
+                          </Tooltip>
+                        </span>
+                      </CardDescription>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
             {data?.items.map((item, index) => (
               <OrderItem
                 key={item.id}
                 item={item}
                 currency={data?.currency || "$"}
                 canCancelItems={canCancelItems}
+                isLastRemainingItem={isLastRemainingItem}
                 messSlug={messSlug}
                 isLast={index === data.items.length - 1}
               />
@@ -76,11 +135,17 @@ export const OrderSheetContent = ({
                 quantity: item.quantity,
                 total_price: item.total_price ?? 0,
                 id: item.id,
+                is_cancelled: !!item.is_cancelled,
               })) || []
             }
             orderStatus={data?.status || "pending"}
             currency={data?.currency || "$"}
             totalAmount={data?.total_price || 0}
+            isCompleted={data?.status === "completed"}
+            isCancelled={data?.status === "cancelled"}
+            orderId={orderId}
+            messSlug={messSlug}
+            isPaid={data?.is_paid || false}
           />
         </>
       )}

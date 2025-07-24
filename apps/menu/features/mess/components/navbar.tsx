@@ -19,51 +19,55 @@ import {
 import { cn } from "@/lib/utils";
 import CartSheet from "@/features/cart/components/cart-sheet";
 import Link from "next/link";
-import { deletePersistentCookie } from "@/lib/cookie";
+import { deletePersistentCookie, getPersistentCookie } from "@/lib/cookie";
 import { setupClientInterceptor } from "@/lib/client-interceptor";
+import { useRouter } from "next/navigation";
 
 const NavBar = ({ slug, table_id }: { slug: string; table_id: string }) => {
   const { data: mess } = useSuspenseQuery(useMessBySlugQueryOptions(slug));
-  const { data: user, refetch } = useSuspenseQuery(
-    useCurrentUserQueryOptions()
-  );
+
+  const { data: user } = useSuspenseQuery(useCurrentUserQueryOptions());
   const { mutate: logout, isPending: logoutPending } = useLogoutMutation();
+
+  const router = useRouter();
 
   return (
     <nav
       className="w-full px-4 sm:px-8 py-2 flex items-center justify-between bg-background  shadow-sm sticky top-0 z-40"
       style={{ minHeight: "72px" }}
     >
-      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
-        <Avatar className="w-10 h-10 sm:w-12 sm:h-12 ">
-          {mess?.logo ? (
-            <AvatarImage
-              src={mess.logo}
-              alt={mess?.name || "Logo"}
-              className="object-contain w-full h-full"
-            />
-          ) : (
-            <AvatarFallback className="text-xl sm:text-2xl">
-              {mess?.name
-                ? mess.name
-                    .split(" ")
-                    .map((w: string) => w[0])
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()
-                : "SM"}
-            </AvatarFallback>
-          )}
-        </Avatar>
-        <div className="relative flex flex-col justify-center min-w-0">
-          <span
-            className="font-semibold  sm:text-xl  truncate text-foreground"
-            style={{ color: "var(--foreground)" }}
-          >
-            {mess?.name || "Smart Mess"}
-          </span>
+      <Link href={`/${slug}/${table_id}`}>
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+          <Avatar className="w-10 h-10 sm:w-12 sm:h-12 ">
+            {mess?.logo ? (
+              <AvatarImage
+                src={mess.logo}
+                alt={mess?.name || "Logo"}
+                className="object-contain w-full h-full"
+              />
+            ) : (
+              <AvatarFallback className="text-xl sm:text-2xl">
+                {mess?.name
+                  ? mess.name
+                      .split(" ")
+                      .map((w: string) => w[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()
+                  : "SM"}
+              </AvatarFallback>
+            )}
+          </Avatar>
+          <div className="relative flex flex-col justify-center min-w-0">
+            <span
+              className="font-semibold  sm:text-xl  truncate text-foreground"
+              style={{ color: "var(--foreground)" }}
+            >
+              {mess?.name || "Smart Mess"}
+            </span>
+          </div>
         </div>
-      </div>
+      </Link>
       {/* Right: Notification, Login/Profile */}
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Cart Icon with badge */}
@@ -111,10 +115,10 @@ const NavBar = ({ slug, table_id }: { slug: string; table_id: string }) => {
               <DropdownMenuItem
                 className="px-2 py-1.5 rounded-md cursor-pointer text-sm"
                 onSelect={() => {
-                  /* TODO: Go to profile */
+                  router.push(`/${slug}/orders?t=${table_id}`);
                 }}
               >
-                Profile
+                My Orders
               </DropdownMenuItem>
 
               <DropdownMenuItem
