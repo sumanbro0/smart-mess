@@ -112,7 +112,7 @@ class LiteOrderResponse(BaseModel):
 
 class AdminOrderResponse(BaseModel):
     id: uuid.UUID
-    table_id: uuid.UUID
+    table_id: Optional[uuid.UUID] = None
     created_at: datetime
     status: OrderStatusEnum
     total_price: int

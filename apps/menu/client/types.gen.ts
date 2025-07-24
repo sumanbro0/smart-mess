@@ -35,7 +35,7 @@ export type AdminOrderResponse = {
     /**
      * Table Id
      */
-    table_id: string;
+    table_id?: string | null;
     /**
      * Created At
      */
@@ -52,6 +52,120 @@ export type AdminOrderResponse = {
     customer?: UserRead | null;
     table?: MessTableRead | null;
     transaction?: OrderTransactionBase | null;
+};
+
+/**
+ * AnalyticsOverviewResponse
+ */
+export type AnalyticsOverviewResponse = {
+    /**
+     * Revenue
+     */
+    revenue: number;
+    /**
+     * Orders
+     */
+    orders: number;
+    /**
+     * Customers
+     */
+    customers: number;
+    /**
+     * Items
+     */
+    items: number;
+};
+
+/**
+ * AnalyticsResponse
+ */
+export type AnalyticsResponse = {
+    overview: AnalyticsOverviewResponse;
+    /**
+     * Top Menu Items
+     */
+    top_menu_items: Array<AnalyticsTopMenuItemsResponse>;
+    /**
+     * Top Customers
+     */
+    top_customers: Array<AnalyticsTopCustomersResponse>;
+    /**
+     * Currency
+     */
+    currency: string;
+};
+
+/**
+ * AnalyticsTopCustomersResponse
+ */
+export type AnalyticsTopCustomersResponse = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Email
+     */
+    email: string;
+    /**
+     * Image
+     */
+    image: string;
+    /**
+     * Total Orders
+     */
+    total_orders: number;
+    /**
+     * Total Spent
+     */
+    total_spent: number;
+    /**
+     * Last Order Date
+     */
+    last_order_date: string;
+};
+
+/**
+ * AnalyticsTopMenuItemsResponse
+ */
+export type AnalyticsTopMenuItemsResponse = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Name
+     */
+    name: string;
+    /**
+     * Image
+     */
+    image: string;
+    /**
+     * Category Name
+     */
+    category_name: string;
+    /**
+     * Price
+     */
+    price: number;
+    /**
+     * Sold Count
+     */
+    sold_count: number;
+    spicy_level: SpicinessEnum;
+    /**
+     * Is Veg
+     */
+    is_veg: boolean;
+    /**
+     * In Stock
+     */
+    in_stock: boolean;
 };
 
 /**
@@ -876,7 +990,7 @@ export type MessTableRead = {
     /**
      * Id
      */
-    id: string;
+    id?: string | null;
     /**
      * Table Name
      */
@@ -3825,6 +3939,36 @@ export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGet
 };
 
 export type CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponse = CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponses[keyof CheckoutCallbackKhaltiMessSlugOrdersOrderIdCheckoutCallbackKhaltiGetResponses];
+
+export type GetAnalyticsMessSlugGetData = {
+    body?: never;
+    path: {
+        /**
+         * Mess Slug
+         */
+        mess_slug: string;
+    };
+    query?: never;
+    url: '/{mess_slug}/';
+};
+
+export type GetAnalyticsMessSlugGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetAnalyticsMessSlugGetError = GetAnalyticsMessSlugGetErrors[keyof GetAnalyticsMessSlugGetErrors];
+
+export type GetAnalyticsMessSlugGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: AnalyticsResponse;
+};
+
+export type GetAnalyticsMessSlugGetResponse = GetAnalyticsMessSlugGetResponses[keyof GetAnalyticsMessSlugGetResponses];
 
 export type ReadRootGetData = {
     body?: never;

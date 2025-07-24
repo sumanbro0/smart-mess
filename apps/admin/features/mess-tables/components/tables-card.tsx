@@ -109,13 +109,13 @@ const TablesCard: React.FC<TablesCardProps> = ({
           </div>
 
           {/* Status Badge */}
-          <Badge
+          {/* <Badge
             className={`pb-1 font-semibold ${
               data.is_active ? "bg-green-600 " : "bg-orange-600 "
             }`}
           >
             {data.is_active ? "Occupied" : "Free"}
-          </Badge>
+          </Badge> */}
         </div>
       </CardContent>
     </Card>

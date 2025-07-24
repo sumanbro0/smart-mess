@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 class MessTableRead(BaseModel):
-    id: UUID
+    id: Optional[UUID] = None
     table_name: str
     capacity: int
     mess_id: UUID

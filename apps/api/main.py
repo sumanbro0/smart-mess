@@ -21,6 +21,7 @@ from mess.route import router as mess_router
 from mess_table.route import router as mess_table_router
 from menu.route import router as menu_router
 from orders.route import router as orders_router
+from analytics.routes import router as analytics_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,6 +53,7 @@ app.include_router(mess_router)
 app.include_router(mess_table_router)
 app.include_router(menu_router)
 app.include_router(orders_router)
+app.include_router(analytics_router)
 
 @app.get("/", response_model=ResponseMessage)
 def read_root():
