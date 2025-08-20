@@ -50,7 +50,6 @@ This Turborepo includes the following packages/apps:
 - `backend`: [FastAPI](https://fastapi.tiangolo.com/) server with ML recommendation engine
 - `admin`: [Next.js](https://nextjs.org/) restaurant management dashboard
 - `customer`: [Next.js](https://nextjs.org/) customer ordering interface
-- `@repo/ui`: shared React component library for consistent UI across frontends
 - `@repo/eslint-config`: ESLint configurations (includes `eslint-config-next` and `eslint-config-prettier`)
 - `@repo/typescript-config`: shared TypeScript configurations
 
