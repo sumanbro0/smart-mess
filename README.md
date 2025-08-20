@@ -4,8 +4,8 @@ A modern restaurant management platform with QR code ordering, multitenant archi
 
 ## Authors
 
-- [Your Name] - [@your-github-username](https://github.com/your-username)
-- [Co-owner Name] - [@coowner-github-username](https://github.com/coowner-username)
+- churamani pandey - [@sumanbro0](https://github.com/sumanbro0)
+- sagar pandey - [@SAGARinCS](https://github.com/SAGARinCS)
 
 
 ## Features
