@@ -2,6 +2,12 @@
 
 A modern restaurant management platform with QR code ordering, multitenant architecture, and ML-powered recommendation engine built with Turborepo.
 
+## Authors
+
+- [Your Name] - [@your-github-username](https://github.com/your-username)
+- [Co-owner Name] - [@coowner-github-username](https://github.com/coowner-username)
+
+
 ## Features
 
 - 🏪 **Multitenant Architecture** - Support multiple restaurants in a single platform
@@ -154,4 +160,4 @@ Learn more about the technologies used:
 
 ## License
 
-[Your License Choice]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
